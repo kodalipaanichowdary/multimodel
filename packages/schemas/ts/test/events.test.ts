@@ -18,8 +18,8 @@ describe("EventSchema (zod) vs shared fixtures", () => {
     expect(EventSchema.safeParse(e).success).toBe(false);
   });
 
-  it("has exactly the 13 contract event types", () => {
-    expect(EVENT_TYPES).toHaveLength(13);
+  it("has exactly the 15 contract event types", () => {
+    expect(EVENT_TYPES).toHaveLength(15);
   });
 });
 

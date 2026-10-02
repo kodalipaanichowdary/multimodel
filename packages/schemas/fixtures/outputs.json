@@ -1,0 +1,158 @@
+{
+ "valid": [
+  {
+   "model": "Plan",
+   "data": {
+    "search_query": "chief minister of telangana",
+    "steps": [
+     {
+      "agent_id": "research",
+      "goal": "find sources"
+     },
+     {
+      "agent_id": "writer",
+      "goal": "answer"
+     }
+    ]
+   }
+  },
+  {
+   "model": "Source",
+   "data": {
+    "url": "https://en.wikipedia.org/wiki/Example",
+    "title": "Example",
+    "snippet": "..."
+   }
+  },
+  {
+   "model": "ResearchResult",
+   "data": {
+    "summary": "X is Y.",
+    "sources": [
+     {
+      "url": "https://example.org/a"
+     }
+    ],
+    "confidence": 0.8
+   }
+  },
+  {
+   "model": "ResearchResult",
+   "data": {
+    "summary": "",
+    "sources": [],
+    "confidence": 0
+   }
+  },
+  {
+   "model": "Draft",
+   "data": {
+    "answer": "X is Y [1].",
+    "citations": [
+     "https://example.org/a"
+    ]
+   }
+  },
+  {
+   "model": "Verdict",
+   "data": {
+    "passed": true
+   }
+  },
+  {
+   "model": "Verdict",
+   "data": {
+    "passed": false,
+    "issues": [
+     "sentence 1 has no citation"
+    ]
+   }
+  }
+ ],
+ "invalid": [
+  {
+   "model": "Plan",
+   "why": "empty steps",
+   "data": {
+    "search_query": "q q",
+    "steps": []
+   }
+  },
+  {
+   "model": "Plan",
+   "why": "query too short",
+   "data": {
+    "search_query": "q",
+    "steps": [
+     {
+      "agent_id": "research",
+      "goal": "g"
+     }
+    ]
+   }
+  },
+  {
+   "model": "Plan",
+   "why": "extra key",
+   "data": {
+    "search_query": "q q",
+    "steps": [
+     {
+      "agent_id": "research",
+      "goal": "g"
+     }
+    ],
+    "x": 1
+   }
+  },
+  {
+   "model": "Source",
+   "why": "not a url",
+   "data": {
+    "url": "ftp://nope"
+   }
+  },
+  {
+   "model": "ResearchResult",
+   "why": "confidence > 1",
+   "data": {
+    "summary": "s",
+    "sources": [],
+    "confidence": 1.5
+   }
+  },
+  {
+   "model": "ResearchResult",
+   "why": "missing sources",
+   "data": {
+    "summary": "s",
+    "confidence": 0.5
+   }
+  },
+  {
+   "model": "Draft",
+   "why": "empty answer",
+   "data": {
+    "answer": "",
+    "citations": []
+   }
+  },
+  {
+   "model": "Draft",
+   "why": "citation not url",
+   "data": {
+    "answer": "a [1]",
+    "citations": [
+     "wikipedia"
+    ]
+   }
+  },
+  {
+   "model": "Verdict",
+   "why": "passed not bool",
+   "data": {
+    "passed": "yes"
+   }
+  }
+ ]
+}

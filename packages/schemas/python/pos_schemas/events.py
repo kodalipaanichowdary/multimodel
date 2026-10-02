@@ -82,6 +82,25 @@ class ApprovalGranted(_Strict):
     by: str = Field(min_length=1)
 
 
+class ApprovalDenied(_Strict):
+    approval_id: str = Field(min_length=1)
+    by: str = Field(min_length=1, description="'user' or 'timeout'")
+    reason: str = ""
+
+
+class ModelMetrics(_Strict):
+    """One model call (one attempt). Emitted by the real runtime after each generate()."""
+
+    agent_id: str = Field(min_length=1)
+    model: str = Field(min_length=1)
+    attempt: StrictInt = Field(ge=1)
+    ttft_ms: StrictInt = Field(ge=0)
+    tok_s: float = Field(ge=0)
+    total_ms: StrictInt = Field(ge=0)
+    prompt_tokens: StrictInt = Field(ge=0)
+    completion_tokens: StrictInt = Field(ge=0)
+
+
 class ArtifactCreated(_Strict):
     artifact_id: str = Field(min_length=1)
     agent_id: str = Field(min_length=1)
@@ -137,6 +156,8 @@ EVENT_PAYLOADS: dict[str, type[BaseModel]] = {
     "tool.failed": ToolFailed,
     "approval.requested": ApprovalRequested,
     "approval.granted": ApprovalGranted,
+    "approval.denied": ApprovalDenied,
+    "model.metrics": ModelMetrics,
     "artifact.created": ArtifactCreated,
     "execution.completed": ExecutionCompleted,
     "execution.failed": ExecutionFailed,

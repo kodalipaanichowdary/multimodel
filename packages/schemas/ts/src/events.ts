@@ -30,6 +30,19 @@ export const PayloadSchemas = {
     .object({ approval_id: id, agent_id: id, tool_id: id, reason: id })
     .strict(),
   "approval.granted": z.object({ approval_id: id, by: id }).strict(),
+  "approval.denied": z.object({ approval_id: id, by: id, reason: z.string().default("") }).strict(),
+  "model.metrics": z
+    .object({
+      agent_id: id,
+      model: id,
+      attempt: z.number().int().min(1),
+      ttft_ms: nonNegInt,
+      tok_s: z.number().nonnegative(),
+      total_ms: nonNegInt,
+      prompt_tokens: nonNegInt,
+      completion_tokens: nonNegInt,
+    })
+    .strict(),
   "artifact.created": z
     .object({ artifact_id: id, agent_id: id, title: id, mime: id, content: z.string() })
     .strict(),
@@ -64,6 +77,8 @@ export const EventSchema = z.discriminatedUnion("type", [
   eventOf("tool.failed"),
   eventOf("approval.requested"),
   eventOf("approval.granted"),
+  eventOf("approval.denied"),
+  eventOf("model.metrics"),
   eventOf("artifact.created"),
   eventOf("execution.completed"),
   eventOf("execution.failed"),

@@ -11,10 +11,16 @@ dependencies = [
   "uvicorn[standard]>=0.30",
   "pydantic>=2.7,<3",
   "pyyaml>=6",
+  # P2: HTTP client for the Ollama gateway and the fetch/search tools
+  "httpx>=0.27,<1",
+  # P2: orchestration graph (wrapped by app.agent_runtime.workflow; never imported elsewhere)
+  "langgraph>=0.6,<0.7",
+  # P2: tool fabric (MCP servers in mcp/, in-process client sessions)
+  "mcp>=1.2,<2",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-asyncio>=0.24", "httpx>=0.27", "ruff>=0.6"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6"]
 
 [tool.setuptools]
 packages = ["app"]

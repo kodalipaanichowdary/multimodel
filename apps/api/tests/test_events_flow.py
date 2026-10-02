@@ -32,7 +32,8 @@ def test_script_happy_path_is_ordered():
 def test_script_uses_all_but_failure_types():
     happy = {t for t, _ in script("ok", "t" * 36)}
     sad = {t for t, _ in script("please fail", "t" * 36)}
-    assert happy | sad == set(EVENT_TYPES)
+    # the mock covers the P1 contract; approval.denied / model.metrics come from the real runtime
+    assert happy | sad == set(EVENT_TYPES) - {"approval.denied", "model.metrics"}
     assert "execution.failed" in sad and "tool.failed" in sad
     assert "execution.completed" not in sad
 

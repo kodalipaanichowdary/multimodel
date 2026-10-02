@@ -12,7 +12,7 @@ INVALID = json.loads((FIXTURES / "events.invalid.json").read_text())
 
 def test_fixtures_cover_every_type():
     assert sorted({e["type"] for e in VALID}) == sorted(EVENT_TYPES)
-    assert len(EVENT_TYPES) == 13
+    assert len(EVENT_TYPES) == 15
 
 
 @pytest.mark.parametrize("raw", VALID, ids=[e["id"] for e in VALID])
