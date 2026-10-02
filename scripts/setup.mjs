@@ -9,7 +9,11 @@ const MIN = [3, 10];
 function findPython() {
   const candidates = [["python3"], ["python"], ...(IS_WIN ? [["py", "-3"]] : [])];
   for (const [cmd, ...pre] of candidates) {
-    const r = spawnSync(cmd, [...pre, "-c", "import sys;print('%d.%d'%sys.version_info[:2])"], { encoding: "utf8" });
+    const r = spawnSync(cmd, [...pre, "-c", "import sys;print('%d.%d'%sys.version_info[:2])"], {
+      encoding: "utf8",
+      detached: IS_WIN, // see DETACH in lib.mjs (Store Python + libuv job objects)
+      windowsHide: true,
+    });
     if (r.status !== 0 || !r.stdout) continue;
     const [maj, min] = r.stdout.trim().split(".").map(Number);
     if (maj > MIN[0] || (maj === MIN[0] && min >= MIN[1])) return { cmd, pre, version: r.stdout.trim() };

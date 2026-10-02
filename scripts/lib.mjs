@@ -16,6 +16,13 @@ export const VENV_PY = path.join(VENV_BIN, IS_WIN ? "python.exe" : "python");
 export const VITE = path.join(ROOT, "node_modules", "vite", "bin", "vite.js");
 export const NPM = IS_WIN ? "npm.cmd" : "npm";
 
+/**
+ * Windows: spawn detached so libuv does not put the child in its job object. With the
+ * Microsoft Store Python, AssignProcessToJobObject fails (87) and libuv aborts Node (exit 3).
+ * Detached children are stopped explicitly by killTree (taskkill /T).
+ */
+const DETACH = true;
+
 const COLORS = { api: 36, ui: 35, check: 33 };
 export const tag = (name) => (process.stdout.isTTY ? `\x1b[${COLORS[name] ?? 37}m[${name}]\x1b[0m` : `[${name}]`);
 
@@ -73,7 +80,7 @@ export async function assertPortsFree(ports) {
 
 /** Spawn a long-running child with line-prefixed output. Own process group on POSIX. */
 export function startService(name, cmd, args, { cwd, env }) {
-  const child = spawn(cmd, args, { cwd, env, stdio: ["ignore", "pipe", "pipe"], detached: !IS_WIN, windowsHide: true });
+  const child = spawn(cmd, args, { cwd, env, stdio: ["ignore", "pipe", "pipe"], detached: DETACH, windowsHide: true });
   for (const stream of [child.stdout, child.stderr]) {
     readline.createInterface({ input: stream }).on("line", (l) => console.log(`${tag(name)} ${l}`));
   }
@@ -141,7 +148,7 @@ export function supervise(services) {
 export function runInherit(cmd, args, { cwd = ROOT, env = process.env } = {}) {
   // .cmd shims (npm.cmd, npx.cmd) need a shell on Windows
   const shell = IS_WIN && /\.cmd$/i.test(cmd);
-  const r = spawnSync(cmd, args, { cwd, env, stdio: "inherit", shell });
+  const r = spawnSync(cmd, args, { cwd, env, stdio: "inherit", shell, detached: IS_WIN && !shell, windowsHide: true });
   if (r.error) {
     console.error(r.error.message);
     return 1;
