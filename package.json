@@ -6,10 +6,17 @@
     "apps/workspace"
   ],
   "scripts": {
-    "dev": "npm run dev -w @pos/workspace",
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "check": "node scripts/check.mjs",
+    "build": "npm run build -w @pos/workspace",
+    "preview": "node scripts/preview.mjs",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "e2e": "npm run e2e -w @pos/workspace"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

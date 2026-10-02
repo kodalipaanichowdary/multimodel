@@ -18,6 +18,8 @@ from .registry import AgentExistsError, AgentNotFoundError, AgentRegistry
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 log = logging.getLogger("pos.api")
 
+VERSION = "0.1.0"
+
 
 class TaskRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -40,7 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.executor = MockExecutor(app.state.bus, settings.mock_step_delay_s)
         yield
 
-    app = FastAPI(title="Personal AI OS — Orchestrator API", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="Personal AI OS — Orchestrator API", version=VERSION, lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -51,10 +53,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def registry(request: Request) -> AgentRegistry:
         return request.app.state.registry
 
-    @app.get("/health")
-    async def get_health() -> dict[str, str]:
-        deps = await health.check(settings)
-        return {"status": "ok", **deps}
+    @app.get("/health", response_model=health.Health)
+    async def get_health(request: Request) -> health.Health:
+        return health.check(VERSION, request.app.state.executor.name)
 
     @app.get("/agents", response_model=list[AgentDefinition])
     async def list_agents(request: Request) -> list[AgentDefinition]:

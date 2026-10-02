@@ -14,8 +14,6 @@ def settings() -> Settings:
     return Settings(
         agents_dir=REPO / "agents",
         mock_step_delay_s=0.0,
-        database_url=None,
-        redis_url=None,
         cors_origins=[],
     )
 

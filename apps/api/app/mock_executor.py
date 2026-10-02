@@ -144,6 +144,8 @@ def script(prompt: str, task_id: str, extra: Sequence[ExtraAgent] = ()) -> Itera
 
 
 class MockExecutor:
+    name = "mock"
+
     def __init__(self, bus: EventBus, step_delay_s: float) -> None:
         self._bus = bus
         self._delay = step_delay_s

@@ -12,7 +12,7 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] WS mock task animates states
 - [x] event schema validated (Pydantic+zod)
 - [x] >=50fps @50 nodes
-- [~] docker compose up — WAIVED by user 2026-10-02: Docker is not used (not the user's install). Replaced by local build `scripts/build.ps1` (no deploy). Not carried to G2.
+- [ ] G1.8 one-command local run + production UI build (replaces docker compose; Docker not available)
 - [x] tests+lint green
 - [x] G1.10 final result + artifact shown in chat after run
 - [x] G1.11 scorecard counts == event counts (happy + fail fixtures)
@@ -29,8 +29,13 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] G1.22 elapsed uses event timestamps (no browser-clock mix) once run is done; live uses clock offset captured from first event
 - [x] G1.23 node overlap near Writer fixed (no two nodes overlap at default layout)
 - [x] G1.24 all earlier G1 tests pass
+- [ ] G1.25 no Docker/compose/nginx files or references remain (git grep clean)
+- [ ] G1.26 npm run setup works from a fresh clone (venv + deps)
+- [ ] G1.27 npm run dev starts API :8000 + UI :5173 with one command, Ctrl+C stops both, no orphan processes
+- [ ] G1.28 npm run check runs every lint/test suite and exits non-zero on any failure
+- [ ] G1.29 npm run build produces apps/workspace/dist; vite preview serves it and talks to API
+- [ ] G1.30 /health no longer mentions postgres/redis; returns {status, version, executor}
 
-G1 status 2026-10-02: 23/24 PASS, G1.8 WAIVED (no Docker; local build replaces it). P1.6 added G1.17-G1.24.
 
 ## G2 — Real Brain
 

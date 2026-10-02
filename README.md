@@ -7,48 +7,31 @@ apps/workspace   React + React Flow UI (projection of backend events)
 apps/api         FastAPI: /agents, /tasks, /ws, /health; P1 mock executor
 packages/schemas Pydantic (python/) + zod (ts/) contracts, shared fixtures
 agents/<id>      manifest.yaml per agent
-scripts/         build.ps1 (local build, no Docker, no deploy)
+scripts/         setup / dev / check / preview (Node, no extra deps)
 docs/decisions   ADRs
 ```
 
-No Docker. Everything builds and runs natively on Windows (Python >= 3.10, Node >= 18).
+## Quick start
 
-## Build (local only — nothing is deployed, no servers are started)
-
-```
-powershell -ExecutionPolicy Bypass -File scripts/build.ps1            # incremental
-powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Clean     # wipe venv/node_modules/out, install from lock files
-powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -E2E       # also run Playwright (own throwaway servers)
-powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -SkipChecks
-```
-
-Runs ruff, ruff format, pytest, tsc, eslint (0 warnings), vitest, then writes:
+Needs Python >= 3.10 and Node >= 18 on PATH. Nothing else: no admin rights, no global installs, no containers.
 
 ```
-out/web/             production UI bundle (static files)
-out/wheels/          pos_schemas + pos_api wheels
-out/BUILD_INFO.json  commit, dirty flag, versions, checks run, sha256 per artifact
+npm run setup    # apps/api/.venv + editable Python installs + npm workspaces
+npm run dev      # API http://127.0.0.1:8000 + UI http://localhost:5173 — Ctrl+C stops both
+npm run check    # ruff, ruff format, pytest, tsc, eslint (0 warnings), vitest, playwright; stops at first failure
+npm run build    # production UI -> apps/workspace/dist
+npm run preview  # build, then serve dist with vite preview (:4173) + API (:8000)
 ```
 
-Exit code is non-zero on the first failing step. `-Clean` must not run while a dev server holds files in node_modules.
+Ports and the mock step delay come from `.env.example`; copy it to `.env` to override
+(`API_PORT`, `UI_PORT`, `MOCK_STEP_DELAY_S`). `dev`/`preview` refuse to start if a port is taken.
 
-## Run (local dev)
+**Windows (PowerShell):** run the commands exactly as above. They are plain `node` scripts, so no
+execution-policy change and no admin prompt is needed. The venv lives at `appspi\.venv\Scripts\python.exe`.
 
-```
-python -m venv apps/api/.venv
-apps/api/.venv/Scripts/pip install -e packages/schemas/python -e "apps/api[dev]"   # bin/ on *nix
-npm install
-cd apps/api && .venv/Scripts/python -m uvicorn app.main:app --port 8000    # terminal 1
-npm run dev                                                                 # terminal 2 -> :5173
-```
-
-## Checks
-
-```
-cd apps/api && .venv/Scripts/python -m pytest -q && .venv/Scripts/ruff check . ../../packages/schemas/python
-npm run typecheck && npm run lint && npm test
-npm run e2e                 # Playwright on installed Edge (PW_CHANNEL=chrome to switch); HEADED=1 for vsync fps
-```
+**Playwright:** uses the installed Microsoft Edge by default (`PW_CHANNEL=chrome` for Chrome); no browser
+download. The suite starts its own API + UI on 8001/5174, so it can run while `npm run dev` is up.
+`HEADED=1 npm run e2e` measures FPS with real vsync.
 
 Perf harness: open `/?stress=50` to pad the canvas to 50 nodes (FPS meter top-left).
 Regenerate UI fixtures after changing the mock script: `cd apps/api && .venv/Scripts/python scripts/gen_fixtures.py`.

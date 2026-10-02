@@ -122,9 +122,6 @@ def test_patch_rejects_id_change_and_bad_values(client):
     assert client.patch("/agents/ghost", json={"name": "x"}).status_code == 404
 
 
-def test_health_without_deps(client):
-    assert client.get("/health").json() == {
-        "status": "ok",
-        "postgres": "not_configured",
-        "redis": "not_configured",
-    }
+def test_health_shape(client):
+    body = client.get("/health").json()
+    assert body == {"status": "ok", "version": "0.1.0", "executor": "mock"}

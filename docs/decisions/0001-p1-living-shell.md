@@ -18,4 +18,4 @@ Status: accepted (P1)
    only. Persistence belongs to the Memory layer (P3) — not built in P1.
 6. **Mock executor is P1-only** (`apps/api/app/mock_executor.py`). It emits the real event
    contract; P2 replaces it with the runtime. Approval is auto-granted (`by: mock-auto`) in P1.
-7. Postgres/Redis are provisioned and health-checked in P1 but not yet used for data.
+7. No external services: the API is self-contained (in-process bus, registry from manifests).
