@@ -5,15 +5,17 @@ A gate passes only with pasted command output / test results as evidence.
 
 ## G1 — Living Shell
 
-- [ ] 6 nodes float/drag/zoom/pan
-- [ ] hover tag
-- [ ] click popup
-- [ ] nodes from GET /agents
-- [ ] WS mock task animates states
-- [ ] event schema validated (Pydantic+zod)
-- [ ] >=50fps @50 nodes
+- [x] 6 nodes float/drag/zoom/pan
+- [x] hover tag
+- [x] click popup
+- [x] nodes from GET /agents
+- [x] WS mock task animates states
+- [x] event schema validated (Pydantic+zod)
+- [x] >=50fps @50 nodes
 - [ ] docker compose up
-- [ ] tests+lint green
+- [x] tests+lint green
+
+G1 status 2026-10-02: 8/9 PASS. `docker compose up` BLOCKED � no Docker daemon reachable without elevation; run `bash infrastructure/smoke.sh`.
 
 ## G2 — Real Brain
 
