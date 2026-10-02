@@ -7,16 +7,30 @@ apps/workspace   React + React Flow UI (projection of backend events)
 apps/api         FastAPI: /agents, /tasks, /ws, /health; P1 mock executor
 packages/schemas Pydantic (python/) + zod (ts/) contracts, shared fixtures
 agents/<id>      manifest.yaml per agent
-infrastructure/  nginx conf, compose smoke script
+scripts/         build.ps1 (local build, no Docker, no deploy)
 docs/decisions   ADRs
 ```
 
-## Run (compose)
+No Docker. Everything builds and runs natively on Windows (Python >= 3.10, Node >= 18).
+
+## Build (local only — nothing is deployed, no servers are started)
 
 ```
-docker compose up -d --build --wait     # UI http://localhost:8080, API http://localhost:8000
-bash infrastructure/smoke.sh            # end-to-end smoke through nginx
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1            # incremental
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Clean     # wipe venv/node_modules/out, install from lock files
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -E2E       # also run Playwright (own throwaway servers)
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -SkipChecks
 ```
+
+Runs ruff, ruff format, pytest, tsc, eslint (0 warnings), vitest, then writes:
+
+```
+out/web/             production UI bundle (static files)
+out/wheels/          pos_schemas + pos_api wheels
+out/BUILD_INFO.json  commit, dirty flag, versions, checks run, sha256 per artifact
+```
+
+Exit code is non-zero on the first failing step. `-Clean` must not run while a dev server holds files in node_modules.
 
 ## Run (local dev)
 

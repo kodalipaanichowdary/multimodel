@@ -12,7 +12,7 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] WS mock task animates states
 - [x] event schema validated (Pydantic+zod)
 - [x] >=50fps @50 nodes
-- [~] docker compose up — WAIVED by user 2026-10-02: no admin Docker; carried to G2 prerequisite (run infrastructure/smoke.sh when Rancher runs as admin)
+- [~] docker compose up — WAIVED by user 2026-10-02: Docker is not used (not the user's install). Replaced by local build `scripts/build.ps1` (no deploy). Not carried to G2.
 - [x] tests+lint green
 - [x] G1.10 final result + artifact shown in chat after run
 - [x] G1.11 scorecard counts == event counts (happy + fail fixtures)
@@ -30,7 +30,7 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] G1.23 node overlap near Writer fixed (no two nodes overlap at default layout)
 - [x] G1.24 all earlier G1 tests pass
 
-G1 status 2026-10-02: 23/24 PASS, G1.8 WAIVED (carried to G2 prerequisite). P1.6 added G1.17-G1.24.
+G1 status 2026-10-02: 23/24 PASS, G1.8 WAIVED (no Docker; local build replaces it). P1.6 added G1.17-G1.24.
 
 ## G2 — Real Brain
 
