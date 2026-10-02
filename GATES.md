@@ -12,7 +12,7 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] WS mock task animates states
 - [x] event schema validated (Pydantic+zod)
 - [x] >=50fps @50 nodes
-- [ ] G1.8 one-command local run + production UI build (replaces docker compose; Docker not available)
+- [x] G1.8 one-command local run + production UI build (replaces docker compose; Docker not available)
 - [x] tests+lint green
 - [x] G1.10 final result + artifact shown in chat after run
 - [x] G1.11 scorecard counts == event counts (happy + fail fixtures)
@@ -29,12 +29,12 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] G1.22 elapsed uses event timestamps (no browser-clock mix) once run is done; live uses clock offset captured from first event
 - [x] G1.23 node overlap near Writer fixed (no two nodes overlap at default layout)
 - [x] G1.24 all earlier G1 tests pass
-- [ ] G1.25 no Docker/compose/nginx files or references remain (git grep clean)
-- [ ] G1.26 npm run setup works from a fresh clone (venv + deps)
-- [ ] G1.27 npm run dev starts API :8000 + UI :5173 with one command, Ctrl+C stops both, no orphan processes
-- [ ] G1.28 npm run check runs every lint/test suite and exits non-zero on any failure
-- [ ] G1.29 npm run build produces apps/workspace/dist; vite preview serves it and talks to API
-- [ ] G1.30 /health no longer mentions postgres/redis; returns {status, version, executor}
+- [x] G1.25 no Docker/compose/nginx files or references remain (git grep clean)
+- [x] G1.26 npm run setup works from a fresh clone (venv + deps)
+- [x] G1.27 npm run dev starts API :8000 + UI :5173 with one command, Ctrl+C stops both, no orphan processes
+- [x] G1.28 npm run check runs every lint/test suite and exits non-zero on any failure
+- [x] G1.29 npm run build produces apps/workspace/dist; vite preview serves it and talks to API
+- [x] G1.30 /health no longer mentions postgres/redis; returns {status, version, executor}
 
 
 ## G2 — Real Brain
