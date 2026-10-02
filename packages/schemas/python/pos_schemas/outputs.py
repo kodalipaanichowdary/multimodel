@@ -25,6 +25,16 @@ class Plan(_Strict):
     search_query: str = Field(min_length=2, max_length=200, description="web search query")
     steps: list[PlanStep] = Field(min_length=1, max_length=8)
 
+    @field_validator("steps")
+    @classmethod
+    def _known_agents(cls, v: list[PlanStep], info: ValidationInfo) -> list[PlanStep]:
+        allowed = (info.context or {}).get("allowed_agents")
+        if allowed is not None:
+            bad = sorted({s.agent_id for s in v} - set(allowed))
+            if bad:
+                raise ValueError(f"unknown agent_id {bad}; allowed: {sorted(allowed)}")
+        return v
+
 
 class Source(_Strict):
     url: str = Field(pattern=_URL, max_length=2000)

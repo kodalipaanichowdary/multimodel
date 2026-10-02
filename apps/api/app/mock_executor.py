@@ -150,18 +150,43 @@ class MockExecutor:
         self._bus = bus
         self._delay = step_delay_s
         self._running: set[asyncio.Task[None]] = set()
+        self._by_id: dict[str, asyncio.Task[None]] = {}
+        self.unhandled = 0
 
     def submit(self, prompt: str, extra: Sequence[ExtraAgent] = ()) -> str:
         task_id = str(uuid4())
         t = asyncio.create_task(self._run(task_id, prompt, tuple(extra)), name=f"mock-{task_id}")
         self._running.add(t)
+        self._by_id[task_id] = t
         t.add_done_callback(self._running.discard)
+        t.add_done_callback(lambda _: self._by_id.pop(task_id, None))
         return task_id
+
+    def kill(self, task_id: str) -> bool:
+        t = self._by_id.get(task_id)
+        if not t or t.done():
+            return False
+        t.cancel()
+        return True
 
     async def _run(self, task_id: str, prompt: str, extra: tuple[ExtraAgent, ...]) -> None:
         started = time.monotonic()
-        for seq, (etype, payload) in enumerate(script(prompt, task_id, extra)):
-            if etype == "execution.completed":
-                payload["duration_ms"] = int((time.monotonic() - started) * 1000)
-            self._bus.publish(make_event(etype, task_id=task_id, seq=seq, payload=payload))
-            await asyncio.sleep(self._delay)
+        seq = 0
+        etype = ""
+        try:
+            for seq, (etype, payload) in enumerate(script(prompt, task_id, extra)):
+                if etype == "execution.completed":
+                    payload["duration_ms"] = int((time.monotonic() - started) * 1000)
+                self._bus.publish(make_event(etype, task_id=task_id, seq=seq, payload=payload))
+                await asyncio.sleep(self._delay)
+        except asyncio.CancelledError:
+            if etype.startswith("execution."):
+                return  # already finished
+            self._bus.publish(
+                make_event(
+                    "execution.failed",
+                    task_id=task_id,
+                    seq=seq + 1,
+                    payload={"error": "killed by user"},
+                )
+            )

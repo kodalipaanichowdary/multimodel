@@ -124,4 +124,4 @@ def test_patch_rejects_id_change_and_bad_values(client):
 
 def test_health_shape(client):
     body = client.get("/health").json()
-    assert body == {"status": "ok", "version": "0.1.0", "executor": "mock"}
+    assert body == {"status": "ok", "version": "0.2.0", "executor": "mock"}

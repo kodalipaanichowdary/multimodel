@@ -5,16 +5,23 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import deque
+from typing import TYPE_CHECKING
 
 from pos_schemas import EventAdapter
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from .persistence import EventRepository
 
 log = logging.getLogger(__name__)
 
 
 class EventBus:
-    def __init__(self, queue_size: int = 1000, history: int = 500) -> None:
+    def __init__(
+        self, queue_size: int = 1000, history: int = 500, repo: EventRepository | None = None
+    ) -> None:
         self._subs: set[asyncio.Queue[BaseModel]] = set()
+        self._repo = repo
         self._queue_size = queue_size
         self.history: deque[BaseModel] = deque(maxlen=history)
 
@@ -33,6 +40,8 @@ class EventBus:
     def publish(self, event: BaseModel) -> None:
         # Re-validate: nothing leaves the backend that the contract doesn't allow.
         EventAdapter.validate_python(event.model_dump())
+        if self._repo is not None:  # persist before anyone sees it
+            self._repo.append(event)
         self.history.append(event)
         for q in self._subs:
             if q.full():  # slow consumer: drop oldest, never block producers

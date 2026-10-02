@@ -1,15 +1,17 @@
 import json
 from pathlib import Path
 
-import pytest
 import pos_schemas
-from pydantic import ValidationError
+import pytest
 from pos_schemas import Draft, ResearchResult
+from pydantic import ValidationError
 
 FIX = json.loads((Path(__file__).resolve().parents[2] / "fixtures" / "outputs.json").read_text())
 
 
-@pytest.mark.parametrize("case", FIX["valid"], ids=[f"{c['model']}-{i}" for i, c in enumerate(FIX["valid"])])
+@pytest.mark.parametrize(
+    "case", FIX["valid"], ids=[f"{c['model']}-{i}" for i, c in enumerate(FIX["valid"])]
+)
 def test_valid(case):
     getattr(pos_schemas, case["model"]).model_validate(case["data"])
 

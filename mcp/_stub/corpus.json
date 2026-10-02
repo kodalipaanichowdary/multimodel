@@ -1,0 +1,15 @@
+{
+  "_comment": "Test-only corpus for SEARCH_PROVIDER=stub / FETCH_PROVIDER=stub. Fictional facts on purpose.",
+  "docs": [
+    {
+      "url": "https://example.org/zephyr-harbor",
+      "title": "Zephyr Harbor Authority",
+      "text": "The Zephyr Harbor Authority is chaired by Ada Quill since 2024. The harbor handles 1200 vessels a year. It was founded in 1931 by the town of Zephyr."
+    },
+    {
+      "url": "https://example.net/zephyr-news",
+      "title": "Zephyr local news",
+      "text": "Ada Quill opened the new north pier in March. The Zephyr Harbor Authority reported record traffic."
+    }
+  ]
+}

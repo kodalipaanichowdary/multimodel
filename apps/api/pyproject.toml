@@ -35,4 +35,4 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "ASYNC", "RUF"]
-ignore = ["UP007"]
+ignore = ["UP007", "E501"]  # line length is owned by ruff format

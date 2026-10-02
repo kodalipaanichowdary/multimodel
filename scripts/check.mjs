@@ -5,7 +5,7 @@ import { API_DIR, NPM, ROOT, VENV_BIN, VENV_PY, WEB_DIR, IS_WIN, requireVenv, ru
 requireVenv();
 const RUFF = path.join(VENV_BIN, IS_WIN ? "ruff.exe" : "ruff");
 const NPX = IS_WIN ? "npx.cmd" : "npx";
-const PY_SRC = [".", "../../packages/schemas/python"];
+const PY_SRC = [".", "../../packages/schemas/python", "../../mcp", "../../benchmarks"];
 
 const steps = [
   ["ruff check", RUFF, ["check", ...PY_SRC], API_DIR],
