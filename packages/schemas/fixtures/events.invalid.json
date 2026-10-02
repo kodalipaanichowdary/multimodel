@@ -1,0 +1,16 @@
+[
+  {"why": "unknown type", "event": {"id": "x", "type": "task.exploded", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {}}},
+  {"why": "missing type", "event": {"id": "x", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {"prompt": "hi"}}},
+  {"why": "missing task_id", "event": {"id": "x", "type": "task.created", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {"prompt": "hi"}}},
+  {"why": "negative seq", "event": {"id": "x", "type": "task.created", "task_id": "t1", "seq": -1, "ts": "2026-10-02T10:00:00Z", "payload": {"prompt": "hi"}}},
+  {"why": "bad ts", "event": {"id": "x", "type": "task.created", "task_id": "t1", "seq": 0, "ts": "yesterday", "payload": {"prompt": "hi"}}},
+  {"why": "empty prompt", "event": {"id": "x", "type": "task.created", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {"prompt": ""}}},
+  {"why": "payload of wrong type", "event": {"id": "x", "type": "agent.started", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {"prompt": "hi"}}},
+  {"why": "extra envelope key", "event": {"id": "x", "type": "task.created", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {"prompt": "hi"}, "evil": 1}},
+  {"why": "extra payload key", "event": {"id": "x", "type": "agent.thinking", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {"agent_id": "a", "message": "m", "extra": true}}},
+  {"why": "empty plan", "event": {"id": "x", "type": "task.planned", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {"steps": []}}},
+  {"why": "negative duration", "event": {"id": "x", "type": "tool.completed", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {"agent_id": "a", "tool_id": "t", "call_id": "c", "duration_ms": -5}}},
+  {"why": "seq is string", "event": {"id": "x", "type": "task.created", "task_id": "t1", "seq": "0", "ts": "2026-10-02T10:00:00Z", "payload": {"prompt": "hi"}}},
+  {"why": "seq is float", "event": {"id": "x", "type": "task.created", "task_id": "t1", "seq": 1.5, "ts": "2026-10-02T10:00:00Z", "payload": {"prompt": "hi"}}},
+  {"why": "missing payload", "event": {"id": "x", "type": "execution.completed", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z"}}
+]

@@ -1,0 +1,16 @@
+[
+  {"id": "e1", "type": "task.created", "task_id": "t1", "seq": 0, "ts": "2026-10-02T10:00:00Z", "payload": {"prompt": "Summarise MCP"}},
+  {"id": "e2", "type": "task.planned", "task_id": "t1", "seq": 1, "ts": "2026-10-02T10:00:00.100Z", "payload": {"steps": [{"agent_id": "research", "goal": "find sources"}, {"agent_id": "writer", "goal": "draft"}]}},
+  {"id": "e3", "type": "agent.started", "task_id": "t1", "seq": 2, "ts": "2026-10-02T10:00:00.200Z", "payload": {"agent_id": "research", "parent_id": "orchestrator"}},
+  {"id": "e3b", "type": "agent.started", "task_id": "t1", "seq": 3, "ts": "2026-10-02T10:00:00.200+00:00", "payload": {"agent_id": "orchestrator", "parent_id": null}},
+  {"id": "e4", "type": "agent.thinking", "task_id": "t1", "seq": 4, "ts": "2026-10-02T10:00:00.300Z", "payload": {"agent_id": "research", "message": "searching"}},
+  {"id": "e5", "type": "agent.completed", "task_id": "t1", "seq": 5, "ts": "2026-10-02T10:00:01Z", "payload": {"agent_id": "research", "summary": "3 sources"}},
+  {"id": "e6", "type": "tool.started", "task_id": "t1", "seq": 6, "ts": "2026-10-02T10:00:01Z", "payload": {"agent_id": "research", "tool_id": "web_search", "call_id": "c1", "args": {"q": "mcp", "k": 3}}},
+  {"id": "e7", "type": "tool.completed", "task_id": "t1", "seq": 7, "ts": "2026-10-02T10:00:01Z", "payload": {"agent_id": "research", "tool_id": "web_search", "call_id": "c1", "duration_ms": 120, "result_preview": "..."}},
+  {"id": "e8", "type": "tool.failed", "task_id": "t1", "seq": 8, "ts": "2026-10-02T10:00:01Z", "payload": {"agent_id": "research", "tool_id": "web_search", "call_id": "c2", "error": "timeout"}},
+  {"id": "e9", "type": "approval.requested", "task_id": "t1", "seq": 9, "ts": "2026-10-02T10:00:01Z", "payload": {"approval_id": "a1", "agent_id": "writer", "tool_id": "fs_write", "reason": "write report.md"}},
+  {"id": "e10", "type": "approval.granted", "task_id": "t1", "seq": 10, "ts": "2026-10-02T10:00:01Z", "payload": {"approval_id": "a1", "by": "user"}},
+  {"id": "e11", "type": "artifact.created", "task_id": "t1", "seq": 11, "ts": "2026-10-02T10:00:01Z", "payload": {"artifact_id": "art1", "agent_id": "writer", "title": "Report", "mime": "text/markdown", "content": "# Report"}},
+  {"id": "e12", "type": "execution.completed", "task_id": "t1", "seq": 12, "ts": "2026-10-02T10:00:02Z", "payload": {"duration_ms": 2000, "artifact_ids": ["art1"]}},
+  {"id": "e13", "type": "execution.failed", "task_id": "t1", "seq": 13, "ts": "2026-10-02T10:00:02Z", "payload": {"error": "boom", "agent_id": "research"}}
+]

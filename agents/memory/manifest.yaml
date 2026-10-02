@@ -1,0 +1,8 @@
+id: memory
+name: Memory Keeper
+description: Stores and recalls project-scoped facts for other agents.
+capabilities: [recall, store]
+tools: [kv_store]
+memory: {scope: project, kind: kv}
+model_profile: {provider: ollama, model: "llama3.2:3b", temperature: 0.0, max_tokens: 512}
+permissions: [memory.read, memory.write]

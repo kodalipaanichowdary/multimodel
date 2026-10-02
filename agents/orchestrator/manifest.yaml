@@ -1,0 +1,8 @@
+id: orchestrator
+name: Orchestrator
+description: Decomposes a user task into a plan and delegates steps to specialist agents.
+capabilities: [planning, delegation, aggregation]
+tools: []
+memory: {scope: project, kind: kv}
+model_profile: {provider: ollama, model: "llama3.2:3b", temperature: 0.0, max_tokens: 1024}
+permissions: [memory.read, memory.write]

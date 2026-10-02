@@ -1,0 +1,8 @@
+id: writer
+name: Writer
+description: Turns findings into a structured artifact (report, notes, summary).
+capabilities: [drafting, formatting]
+tools: [fs_write]
+memory: {scope: task, kind: none}
+model_profile: {provider: ollama, model: "mistral:7b", temperature: 0.0, max_tokens: 2048}
+permissions: [fs.write]

@@ -1,0 +1,8 @@
+id: validator
+name: Validator
+description: Checks agent outputs against schema and task intent before an artifact is emitted.
+capabilities: [schema_validation, fact_check]
+tools: []
+memory: {scope: task, kind: none}
+model_profile: {provider: ollama, model: "phi3.5", temperature: 0.0, max_tokens: 1024}
+permissions: []

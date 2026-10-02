@@ -1,0 +1,15 @@
+{
+  "name": "personal-ai-os",
+  "private": true,
+  "workspaces": [
+    "packages/schemas/ts",
+    "apps/workspace"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @pos/workspace",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "e2e": "npm run e2e -w @pos/workspace"
+  }
+}

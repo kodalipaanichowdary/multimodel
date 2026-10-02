@@ -1,0 +1,8 @@
+id: research
+name: Research
+description: Gathers and summarises sources relevant to a goal.
+capabilities: [web_research, summarisation, citation]
+tools: [web_search, fetch_url]
+memory: {scope: task, kind: vector}
+model_profile: {provider: ollama, model: "llama3.2:3b", temperature: 0.0, max_tokens: 2048}
+permissions: [net.read, memory.read]
