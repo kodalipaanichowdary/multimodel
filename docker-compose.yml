@@ -1,0 +1,62 @@
+name: personal-ai-os
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pos-dev-only}
+      POSTGRES_DB: pos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pos -d pos"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://pos:${POSTGRES_PASSWORD:-pos-dev-only}@postgres:5432/pos
+      REDIS_URL: redis://redis:6379/0
+      AGENTS_DIR: /srv/agents
+      MOCK_STEP_DELAY_S: "0.6"
+      CORS_ORIGINS: http://localhost:8080,http://localhost:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import json,urllib.request as u; h=json.load(u.urlopen('http://127.0.0.1:8000/health')); assert h['postgres']=='ok' and h['redis']=='ok', h"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  workspace:
+    build:
+      context: .
+      dockerfile: apps/workspace/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/api/agents"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  pgdata:

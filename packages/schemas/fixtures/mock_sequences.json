@@ -1,0 +1,398 @@
+{
+ "happy": [
+  {
+   "id": "6f748fe2-5d91-40fe-b6e8-ae14b3a1325e",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 0,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "task.created",
+   "payload": {
+    "prompt": "Summarise MCP"
+   }
+  },
+  {
+   "id": "edaa4b98-74e2-4f39-ba62-380a2997d604",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 1,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.started",
+   "payload": {
+    "agent_id": "orchestrator",
+    "parent_id": null
+   }
+  },
+  {
+   "id": "40d5448c-fd19-4656-9d73-ba1224549267",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 2,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.thinking",
+   "payload": {
+    "agent_id": "orchestrator",
+    "message": "Decomposing task"
+   }
+  },
+  {
+   "id": "429c24ed-7e8e-42fc-8329-c0dbe5cf00e0",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 3,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "task.planned",
+   "payload": {
+    "steps": [
+     {
+      "agent_id": "research",
+      "goal": "Gather sources"
+     },
+     {
+      "agent_id": "writer",
+      "goal": "Draft artifact"
+     },
+     {
+      "agent_id": "validator",
+      "goal": "Check output"
+     }
+    ]
+   }
+  },
+  {
+   "id": "64e3d830-72da-4e8a-b499-f392b6d9ee01",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 4,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.started",
+   "payload": {
+    "agent_id": "research",
+    "parent_id": "orchestrator"
+   }
+  },
+  {
+   "id": "a4b14f52-7e49-4646-82df-f42add83c4e8",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 5,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.thinking",
+   "payload": {
+    "agent_id": "research",
+    "message": "Choosing queries"
+   }
+  },
+  {
+   "id": "1f879bf8-d527-49bc-a77d-7c590c65a718",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 6,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "tool.started",
+   "payload": {
+    "agent_id": "research",
+    "tool_id": "web_search",
+    "call_id": "call1-11111111",
+    "args": {
+     "q": "Summarise MCP",
+     "k": 3
+    }
+   }
+  },
+  {
+   "id": "d29b16b2-24fc-44f3-a0f0-02b5260cddd4",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 7,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "tool.completed",
+   "payload": {
+    "agent_id": "research",
+    "tool_id": "web_search",
+    "call_id": "call1-11111111",
+    "duration_ms": 420,
+    "result_preview": "3 results (mock)"
+   }
+  },
+  {
+   "id": "b8f0b4c2-1b7d-4ad7-83ad-d7c182ef0268",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 8,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.completed",
+   "payload": {
+    "agent_id": "research",
+    "summary": "3 sources found (mock)"
+   }
+  },
+  {
+   "id": "da1b0928-d22c-4d45-acd9-dee701dfad6d",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 9,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.started",
+   "payload": {
+    "agent_id": "writer",
+    "parent_id": "orchestrator"
+   }
+  },
+  {
+   "id": "251caa2e-d3de-46cd-ab50-0e6a93e5a63a",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 10,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.thinking",
+   "payload": {
+    "agent_id": "writer",
+    "message": "Outlining"
+   }
+  },
+  {
+   "id": "6cea260e-8f55-4fcd-9601-c017dd5c1718",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 11,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "approval.requested",
+   "payload": {
+    "approval_id": "appr-11111111",
+    "agent_id": "writer",
+    "tool_id": "fs_write",
+    "reason": "write report.md"
+   }
+  },
+  {
+   "id": "f0596612-3730-4afb-9fcc-bb847d7c3945",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 12,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "approval.granted",
+   "payload": {
+    "approval_id": "appr-11111111",
+    "by": "mock-auto"
+   }
+  },
+  {
+   "id": "75f61798-e38b-4dde-ad0a-76d3bf7c6d94",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 13,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "tool.started",
+   "payload": {
+    "agent_id": "writer",
+    "tool_id": "fs_write",
+    "call_id": "call2-11111111",
+    "args": {
+     "path": "report.md"
+    }
+   }
+  },
+  {
+   "id": "27b4c35a-3925-4ebf-bdf2-d0510da76cd6",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 14,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "tool.completed",
+   "payload": {
+    "agent_id": "writer",
+    "tool_id": "fs_write",
+    "call_id": "call2-11111111",
+    "duration_ms": 35,
+    "result_preview": "wrote 1.2 KB (mock)"
+   }
+  },
+  {
+   "id": "c0e9d85a-ca1d-4bf8-af9e-b27bdbca3fa5",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 15,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.completed",
+   "payload": {
+    "agent_id": "writer",
+    "summary": "Draft ready (mock)"
+   }
+  },
+  {
+   "id": "68466962-7cc8-479b-8abf-6979df4e9ff8",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 16,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.started",
+   "payload": {
+    "agent_id": "validator",
+    "parent_id": "orchestrator"
+   }
+  },
+  {
+   "id": "75c06f78-9ed7-4157-afe9-9f5e7d0fd52e",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 17,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.thinking",
+   "payload": {
+    "agent_id": "validator",
+    "message": "Checking schema"
+   }
+  },
+  {
+   "id": "5a89a4f2-8440-4d84-9bf3-be0ba088d9cc",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 18,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.completed",
+   "payload": {
+    "agent_id": "validator",
+    "summary": "valid (mock)"
+   }
+  },
+  {
+   "id": "e8d343ab-9929-4101-8c3d-644678579c1e",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 19,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "artifact.created",
+   "payload": {
+    "artifact_id": "art-11111111",
+    "agent_id": "writer",
+    "title": "Report",
+    "mime": "text/markdown",
+    "content": "# Report (mock)\n\nTask: Summarise MCP\n"
+   }
+  },
+  {
+   "id": "104b22ec-fab3-4508-9cba-3c01165b6c33",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 20,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "agent.completed",
+   "payload": {
+    "agent_id": "orchestrator",
+    "summary": "Done (mock)"
+   }
+  },
+  {
+   "id": "d40bdae3-f8c1-4359-b9aa-282cc1a30aa1",
+   "task_id": "11111111-1111-1111-1111-111111111111",
+   "seq": 21,
+   "ts": "2026-10-02T15:43:12.294781Z",
+   "type": "execution.completed",
+   "payload": {
+    "duration_ms": 0,
+    "artifact_ids": [
+     "art-11111111"
+    ]
+   }
+  }
+ ],
+ "fail": [
+  {
+   "id": "4b2c1c68-27e3-4666-b3cd-0f4951abdcc1",
+   "task_id": "22222222-2222-2222-2222-222222222222",
+   "seq": 0,
+   "ts": "2026-10-02T15:43:12.295773Z",
+   "type": "task.created",
+   "payload": {
+    "prompt": "please fail"
+   }
+  },
+  {
+   "id": "f0f06e64-2463-4226-bd9e-441800dd3352",
+   "task_id": "22222222-2222-2222-2222-222222222222",
+   "seq": 1,
+   "ts": "2026-10-02T15:43:12.295773Z",
+   "type": "agent.started",
+   "payload": {
+    "agent_id": "orchestrator",
+    "parent_id": null
+   }
+  },
+  {
+   "id": "0e0068c0-8fb7-4140-a07e-e50ad2121f1b",
+   "task_id": "22222222-2222-2222-2222-222222222222",
+   "seq": 2,
+   "ts": "2026-10-02T15:43:12.295773Z",
+   "type": "agent.thinking",
+   "payload": {
+    "agent_id": "orchestrator",
+    "message": "Decomposing task"
+   }
+  },
+  {
+   "id": "056b177f-f605-4d31-b9d6-afd25d9469ce",
+   "task_id": "22222222-2222-2222-2222-222222222222",
+   "seq": 3,
+   "ts": "2026-10-02T15:43:12.295773Z",
+   "type": "task.planned",
+   "payload": {
+    "steps": [
+     {
+      "agent_id": "research",
+      "goal": "Gather sources"
+     },
+     {
+      "agent_id": "writer",
+      "goal": "Draft artifact"
+     },
+     {
+      "agent_id": "validator",
+      "goal": "Check output"
+     }
+    ]
+   }
+  },
+  {
+   "id": "59e1d1f3-1af1-4788-b9b4-4ebb824c2662",
+   "task_id": "22222222-2222-2222-2222-222222222222",
+   "seq": 4,
+   "ts": "2026-10-02T15:43:12.295773Z",
+   "type": "agent.started",
+   "payload": {
+    "agent_id": "research",
+    "parent_id": "orchestrator"
+   }
+  },
+  {
+   "id": "a596e759-6b01-42e0-a199-024147abf946",
+   "task_id": "22222222-2222-2222-2222-222222222222",
+   "seq": 5,
+   "ts": "2026-10-02T15:43:12.295773Z",
+   "type": "agent.thinking",
+   "payload": {
+    "agent_id": "research",
+    "message": "Choosing queries"
+   }
+  },
+  {
+   "id": "1f556e04-0cef-45b8-8809-11b0402c2c44",
+   "task_id": "22222222-2222-2222-2222-222222222222",
+   "seq": 6,
+   "ts": "2026-10-02T15:43:12.295773Z",
+   "type": "tool.started",
+   "payload": {
+    "agent_id": "research",
+    "tool_id": "web_search",
+    "call_id": "call1-22222222",
+    "args": {
+     "q": "please fail",
+     "k": 3
+    }
+   }
+  },
+  {
+   "id": "2b7192c0-96d2-4dcf-9db6-be0049e8990c",
+   "task_id": "22222222-2222-2222-2222-222222222222",
+   "seq": 7,
+   "ts": "2026-10-02T15:43:12.295773Z",
+   "type": "tool.failed",
+   "payload": {
+    "agent_id": "research",
+    "tool_id": "web_search",
+    "call_id": "call1-22222222",
+    "error": "mock: upstream timeout"
+   }
+  },
+  {
+   "id": "e944d59e-7fbc-4edc-8414-90c059ea56df",
+   "task_id": "22222222-2222-2222-2222-222222222222",
+   "seq": 8,
+   "ts": "2026-10-02T15:43:12.295773Z",
+   "type": "execution.failed",
+   "payload": {
+    "error": "research step failed",
+    "agent_id": "research"
+   }
+  }
+ ]
+}
