@@ -4,11 +4,14 @@ import {
   applyEvent,
   emptyProjection,
   loadAgents,
+  recordInvalid,
   type Projection,
   type XY,
 } from "./projection";
 
 export type WsStatus = "connecting" | "open" | "closed";
+export type DockTab = "chat" | "run" | "inspect";
+export type InspectorTab = "node" | "events" | "artifacts";
 
 export interface SchemaError {
   at: string;
@@ -22,6 +25,15 @@ interface GraphStore extends Projection {
   agentsError: string | null;
   selectedId: string | null;
   popup: { nodeId: string; x: number; y: number } | null;
+  // UI-only state (never derived from or fed back into events)
+  dockTab: DockTab;
+  inspectorTab: InspectorTab;
+  highlightArtifact: string | null;
+  /** Agents flagged `selected` for the next POST /tasks. */
+  nextSelected: string[];
+  /** Run shown in the Run tab; null = latest. */
+  runViewTask: string | null;
+  addAgentOpen: boolean;
 
   setAgents: (list: AgentDefinition[]) => void;
   setAgentsError: (msg: string | null) => void;
@@ -33,6 +45,13 @@ interface GraphStore extends Projection {
   closePopup: () => void;
   select: (id: string | null) => void;
   addNodes: (nodes: Projection["nodes"], edges: Projection["edges"]) => void;
+  setDockTab: (t: DockTab) => void;
+  setInspectorTab: (t: InspectorTab) => void;
+  openArtifact: (artifactId: string) => void;
+  toggleSelected: (agentId: string) => void;
+  clearSelected: () => void;
+  setRunViewTask: (id: string | null) => void;
+  setAddAgentOpen: (open: boolean) => void;
 }
 
 export const useGraph = create<GraphStore>()((set, get) => ({
@@ -42,6 +61,12 @@ export const useGraph = create<GraphStore>()((set, get) => ({
   agentsError: null,
   selectedId: null,
   popup: null,
+  dockTab: "chat",
+  inspectorTab: "events",
+  highlightArtifact: null,
+  nextSelected: [],
+  runViewTask: null,
+  addAgentOpen: false,
 
   setAgents: (list) => set((s) => ({ ...loadAgents(s, list), agentsError: null })),
   setAgentsError: (agentsError) => set({ agentsError }),
@@ -61,12 +86,14 @@ export const useGraph = create<GraphStore>()((set, get) => ({
         raw: raw.slice(0, 500),
       };
       console.warn("[ws] dropped invalid event", err);
-      set((s) => ({ schemaErrors: [...s.schemaErrors.slice(-49), err] }));
+      set((s) => ({ ...recordInvalid(s), schemaErrors: [...s.schemaErrors.slice(-49), err] }));
       return;
     }
     const s = get();
     const next = applyEvent(s, r.data);
-    if (next !== s) set(next);
+    if (next === s) return;
+    // A new run brings the chat forward.
+    set(r.data.type === "task.created" ? { ...next, dockTab: "chat", runViewTask: null } : next);
   },
 
   setWsStatus: (wsStatus) => set({ wsStatus }),
@@ -77,11 +104,26 @@ export const useGraph = create<GraphStore>()((set, get) => ({
       return n ? { nodes: { ...s.nodes, [id]: { ...n, position } } } : {};
     }),
 
-  openPopup: (nodeId, x, y) => set({ popup: { nodeId, x, y }, selectedId: nodeId }),
+  // Clicking a node inspects it.
+  openPopup: (nodeId, x, y) =>
+    set({ popup: { nodeId, x, y }, selectedId: nodeId, dockTab: "inspect", inspectorTab: "node" }),
   closePopup: () => set({ popup: null }),
   select: (selectedId) => set({ selectedId }),
   addNodes: (nodes, edges) =>
     set((s) => ({ nodes: { ...s.nodes, ...nodes }, edges: { ...s.edges, ...edges } })),
+  setDockTab: (dockTab) => set({ dockTab }),
+  setInspectorTab: (inspectorTab) => set({ inspectorTab }),
+  openArtifact: (id) =>
+    set({ dockTab: "inspect", inspectorTab: "artifacts", selectedId: null, highlightArtifact: id }),
+  toggleSelected: (id) =>
+    set((s) => ({
+      nextSelected: s.nextSelected.includes(id)
+        ? s.nextSelected.filter((x) => x !== id)
+        : [...s.nextSelected, id],
+    })),
+  clearSelected: () => set({ nextSelected: [] }),
+  setRunViewTask: (runViewTask) => set({ runViewTask }),
+  setAddAgentOpen: (addAgentOpen) => set({ addAgentOpen }),
 }));
 
 // Test/e2e hook: read-only view of the store.

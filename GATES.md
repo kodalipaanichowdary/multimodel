@@ -14,8 +14,15 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] >=50fps @50 nodes
 - [ ] docker compose up
 - [x] tests+lint green
+- [x] G1.10 final result + artifact shown in chat after run
+- [x] G1.11 scorecard counts == event counts (happy + fail fixtures)
+- [x] G1.12 live timeline per agent with tool chips
+- [x] G1.13 add agent via UI: node appears, in GET /agents, invalid manifest -> error
+- [x] G1.14 no horizontal scroll; chat usable at 1440, 820, 390 px
+- [x] G1.15 chat history persists across tasks in session
+- [x] G1.16 all earlier G1 tests still pass
 
-G1 status 2026-10-02: 8/9 PASS. `docker compose up` BLOCKED: no Docker daemon reachable without elevation; run `bash infrastructure/smoke.sh`.
+G1 status 2026-10-02: 15/16 PASS (G1.10-G1.16 added by P1 patch). `docker compose up` BLOCKED: no Docker daemon reachable without elevation; run `bash infrastructure/smoke.sh`.
 
 ## G2 — Real Brain
 

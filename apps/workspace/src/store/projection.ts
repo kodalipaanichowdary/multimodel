@@ -12,11 +12,30 @@ import type {
   NodeState,
   PosEvent,
 } from "@pos/schemas";
-import { agentPositions, satellitePosition } from "../lib/layout";
+import { agentPositions, hash01, satellitePosition } from "../lib/layout";
 
 export type XY = { x: number; y: number };
 export type UINode = GraphNode & { position: XY };
 export type Artifact = EventOf<"artifact.created">["payload"] & { task_id: string };
+
+export type RunStatus = "running" | "completed" | "failed";
+
+/** Every event of one task, in seq order. The single source for chat, run view and scorecard. */
+export interface Run {
+  task_id: string;
+  prompt: string;
+  events: PosEvent[];
+  /** Wire frames rejected by zod while this run was active. */
+  invalidDropped: number;
+}
+
+export type ChatTone = "info" | "running" | "done" | "warn" | "error";
+export type ChatItem =
+  | { id: string; kind: "user"; task_id: string; text: string }
+  | { id: string; kind: "status"; task_id: string; text: string; tone: ChatTone }
+  | { id: string; kind: "result"; task_id: string; artifact: Artifact }
+  | { id: string; kind: "error"; task_id: string; agent_id: string | null; tool_id: string | null; error: string }
+  | { id: string; kind: "scorecard"; task_id: string };
 
 export interface Projection {
   agents: Record<string, AgentDefinition>;
@@ -28,6 +47,11 @@ export interface Projection {
   log: PosEvent[];
   lastSeq: Record<string, number>;
   activeTaskId: string | null;
+  runs: Record<string, Run>;
+  /** task ids, oldest first */
+  runOrder: string[];
+  /** Session chat history; survives new tasks (never reset). */
+  chat: ChatItem[];
 }
 
 export const LOG_LIMIT = 300;
@@ -48,26 +72,37 @@ export function emptyProjection(): Projection {
     log: [],
     lastSeq: {},
     activeTaskId: null,
+    runs: {},
+    runOrder: [],
+    chat: [],
   };
 }
 
 export function loadAgents(p: Projection, list: AgentDefinition[]): Projection {
+  const initial = !Object.keys(p.nodes).some((id) => id.startsWith("agent:"));
   const pos = agentPositions(list.map((a) => a.id));
   const agents: Record<string, AgentDefinition> = {};
   const nodes = { ...p.nodes };
   for (const a of list) {
     agents[a.id] = a;
     const nid = agentNodeId(a.id);
+    const prev = nodes[nid];
     nodes[nid] = {
       id: nid,
       kind: "agent",
       label: a.name,
       ref_id: a.id,
-      state: nodes[nid]?.state ?? "idle",
-      position: nodes[nid]?.position ?? pos[a.id],
+      state: prev?.state ?? "idle",
+      // Agents added later go on an outer ring so they never land on existing nodes.
+      position: prev?.position ?? (initial ? pos[a.id] : outerRing(a.id)),
     };
   }
   return { ...p, agents, nodes };
+}
+
+function outerRing(id: string): XY {
+  const a = hash01(id) * Math.PI * 2;
+  return { x: Math.cos(a) * 400, y: Math.sin(a) * 300 };
 }
 
 // ---------- helpers (operate on mutable drafts copied once per event) ----------
@@ -253,6 +288,15 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
   }
 
   const log = p.log.length >= LOG_LIMIT ? [...p.log.slice(1), ev] : [...p.log, ev];
+  const prevRun = p.runs[ev.task_id];
+  const run: Run = prevRun
+    ? { ...prevRun, events: [...prevRun.events, ev] }
+    : {
+        task_id: ev.task_id,
+        prompt: ev.type === "task.created" ? ev.payload.prompt : "(unknown task)",
+        events: [ev],
+        invalidDropped: 0,
+      };
   return {
     ...p,
     ...d,
@@ -260,5 +304,240 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
     activeTaskId,
     log,
     lastSeq: { ...p.lastSeq, [ev.task_id]: ev.seq },
+    runs: { ...p.runs, [ev.task_id]: run },
+    runOrder: prevRun ? p.runOrder : [...p.runOrder, ev.task_id],
+    chat: projectChat(p.chat, ev, run, p.agents),
   };
 }
+
+/** A zod-rejected frame arrived; attribute it to the active, unfinished run. */
+export function recordInvalid(p: Projection): Projection {
+  const id = p.activeTaskId;
+  const run = id ? p.runs[id] : undefined;
+  if (!run || runStatus(run) !== "running") return p;
+  return { ...p, runs: { ...p.runs, [run.task_id]: { ...run, invalidDropped: run.invalidDropped + 1 } } };
+}
+
+// ---------- chat (projected from events) ----------
+
+function upsert(chat: ChatItem[], item: ChatItem): ChatItem[] {
+  const i = chat.findIndex((c) => c.id === item.id);
+  if (i === -1) return [...chat, item];
+  const next = chat.slice();
+  next[i] = item;
+  return next;
+}
+
+const sec = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
+
+function projectChat(
+  chat: ChatItem[],
+  ev: PosEvent,
+  run: Run,
+  agents: Record<string, AgentDefinition>,
+): ChatItem[] {
+  const t = ev.task_id;
+  const name = (id: string) => agents[id]?.name ?? id;
+  const status = (key: string, text: string, tone: ChatTone) =>
+    upsert(chat, { id: `${t}:${key}`, kind: "status", task_id: t, text, tone });
+  switch (ev.type) {
+    case "task.created":
+      return upsert(chat, { id: `${t}:user`, kind: "user", task_id: t, text: ev.payload.prompt });
+    case "task.planned":
+      return status("plan", `Plan: ${ev.payload.steps.map((s) => name(s.agent_id)).join(" → ")}`, "info");
+    case "agent.started":
+      return status(`agent:${ev.payload.agent_id}`, `${name(ev.payload.agent_id)} started`, "running");
+    case "agent.completed": {
+      const started = run.events.find(
+        (e) => e.type === "agent.started" && e.payload.agent_id === ev.payload.agent_id,
+      );
+      const took = started ? ` (${sec(Date.parse(ev.ts) - Date.parse(started.ts))})` : "";
+      return status(`agent:${ev.payload.agent_id}`, `${name(ev.payload.agent_id)} done${took}`, "done");
+    }
+    case "tool.started":
+      return status(`tool:${ev.payload.call_id}`, `${ev.payload.tool_id} running`, "running");
+    case "tool.completed":
+      return status(
+        `tool:${ev.payload.call_id}`,
+        `${ev.payload.tool_id} done (${ev.payload.duration_ms} ms)`,
+        "done",
+      );
+    case "tool.failed":
+      return status(`tool:${ev.payload.call_id}`, `${ev.payload.tool_id} failed: ${ev.payload.error}`, "error");
+    case "approval.requested":
+      return status(
+        `appr:${ev.payload.approval_id}`,
+        `${name(ev.payload.agent_id)} awaiting approval: ${ev.payload.tool_id}`,
+        "warn",
+      );
+    case "approval.granted":
+      return status(`appr:${ev.payload.approval_id}`, `Approved by ${ev.payload.by}`, "done");
+    case "artifact.created":
+      return upsert(chat, {
+        id: `${t}:result:${ev.payload.artifact_id}`,
+        kind: "result",
+        task_id: t,
+        artifact: { ...ev.payload, task_id: t },
+      });
+    case "execution.completed":
+      return upsert(chat, { id: `${t}:score`, kind: "scorecard", task_id: t });
+    case "execution.failed": {
+      const failedTool = [...run.events]
+        .reverse()
+        .find((e): e is EventOf<"tool.failed"> => e.type === "tool.failed");
+      const settled = chat.map((c) =>
+        c.task_id === t && c.kind === "status" && c.tone === "running" ? { ...c, tone: "error" as const } : c,
+      );
+      const withErr = upsert(settled, {
+        id: `${t}:error`,
+        kind: "error",
+        task_id: t,
+        agent_id: ev.payload.agent_id ?? failedTool?.payload.agent_id ?? null,
+        tool_id: failedTool?.payload.tool_id ?? null,
+        error: failedTool ? `${ev.payload.error} — ${failedTool.payload.error}` : ev.payload.error,
+      });
+      return upsert(withErr, { id: `${t}:score`, kind: "scorecard", task_id: t });
+    }
+    default:
+      return chat;
+  }
+}
+
+// ---------- scorecard + timeline (pure, derived from Run.events only) ----------
+
+export function runStatus(run: Pick<Run, "events">): RunStatus {
+  const last = run.events.at(-1);
+  if (last?.type === "execution.completed") return "completed";
+  if (last?.type === "execution.failed") return "failed";
+  return "running";
+}
+
+export interface Scorecard {
+  agents_used: number;
+  tools_called: number;
+  tools_failed: number;
+  approvals: number;
+  events_total: number;
+  events_invalid_dropped: number;
+  duration_ms: number;
+  status: RunStatus;
+}
+
+export function scorecard(run: Pick<Run, "events" | "invalidDropped">): Scorecard {
+  const ev = run.events;
+  const count = (type: PosEvent["type"]) => ev.filter((e) => e.type === type).length;
+  const agents = new Set(ev.flatMap((e) => (e.type === "agent.started" ? [e.payload.agent_id] : [])));
+  const done = ev.find((e): e is EventOf<"execution.completed"> => e.type === "execution.completed");
+  const span = ev.length > 1 ? Date.parse(ev[ev.length - 1].ts) - Date.parse(ev[0].ts) : 0;
+  return {
+    agents_used: agents.size,
+    tools_called: count("tool.started"),
+    tools_failed: count("tool.failed"),
+    approvals: count("approval.requested"),
+    events_total: ev.length,
+    events_invalid_dropped: run.invalidDropped,
+    duration_ms: done ? done.payload.duration_ms : span,
+    status: runStatus(run),
+  };
+}
+
+export type ChipStatus = "running" | "completed" | "failed";
+export interface ToolChip {
+  call_id: string;
+  tool_id: string;
+  status: ChipStatus;
+  duration_ms: number | null;
+}
+export interface TimelineRow {
+  agent_id: string;
+  state: NodeState;
+  /** ms from run start; null while only planned */
+  started_ms: number | null;
+  duration_ms: number | null;
+  tools: ToolChip[];
+}
+export interface Timeline {
+  start_ts: number | null;
+  last_ts: number | null;
+  rows: TimelineRow[];
+}
+
+export function runTimeline(run: Pick<Run, "events">): Timeline {
+  const ev = run.events;
+  const start = ev.length ? Date.parse(ev[0].ts) : null;
+  const rows = new Map<string, TimelineRow>();
+  const row = (id: string) => {
+    let r = rows.get(id);
+    if (!r) {
+      r = { agent_id: id, state: "queued", started_ms: null, duration_ms: null, tools: [] };
+      rows.set(id, r);
+    }
+    return r;
+  };
+  const at = (e: PosEvent) => Date.parse(e.ts) - (start ?? 0);
+  const chip = (r: TimelineRow, call: string) => r.tools.find((c) => c.call_id === call);
+
+  for (const e of ev) {
+    switch (e.type) {
+      case "task.planned":
+        for (const s of e.payload.steps) row(s.agent_id);
+        break;
+      case "agent.started": {
+        const r = row(e.payload.agent_id);
+        r.state = "running";
+        r.started_ms = at(e);
+        break;
+      }
+      case "agent.thinking":
+        row(e.payload.agent_id).state = "thinking";
+        break;
+      case "agent.completed": {
+        const r = row(e.payload.agent_id);
+        r.state = "completed";
+        if (r.started_ms !== null) r.duration_ms = at(e) - r.started_ms;
+        break;
+      }
+      case "approval.requested":
+        row(e.payload.agent_id).state = "waiting_approval";
+        break;
+      case "approval.granted":
+        for (const r of rows.values()) if (r.state === "waiting_approval") r.state = "running";
+        break;
+      case "tool.started": {
+        const r = row(e.payload.agent_id);
+        r.state = "running";
+        r.tools.push({
+          call_id: e.payload.call_id,
+          tool_id: e.payload.tool_id,
+          status: "running",
+          duration_ms: null,
+        });
+        break;
+      }
+      case "tool.completed": {
+        const c = chip(row(e.payload.agent_id), e.payload.call_id);
+        if (c) Object.assign(c, { status: "completed", duration_ms: e.payload.duration_ms });
+        break;
+      }
+      case "tool.failed": {
+        const r = row(e.payload.agent_id);
+        const c = chip(r, e.payload.call_id);
+        if (c) c.status = "failed";
+        r.state = "error";
+        break;
+      }
+      case "execution.failed":
+        for (const r of rows.values()) {
+          if (r.state === "running" || r.state === "thinking" || r.state === "waiting_approval") {
+            r.state = "error";
+          }
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  const last = ev.length ? Date.parse(ev[ev.length - 1].ts) : null;
+  return { start_ts: start, last_ts: last, rows: [...rows.values()] };
+}
+

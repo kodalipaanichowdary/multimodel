@@ -7,12 +7,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pos_schemas import AgentDefinition, AgentPatch
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from . import health
 from .bus import EventBus
 from .config import Settings
-from .mock_executor import MockExecutor
+from .mock_executor import ExtraAgent, MockExecutor
 from .registry import AgentExistsError, AgentNotFoundError, AgentRegistry
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -20,7 +20,9 @@ log = logging.getLogger("pos.api")
 
 
 class TaskRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     prompt: str = Field(min_length=1, max_length=4000)
+    selected: list[str] = Field(default_factory=list, max_length=20, description="agent ids")
 
 
 class TaskAccepted(BaseModel):
@@ -81,7 +83,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.post("/tasks", response_model=TaskAccepted, status_code=202)
     async def submit_task(body: TaskRequest, request: Request) -> TaskAccepted:
-        return TaskAccepted(task_id=request.app.state.executor.submit(body.prompt))
+        reg = registry(request)
+        unknown = [a for a in body.selected if a not in {x.id for x in reg.list()}]
+        if unknown:
+            raise HTTPException(422, f"unknown agent(s) in selected: {', '.join(unknown)}")
+        extra = [ExtraAgent(id=a, name=reg.get(a).name) for a in body.selected]
+        return TaskAccepted(task_id=request.app.state.executor.submit(body.prompt, extra))
 
     @app.websocket("/ws")
     async def ws_events(ws: WebSocket) -> None:

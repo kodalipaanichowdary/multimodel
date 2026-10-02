@@ -1,46 +1,41 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { PosEvent } from "@pos/schemas";
 import { useGraph } from "../store/graph";
 import { KIND_COLOR, STATE_COLOR } from "../lib/theme";
+import { Markdown } from "./Markdown";
 
-type Tab = "node" | "events" | "artifacts";
-
+/** Inspector content (node / events / artifacts). Hosted inside the dock. */
 export function Inspector() {
-  const [tab, setTab] = useState<Tab>("events");
+  const tab = useGraph((s) => s.inspectorTab);
+  const setTab = useGraph((s) => s.setInspectorTab);
   const selectedId = useGraph((s) => s.selectedId);
   const logLen = useGraph((s) => s.log.length);
   const artifactsLen = useGraph((s) => s.artifacts.length);
-  const schemaErrors = useGraph((s) => s.schemaErrors.length);
-  const active = selectedId ? "node" : tab === "node" ? "events" : tab;
+  const active = tab === "node" && !selectedId ? "events" : tab;
+  const go = (t: "events" | "artifacts") => {
+    useGraph.getState().select(null);
+    setTab(t);
+  };
 
   return (
-    <aside
-      data-testid="inspector"
-      className="absolute bottom-0 right-0 top-0 z-30 flex w-[340px] flex-col border-l border-white/5 bg-[#0a0b10]/90 backdrop-blur"
-    >
-      <header className="flex items-center gap-1 border-b border-white/5 px-3 py-2 text-xs">
-        <span className="mr-2 font-semibold tracking-wide text-slate-300">Inspector</span>
+    <div data-testid="inspector" className="flex min-h-0 flex-1 flex-col">
+      <div className="flex shrink-0 items-center gap-1 border-b border-white/5 px-3 py-1.5 text-xs">
         <TabBtn on={active === "node"} onClick={() => setTab("node")} disabled={!selectedId}>
           Node
         </TabBtn>
-        <TabBtn on={active === "events"} onClick={() => { useGraph.getState().select(null); setTab("events"); }}>
+        <TabBtn on={active === "events"} onClick={() => go("events")}>
           Events <span className="text-slate-500">{logLen}</span>
         </TabBtn>
-        <TabBtn on={active === "artifacts"} onClick={() => { useGraph.getState().select(null); setTab("artifacts"); }}>
+        <TabBtn on={active === "artifacts"} onClick={() => go("artifacts")}>
           Artifacts <span className="text-slate-500">{artifactsLen}</span>
         </TabBtn>
-        {schemaErrors > 0 && (
-          <span className="ml-auto rounded bg-red-500/15 px-1.5 text-[10px] text-red-300" data-testid="schema-errors">
-            {schemaErrors} invalid
-          </span>
-        )}
-      </header>
-      <div className="min-h-0 flex-1 overflow-y-auto p-3 text-xs">
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3 text-xs">
         {active === "node" && selectedId && <NodeDetail id={selectedId} />}
         {active === "events" && <EventLog />}
         {active === "artifacts" && <Artifacts />}
       </div>
-    </aside>
+    </div>
   );
 }
 
@@ -71,15 +66,15 @@ function NodeDetail({ id }: { id: string }) {
           {node.state}
         </span>
       </div>
-      <dl className="mb-3 grid grid-cols-[70px_1fr] gap-y-1 text-slate-400">
+      <dl className="mb-3 grid grid-cols-[70px_minmax(0,1fr)] gap-y-1 text-slate-400">
         <dt>id</dt>
-        <dd className="font-mono text-slate-300">{node.id}</dd>
+        <dd className="break-all font-mono text-slate-300">{node.id}</dd>
         <dt>kind</dt>
         <dd className="text-slate-300">{node.kind}</dd>
         {detail && (
           <>
             <dt>latest</dt>
-            <dd className="text-slate-300">{detail}</dd>
+            <dd className="break-words text-slate-300">{detail}</dd>
           </>
         )}
       </dl>
@@ -110,13 +105,13 @@ const TYPE_COLOR: Record<string, string> = {
 };
 
 function EventRows({ events, testid }: { events: PosEvent[]; testid?: string }) {
-  if (events.length === 0) return <p className="text-slate-600">No events yet. Run a task below.</p>;
+  if (events.length === 0) return <p className="text-slate-600">No events yet. Run a task in the chat.</p>;
   return (
     <ol className="space-y-1 font-mono" data-testid={testid}>
       {events.map((e) => {
         const fail = e.type.endsWith("failed");
         return (
-          <li key={e.id} className="rounded bg-white/[0.02] px-2 py-1">
+          <li key={e.id} className="break-words rounded bg-white/[0.02] px-2 py-1">
             <span className="text-slate-600">#{e.seq} </span>
             <span style={{ color: fail ? "#ef4444" : TYPE_COLOR[e.type.split(".")[0]] }}>{e.type}</span>{" "}
             <span className="text-slate-500">{summarize(e)}</span>
@@ -156,16 +151,34 @@ function summarize(e: PosEvent): string {
 
 function Artifacts() {
   const artifacts = useGraph((s) => s.artifacts);
+  const highlight = useGraph((s) => s.highlightArtifact);
+  const refs = useRef(new Map<string, HTMLLIElement>());
+  useEffect(() => {
+    if (highlight) refs.current.get(highlight)?.scrollIntoView({ block: "nearest" });
+  }, [highlight]);
   if (artifacts.length === 0) return <p className="text-slate-600">No artifacts yet.</p>;
   return (
     <ul className="space-y-2" data-testid="artifacts">
       {[...artifacts].reverse().map((a) => (
-        <li key={a.artifact_id} className="rounded border border-emerald-500/20 bg-emerald-500/5 p-2">
-          <div className="mb-1 flex justify-between">
+        <li
+          key={a.artifact_id}
+          ref={(el) => {
+            if (el) refs.current.set(a.artifact_id, el);
+          }}
+          data-testid={`artifact-${a.artifact_id}`}
+          className={`rounded border p-2 ${
+            a.artifact_id === highlight ? "border-emerald-400/60 bg-emerald-500/10" : "border-emerald-500/20 bg-emerald-500/5"
+          }`}
+        >
+          <div className="mb-1 flex justify-between gap-2">
             <span className="font-semibold text-emerald-200">{a.title}</span>
             <span className="text-slate-500">{a.mime}</span>
           </div>
-          <pre className="whitespace-pre-wrap text-[11px] text-slate-300">{a.content}</pre>
+          {a.mime === "text/markdown" ? (
+            <Markdown source={a.content} />
+          ) : (
+            <pre className="whitespace-pre-wrap break-words text-[11px] text-slate-300">{a.content}</pre>
+          )}
         </li>
       ))}
     </ul>

@@ -1,8 +1,11 @@
-"""mock_sequences.json feeds the UI projection tests; it must match the real script."""
+"""mock_sequences.json feeds the UI projection tests; it must match the real script.
+
+Regenerate with: python scripts/gen_fixtures.py
+"""
 
 import json
 
-from app.mock_executor import script
+from scripts.gen_fixtures import CASES, build
 
 from .conftest import REPO
 
@@ -10,9 +13,6 @@ FIXTURE = REPO / "packages" / "schemas" / "fixtures" / "mock_sequences.json"
 
 
 def test_mock_sequence_fixture_in_sync():
-    data = json.loads(FIXTURE.read_text())
-    for name, prompt in [("happy", "Summarise MCP"), ("fail", "please fail")]:
-        tid = data[name][0]["task_id"]
-        expected = [{"type": t, "payload": p} for t, p in script(prompt, tid)]
-        actual = [{"type": e["type"], "payload": e["payload"]} for e in data[name]]
-        assert actual == expected, f"regenerate {FIXTURE.name} ({name})"
+    on_disk = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    assert set(on_disk) == set(CASES)
+    assert on_disk == build(), f"stale {FIXTURE.name}: run python scripts/gen_fixtures.py"

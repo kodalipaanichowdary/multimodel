@@ -107,7 +107,7 @@ export function Canvas() {
         colorMode="dark"
       >
         <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="#1c2030" />
-        <Controls showInteractive={false} position="bottom-left" style={{ marginBottom: 88 }} />
+        <Controls showInteractive={false} position="bottom-left" />
       </ReactFlow>
       <HoverTag ref={tag} />
     </div>
