@@ -15,7 +15,7 @@ A gate passes only with pasted command output / test results as evidence.
 - [ ] docker compose up
 - [x] tests+lint green
 
-G1 status 2026-10-02: 8/9 PASS. `docker compose up` BLOCKED — no Docker daemon reachable without elevation; run `bash infrastructure/smoke.sh`.
+G1 status 2026-10-02: 8/9 PASS. `docker compose up` BLOCKED: no Docker daemon reachable without elevation; run `bash infrastructure/smoke.sh`.
 
 ## G2 â€” Real Brain
 
