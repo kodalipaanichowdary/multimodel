@@ -34,6 +34,11 @@ interface GraphStore extends Projection {
   /** Run shown in the Run tab; null = latest. */
   runViewTask: string | null;
   addAgentOpen: boolean;
+  /**
+   * Per run: browser receive time - server ts of the first event seen. Lets live
+   * elapsed be expressed in server time without mixing clocks (see liveStats).
+   */
+  clockOffsets: Record<string, number>;
 
   setAgents: (list: AgentDefinition[]) => void;
   setAgentsError: (msg: string | null) => void;
@@ -67,6 +72,7 @@ export const useGraph = create<GraphStore>()((set, get) => ({
   nextSelected: [],
   runViewTask: null,
   addAgentOpen: false,
+  clockOffsets: {},
 
   setAgents: (list) => set((s) => ({ ...loadAgents(s, list), agentsError: null })),
   setAgentsError: (agentsError) => set({ agentsError }),
@@ -92,8 +98,17 @@ export const useGraph = create<GraphStore>()((set, get) => ({
     const s = get();
     const next = applyEvent(s, r.data);
     if (next === s) return;
+    const ev = r.data;
+    const clockOffsets =
+      ev.task_id in s.clockOffsets
+        ? s.clockOffsets
+        : { ...s.clockOffsets, [ev.task_id]: Date.now() - Date.parse(ev.ts) };
     // A new run brings the chat forward.
-    set(r.data.type === "task.created" ? { ...next, dockTab: "chat", runViewTask: null } : next);
+    set(
+      ev.type === "task.created"
+        ? { ...next, clockOffsets, dockTab: "chat", runViewTask: null }
+        : { ...next, clockOffsets },
+    );
   },
 
   setWsStatus: (wsStatus) => set({ wsStatus }),

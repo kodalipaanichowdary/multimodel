@@ -39,6 +39,10 @@ async function waitDone(page: Page, status: "completed" | "failed") {
     timeout: 20_000,
   });
   const taskId = await store(page, (s) => s.runOrder[s.runOrder.length - 1]);
+  // P1.6: scorecard is behind the run's summary chip; open it.
+  const chip = page.locator(`[data-testid="run-strip"][data-task="${taskId}"]`).getByTestId("run-chip");
+  await expect(chip).toBeVisible();
+  await chip.click();
   const card = page.getByTestId("chat-log").locator(`[data-testid="scorecard"][data-task="${taskId}"]`);
   await expect(card.getByTestId("sc-status")).toHaveText(status);
   return { taskId, card };

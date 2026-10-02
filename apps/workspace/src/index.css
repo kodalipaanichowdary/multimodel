@@ -66,3 +66,31 @@ body,
 .react-flow__controls button:hover {
   background: #1a1d27;
 }
+
+/* Live strip pulse: transform/opacity only (compositor), no layout. */
+@keyframes strip-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.95; }
+  100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0; }
+}
+.strip-pulse {
+  animation: strip-pulse 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+}
+
+/* Reduced motion: no drift, no pulses, no travel; state stays visible statically. */
+@media (prefers-reduced-motion: reduce) {
+  .pos-drift,
+  .pos-ping,
+  .pos-ping-slow,
+  .strip-pulse,
+  .animate-pulse {
+    animation: none !important;
+  }
+  .strip-anim,
+  .react-flow__edge-path {
+    transition: none !important;
+  }
+  .react-flow__edge.animated path {
+    animation: none !important;
+  }
+}

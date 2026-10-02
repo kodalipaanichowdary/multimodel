@@ -11,6 +11,7 @@ import {
   type Projection,
   type Scorecard,
 } from "./projection";
+import { overlaps } from "../lib/layout";
 
 const HAPPY: PosEvent[] = sequences.happy.map((e) => EventSchema.parse(e));
 const FAIL: PosEvent[] = sequences.fail.map((e) => EventSchema.parse(e));
@@ -131,10 +132,10 @@ describe("runTimeline", () => {
 });
 
 describe("chat projection", () => {
-  it("happy: user prompt, live status lines settle to done, result + scorecard", () => {
+  it("happy: user prompt, live status lines settle to done, result (no auto scorecard item)", () => {
     const p = fold(HAPPY);
     expect(p.chat.map((c) => c.kind)).toEqual([
-      "user", "status", "status", "status", "status", "status", "status", "status", "status", "result", "scorecard",
+      "user", "status", "status", "status", "status", "status", "status", "status", "status", "result",
     ]);
     const statuses = p.chat.filter((c) => c.kind === "status");
     expect(statuses.every((c) => c.kind === "status" && c.tone === "done" || (c.kind === "status" && c.tone === "info"))).toBe(true);
@@ -164,24 +165,25 @@ describe("chat projection", () => {
     expect(err).toMatchObject({ agent_id: "research", tool_id: "web_search" });
     expect(err?.kind === "error" && err.error).toContain("mock: upstream timeout");
     expect(p.chat.some((c) => c.kind === "status" && c.tone === "running")).toBe(false);
-    expect(p.chat.at(-1)?.kind).toBe("scorecard");
+    expect(p.chat.at(-1)?.kind).toBe("error");
   });
 
   it("history persists across tasks", () => {
     const second = HAPPY.map((e) => ({ ...e, id: `2-${e.id}`, task_id: "t2" }) as PosEvent);
     const p = fold(second, fold(FAIL, fold(HAPPY)));
     expect(p.chat.filter((c) => c.kind === "user")).toHaveLength(3);
-    expect(p.chat.filter((c) => c.kind === "scorecard")).toHaveLength(3);
+    expect(p.chat.filter((c) => c.kind === "result")).toHaveLength(2);
+    expect(p.chat.filter((c) => c.kind === "error")).toHaveLength(1);
     expect(p.runOrder).toEqual([HAPPY[0].task_id, FAIL[0].task_id, "t2"]);
   });
 });
 
 describe("loadAgents after initial load", () => {
-  it("places new agents on the outer ring and keeps existing positions", () => {
+  it("keeps existing positions and places new agents clear of every node", () => {
     const p = base();
     const next = loadAgents(p, [...AGENTS, agent("critic")]);
     expect(next.nodes["agent:research"].position).toEqual(p.nodes["agent:research"].position);
-    const { x, y } = next.nodes["agent:critic"].position;
-    expect(Math.hypot(x / 400, y / 300)).toBeCloseTo(1, 5);
+    const critic = next.nodes["agent:critic"].position;
+    for (const n of Object.values(p.nodes)) expect(overlaps(n.position, critic), n.id).toBe(false);
   });
 });

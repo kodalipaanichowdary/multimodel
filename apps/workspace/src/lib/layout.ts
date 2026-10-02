@@ -24,6 +24,16 @@ export function agentPositions(ids: string[], radius = 260): Record<string, XY> 
   return out;
 }
 
+/**
+ * Node footprint in flow units: dot plus its label underneath. Two nodes overlap
+ * when their centres are closer than this box on both axes.
+ */
+export const FOOTPRINT = { w: 96, h: 56 };
+
+export function overlaps(a: XY, b: XY): boolean {
+  return Math.abs(a.x - b.x) < FOOTPRINT.w && Math.abs(a.y - b.y) < FOOTPRINT.h;
+}
+
 const SATELLITE_DIST: Record<NodeKind, number> = {
   agent: 260,
   tool: 120,
@@ -32,11 +42,40 @@ const SATELLITE_DIST: Record<NodeKind, number> = {
   artifact: 140,
 };
 
-/** Place a dynamic node near its anchor, angle derived from its id. */
-export function satellitePosition(anchor: XY, id: string, kind: NodeKind): XY {
-  const base = kind === "task" ? Math.PI : kind === "artifact" ? 0 : hash01(id) * Math.PI * 2;
-  const jitter = kind === "task" || kind === "artifact" ? (hash01(id) - 0.5) * 0.6 : 0;
-  const a = base + jitter;
-  const r = SATELLITE_DIST[kind];
-  return { x: anchor.x + Math.cos(a) * r, y: anchor.y + Math.sin(a) * r };
+/** Preferred direction: tasks to the left, artifacts to the right, tools outward from the hub. */
+function baseAngle(anchor: XY, center: XY, id: string, kind: NodeKind): number {
+  if (kind === "task") return Math.PI;
+  if (kind === "artifact") return 0;
+  const dx = anchor.x - center.x;
+  const dy = anchor.y - center.y;
+  const outward = dx === 0 && dy === 0 ? hash01(id) * Math.PI * 2 : Math.atan2(dy, dx);
+  return outward + (hash01(id) - 0.5) * 0.5;
+}
+
+/**
+ * Place a dynamic node near its anchor without overlapping `occupied`.
+ * Tries the preferred angle, then fans out ±30° steps, then larger radii.
+ * Deterministic for the same inputs.
+ */
+export function placeSatellite(
+  anchor: XY,
+  id: string,
+  kind: NodeKind,
+  occupied: XY[],
+  center: XY = { x: 0, y: 0 },
+): XY {
+  const base = baseAngle(anchor, center, id, kind);
+  const r0 = SATELLITE_DIST[kind];
+  const step = Math.PI / 6;
+  for (const rMul of [1, 1.35, 1.7, 2.1, 2.6]) {
+    for (let k = 0; k <= 6; k++) {
+      for (const sign of k === 0 ? [1] : [1, -1]) {
+        const a = base + sign * k * step;
+        const p = { x: anchor.x + Math.cos(a) * r0 * rMul, y: anchor.y + Math.sin(a) * r0 * rMul };
+        if (!occupied.some((o) => overlaps(o, p))) return p;
+      }
+    }
+  }
+  // Dense graph: fall back to the preferred spot rather than fly off-screen.
+  return { x: anchor.x + Math.cos(base) * r0, y: anchor.y + Math.sin(base) * r0 };
 }

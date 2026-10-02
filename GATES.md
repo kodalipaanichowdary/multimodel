@@ -12,7 +12,7 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] WS mock task animates states
 - [x] event schema validated (Pydantic+zod)
 - [x] >=50fps @50 nodes
-- [ ] docker compose up
+- [~] docker compose up — WAIVED by user 2026-10-02: no admin Docker; carried to G2 prerequisite (run infrastructure/smoke.sh when Rancher runs as admin)
 - [x] tests+lint green
 - [x] G1.10 final result + artifact shown in chat after run
 - [x] G1.11 scorecard counts == event counts (happy + fail fixtures)
@@ -21,8 +21,16 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] G1.14 no horizontal scroll; chat usable at 1440, 820, 390 px
 - [x] G1.15 chat history persists across tasks in session
 - [x] G1.16 all earlier G1 tests still pass
+- [x] G1.17 live strip in chat while running: agent dots on a line, travelling pulse to active agent, live tools running/done, ev/s, elapsed
+- [x] G1.18 on finish strip collapses to 1-line summary chip; full scorecard only on click
+- [x] G1.19 strip + chip derived only from Run.events (pure fns, unit-tested on fixtures)
+- [x] G1.20 no layout shift of chat when strip collapses; works at 1440/820/390
+- [x] G1.21 reduced-motion: no pulse animation, static state
+- [x] G1.22 elapsed uses event timestamps (no browser-clock mix) once run is done; live uses clock offset captured from first event
+- [x] G1.23 node overlap near Writer fixed (no two nodes overlap at default layout)
+- [x] G1.24 all earlier G1 tests pass
 
-G1 status 2026-10-02: 15/16 PASS (G1.10-G1.16 added by P1 patch). `docker compose up` BLOCKED: no Docker daemon reachable without elevation; run `bash infrastructure/smoke.sh`.
+G1 status 2026-10-02: 23/24 PASS, G1.8 WAIVED (carried to G2 prerequisite). P1.6 added G1.17-G1.24.
 
 ## G2 — Real Brain
 

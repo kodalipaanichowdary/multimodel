@@ -1,10 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { submitTask } from "../lib/api";
 import { useGraph } from "../store/graph";
 import type { ChatItem, ChatTone } from "../store/projection";
 import { STATE_COLOR } from "../lib/theme";
 import { Markdown } from "./Markdown";
-import { ScorecardView } from "./Scorecard";
+import { LiveStrip } from "./LiveStrip";
 
 const TONE: Record<ChatTone, string> = {
   info: "#94a3b8",
@@ -42,8 +42,12 @@ export function ChatView() {
           <p className="mt-1 text-slate-600">Include the word “fail” to see the failure path.</p>
         </div>
       )}
-      {chat.map((m) => (
-        <Message key={m.id} m={m} />
+      {chat.map((m, i) => (
+        <Fragment key={m.id}>
+          <Message m={m} />
+          {/* each run's strip/chip closes its group */}
+          {chat[i + 1]?.task_id !== m.task_id && <LiveStrip taskId={m.task_id} />}
+        </Fragment>
       ))}
     </div>
   );
@@ -113,8 +117,6 @@ function Message({ m }: { m: ChatItem }) {
           <p className="mt-1 break-words font-mono text-xs text-red-200/80">{m.error}</p>
         </div>
       );
-    case "scorecard":
-      return <ScorecardView taskId={m.task_id} />;
   }
 }
 

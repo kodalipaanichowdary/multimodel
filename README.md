@@ -46,10 +46,13 @@ Regenerate UI fixtures after changing the mock script: `cd apps/api && .venv/Scr
    (dangerous ones marked ⚠); the dock switches to **Inspect**. Esc closes.
 3. **Chat** (right dock >=1280px, slide-over drawer 768-1279px, bottom sheet <768px): type
    "Summarise MCP", Run. Live status lines appear ("Research started", "web_search running") and settle to done.
-4. The result renders as markdown (heading, plan list, findings, quote) with an artifact card;
-   "Open in inspector" jumps to Inspect > Artifacts. A scorecard follows (4 agents, 2 tools, 1 approval, 22 events).
+4. While it runs, a **live strip** closes the run in chat: planned agents as dots on a line, a pulse that
+   travels to the active agent (amber + "awaiting approval" for Writer), tools running/ok/failed, ev/s, elapsed.
+   The result renders as markdown with an artifact card; "Open in inspector" jumps to Inspect > Artifacts.
+   On finish the strip becomes a chip "✓ 4 agents · 2 tools · X.Xs ▸" in place (nothing above it moves);
+   click it for the full scorecard (4 agents, 2 tools, 1 approval, 22 events).
 5. **Run** tab: one row per agent with state, start offset, duration and tool chips; counters tick while live.
-6. Run "please fail": red error naming Research + web_search; scorecard shows 1 tool fail, 9 events.
+6. Run "please fail": red error naming Research + web_search; chip "✗ 2 agents · 1 tool"; scorecard shows 1 tool fail, 9 events.
 7. Run a third task: all earlier prompts, results and scorecards are still in the chat (session history).
 8. **+ Agent**: submit with id "Bad Id" -> inline errors, nothing created. Fill a valid agent with fs.write
    (⚠ warning) -> node appears; same id again -> "already exists" inline.
@@ -57,3 +60,5 @@ Regenerate UI fixtures after changing the mock script: `cd apps/api && .venv/Scr
 10. Resize: dock edge drags and collapses; at 820px the drawer closes to a Chat button; at 390px drag the sheet handle.
     No horizontal scrolling at any width.
 11. `/?stress=50`: meter shows 50 nodes and >=50 fps while panning.
+12. After a run, no two dots/labels overlap (Report and fs_write sit apart near Writer).
+13. OS "reduce motion" on: no drift, no pulses, no pulse travel; states still shown by colour and text.

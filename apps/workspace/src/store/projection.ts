@@ -12,7 +12,7 @@ import type {
   NodeState,
   PosEvent,
 } from "@pos/schemas";
-import { agentPositions, hash01, satellitePosition } from "../lib/layout";
+import { agentPositions, placeSatellite } from "../lib/layout";
 
 export type XY = { x: number; y: number };
 export type UINode = GraphNode & { position: XY };
@@ -34,8 +34,7 @@ export type ChatItem =
   | { id: string; kind: "user"; task_id: string; text: string }
   | { id: string; kind: "status"; task_id: string; text: string; tone: ChatTone }
   | { id: string; kind: "result"; task_id: string; artifact: Artifact }
-  | { id: string; kind: "error"; task_id: string; agent_id: string | null; tool_id: string | null; error: string }
-  | { id: string; kind: "scorecard"; task_id: string };
+  | { id: string; kind: "error"; task_id: string; agent_id: string | null; tool_id: string | null; error: string };
 
 export interface Projection {
   agents: Record<string, AgentDefinition>;
@@ -94,15 +93,15 @@ export function loadAgents(p: Projection, list: AgentDefinition[]): Projection {
       ref_id: a.id,
       state: prev?.state ?? "idle",
       // Agents added later go on an outer ring so they never land on existing nodes.
-      position: prev?.position ?? (initial ? pos[a.id] : outerRing(a.id)),
+      // Agents added later are placed clear of everything already on the canvas.
+      position:
+        prev?.position ??
+        (initial
+          ? pos[a.id]
+          : placeSatellite({ x: 0, y: 0 }, nid, "agent", Object.values(nodes).map((n) => n.position))),
     };
   }
   return { ...p, agents, nodes };
-}
-
-function outerRing(id: string): XY {
-  const a = hash01(id) * Math.PI * 2;
-  return { x: Math.cos(a) * 400, y: Math.sin(a) * 300 };
 }
 
 // ---------- helpers (operate on mutable drafts copied once per event) ----------
@@ -123,7 +122,13 @@ function ensureNode(d: Draft, nid: string, kind: NodeKind, label: string, ref: s
     label,
     ref_id: ref,
     state: "idle",
-    position: satellitePosition(anchor ?? { x: 0, y: 0 }, nid, kind),
+    position: placeSatellite(
+      anchor ?? { x: 0, y: 0 },
+      nid,
+      kind,
+      Object.values(d.nodes).map((n) => n.position),
+      d.nodes[agentNodeId("orchestrator")]?.position,
+    ),
   };
 }
 
@@ -379,8 +384,6 @@ function projectChat(
         task_id: t,
         artifact: { ...ev.payload, task_id: t },
       });
-    case "execution.completed":
-      return upsert(chat, { id: `${t}:score`, kind: "scorecard", task_id: t });
     case "execution.failed": {
       const failedTool = [...run.events]
         .reverse()
@@ -388,7 +391,7 @@ function projectChat(
       const settled = chat.map((c) =>
         c.task_id === t && c.kind === "status" && c.tone === "running" ? { ...c, tone: "error" as const } : c,
       );
-      const withErr = upsert(settled, {
+      return upsert(settled, {
         id: `${t}:error`,
         kind: "error",
         task_id: t,
@@ -396,7 +399,6 @@ function projectChat(
         tool_id: failedTool?.payload.tool_id ?? null,
         error: failedTool ? `${ev.payload.error} — ${failedTool.payload.error}` : ev.payload.error,
       });
-      return upsert(withErr, { id: `${t}:score`, kind: "scorecard", task_id: t });
     }
     default:
       return chat;
@@ -541,3 +543,112 @@ export function runTimeline(run: Pick<Run, "events">): Timeline {
   return { start_ts: start, last_ts: last, rows: [...rows.values()] };
 }
 
+// ---------- live strip + summary chip (pure, derived from Run.events only) ----------
+
+export interface LiveStats {
+  tools_running: number;
+  tools_done: number;
+  tools_failed: number;
+  /** events in the trailing 2 s window, per second */
+  events_per_sec: number;
+  elapsed_ms: number;
+  done: boolean;
+}
+
+export const EVPS_WINDOW_MS = 2000;
+
+/**
+ * Run counters. Time is always in the server's clock domain:
+ * - finished: last event ts - first event ts (browser clock not involved);
+ * - live: `nowMs - clockOffsetMs` maps the browser clock onto server time, where
+ *   clockOffsetMs = (browser receive time - server ts) of the run's first event.
+ */
+export function liveStats(run: Pick<Run, "events">, nowMs: number, clockOffsetMs: number): LiveStats {
+  const ev = run.events;
+  const done = runStatus(run) !== "running";
+  if (ev.length === 0) {
+    return { tools_running: 0, tools_done: 0, tools_failed: 0, events_per_sec: 0, elapsed_ms: 0, done };
+  }
+  const first = Date.parse(ev[0].ts);
+  const last = Date.parse(ev[ev.length - 1].ts);
+  const serverNow = done ? last : Math.max(last, nowMs - clockOffsetMs);
+  const settled = new Set<string>();
+  let started = 0;
+  let completed = 0;
+  let failed = 0;
+  let inWindow = 0;
+  for (const e of ev) {
+    if (e.type === "tool.started") started++;
+    if (e.type === "tool.completed") {
+      completed++;
+      settled.add(e.payload.call_id);
+    }
+    if (e.type === "tool.failed") {
+      failed++;
+      settled.add(e.payload.call_id);
+    }
+    if (Date.parse(e.ts) > serverNow - EVPS_WINDOW_MS) inWindow++;
+  }
+  return {
+    tools_running: Math.max(0, started - settled.size),
+    tools_done: completed,
+    tools_failed: failed,
+    events_per_sec: inWindow / (EVPS_WINDOW_MS / 1000),
+    elapsed_ms: serverNow - first,
+    done,
+  };
+}
+
+export interface StripDot {
+  agent_id: string;
+  state: NodeState;
+}
+export interface StripModel {
+  /** planned agents, in plan order */
+  dots: StripDot[];
+  /** dot the pulse sits on: first active dot, else first errored dot, else -1 */
+  activeIndex: number;
+  /** filled fraction of the line: segment i fills when dot i completes (leading run) */
+  progress: number;
+}
+
+const ACTIVE: ReadonlySet<NodeState> = new Set(["running", "thinking", "waiting_approval"]);
+
+export function stripModel(run: Pick<Run, "events">): StripModel {
+  const plan = [...run.events].reverse().find((e): e is EventOf<"task.planned"> => e.type === "task.planned");
+  if (!plan) return { dots: [], activeIndex: -1, progress: 0 };
+  const rows = new Map(runTimeline(run).rows.map((r) => [r.agent_id, r.state]));
+  const dots = plan.payload.steps.map((s) => ({ agent_id: s.agent_id, state: rows.get(s.agent_id) ?? "queued" }));
+  let activeIndex = dots.findIndex((d) => ACTIVE.has(d.state));
+  if (activeIndex === -1) activeIndex = dots.findIndex((d) => d.state === "error");
+  let leading = 0;
+  while (leading < dots.length && dots[leading].state === "completed") leading++;
+  const progress = dots.length <= 1 ? (leading > 0 ? 1 : 0) : Math.min(leading, dots.length - 1) / (dots.length - 1);
+  return { dots, activeIndex, progress };
+}
+
+export interface StripSummary {
+  ok: boolean;
+  agents: number;
+  tools: number;
+  seconds: string;
+  /** "✓ 4 agents · 2 tools · 5.3s" */
+  text: string;
+}
+
+/** One-line chip for a finished run. Duration from event timestamps only. */
+export function stripSummary(run: Pick<Run, "events" | "invalidDropped">): StripSummary {
+  const sc = scorecard(run);
+  const ev = run.events;
+  const span = ev.length > 1 ? Date.parse(ev[ev.length - 1].ts) - Date.parse(ev[0].ts) : 0;
+  const ok = sc.status === "completed";
+  const seconds = `${(span / 1000).toFixed(1)}s`;
+  const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
+  return {
+    ok,
+    agents: sc.agents_used,
+    tools: sc.tools_called,
+    seconds,
+    text: `${ok ? "✓" : "✗"} ${plural(sc.agents_used, "agent")} · ${plural(sc.tools_called, "tool")} · ${seconds}`,
+  };
+}

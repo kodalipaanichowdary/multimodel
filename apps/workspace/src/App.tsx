@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
+import { MotionConfig } from "framer-motion";
 import { AddAgentDialog } from "./components/AddAgentDialog";
 import { Canvas } from "./components/Canvas";
 import { Dock } from "./components/Dock";
@@ -36,6 +37,7 @@ export default function App() {
   }, []);
 
   return (
+    <MotionConfig reducedMotion="user">
     <ReactFlowProvider>
       <main
         data-layout={mode}
@@ -67,5 +69,6 @@ export default function App() {
         <AddAgentDialog />
       </main>
     </ReactFlowProvider>
+    </MotionConfig>
   );
 }

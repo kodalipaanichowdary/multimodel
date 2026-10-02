@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useGraph } from "../store/graph";
-import { runStatus, runTimeline, type ChipStatus } from "../store/projection";
+import { liveStats, runStatus, runTimeline, type ChipStatus } from "../store/projection";
 import { STATE_COLOR } from "../lib/theme";
 import { ScorecardView } from "./Scorecard";
 
@@ -20,11 +20,12 @@ export function RunView() {
   const setChosen = useGraph((s) => s.setRunViewTask);
   const taskId = chosen ?? runOrder[runOrder.length - 1] ?? null;
   const run = useGraph((s) => (taskId ? s.runs[taskId] : undefined));
+  const offset = useGraph((s) => (taskId ? s.clockOffsets[taskId] ?? 0 : 0));
   const agents = useGraph((s) => s.agents);
   const tl = useMemo(() => (run ? runTimeline(run) : null), [run]);
   const status = run ? runStatus(run) : null;
 
-  // Elapsed ticks while running; frozen at the last event's ts once finished.
+  // Ticks while running; liveStats maps the browser clock to server time via the run's offset.
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (status !== "running") return;
@@ -35,8 +36,7 @@ export function RunView() {
   if (!run || !tl || tl.start_ts === null) {
     return <p className="p-4 text-xs text-slate-500" data-testid="run-empty">No runs yet. Submit a task in Chat.</p>;
   }
-  const end = status === "running" ? Math.max(now, tl.last_ts ?? now) : (tl.last_ts ?? tl.start_ts);
-  const elapsed = Math.max(0, end - tl.start_ts);
+  const elapsed = liveStats(run, now, offset).elapsed_ms;
   const toolsCalled = tl.rows.reduce((n, r) => n + r.tools.length, 0);
   const agentsUsed = tl.rows.filter((r) => r.started_ms !== null).length;
 
