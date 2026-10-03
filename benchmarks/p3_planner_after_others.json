@@ -1,0 +1,232 @@
+{
+ "meta": {
+  "when": "2026-10-03 16:43:59",
+  "n_prompts": 8,
+  "roles": "planner 8",
+  "free_ram_gib": 7.4,
+  "skipped": {}
+ },
+ "recommendation": {
+  "planner": {
+   "model": "mistral:7b",
+   "score": 4.5,
+   "best_score": 4.5
+  }
+ },
+ "results": [
+  {
+   "model": "phi3.5",
+   "n": 8,
+   "vram_gib": 2.19,
+   "size_gib": 3.65,
+   "gpu_share": 0.6,
+   "schema_first_try": 0.625,
+   "schema_after_heal": 0.625,
+   "mean_score": 2.5,
+   "score_by_role": {
+    "planner": 2.5
+   },
+   "cold_ttft_ms": 6041,
+   "median_ttft_ms_warm": 580,
+   "median_tok_s_warm": 17.0,
+   "median_total_ms_warm": 21321,
+   "rows": [
+    {
+     "id": "p01",
+     "role": "planner",
+     "score": 3,
+     "note": "branches=2/1 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 6041,
+     "tok_s": 19.55,
+     "total_ms": 17859
+    },
+    {
+     "id": "p02",
+     "role": "planner",
+     "score": 1,
+     "note": "invalid",
+     "first_try_valid": false,
+     "valid_after_heal": false,
+     "ttft_ms": 534,
+     "tok_s": 16.97,
+     "total_ms": 41928
+    },
+    {
+     "id": "p03",
+     "role": "planner",
+     "score": 3,
+     "note": "branches=2/1 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 580,
+     "tok_s": 17.02,
+     "total_ms": 14562
+    },
+    {
+     "id": "p04",
+     "role": "planner",
+     "score": 1,
+     "note": "invalid",
+     "first_try_valid": false,
+     "valid_after_heal": false,
+     "ttft_ms": 469,
+     "tok_s": 17.02,
+     "total_ms": 44322
+    },
+    {
+     "id": "p05",
+     "role": "planner",
+     "score": 3,
+     "note": "branches=3/1 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 625,
+     "tok_s": 16.62,
+     "total_ms": 21321
+    },
+    {
+     "id": "p06",
+     "role": "planner",
+     "score": 1,
+     "note": "invalid",
+     "first_try_valid": false,
+     "valid_after_heal": false,
+     "ttft_ms": 714,
+     "tok_s": 16.81,
+     "total_ms": 46887
+    },
+    {
+     "id": "p07",
+     "role": "planner",
+     "score": 5,
+     "note": "branches=2/2 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 679,
+     "tok_s": 16.73,
+     "total_ms": 16577
+    },
+    {
+     "id": "p08",
+     "role": "planner",
+     "score": 3,
+     "note": "branches=3/1 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 553,
+     "tok_s": 16.98,
+     "total_ms": 18575
+    }
+   ]
+  },
+  {
+   "model": "mistral:7b",
+   "n": 8,
+   "vram_gib": 2.16,
+   "size_gib": 4.71,
+   "gpu_share": 0.46,
+   "schema_first_try": 0.875,
+   "schema_after_heal": 0.875,
+   "mean_score": 4.5,
+   "score_by_role": {
+    "planner": 4.5
+   },
+   "cold_ttft_ms": 9623,
+   "median_ttft_ms_warm": 610,
+   "median_tok_s_warm": 7.4,
+   "median_total_ms_warm": 36621,
+   "rows": [
+    {
+     "id": "p01",
+     "role": "planner",
+     "score": 5,
+     "note": "branches=1/1 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 9623,
+     "tok_s": 7.73,
+     "total_ms": 33569
+    },
+    {
+     "id": "p02",
+     "role": "planner",
+     "score": 5,
+     "note": "branches=3/3 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 610,
+     "tok_s": 7.42,
+     "total_ms": 41822
+    },
+    {
+     "id": "p03",
+     "role": "planner",
+     "score": 5,
+     "note": "branches=1/1 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 570,
+     "tok_s": 7.41,
+     "total_ms": 29172
+    },
+    {
+     "id": "p04",
+     "role": "planner",
+     "score": 1,
+     "note": "invalid",
+     "first_try_valid": false,
+     "valid_after_heal": false,
+     "ttft_ms": 540,
+     "tok_s": 7.45,
+     "total_ms": 83435
+    },
+    {
+     "id": "p05",
+     "role": "planner",
+     "score": 5,
+     "note": "branches=1/1 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 630,
+     "tok_s": 7.39,
+     "total_ms": 28645
+    },
+    {
+     "id": "p06",
+     "role": "planner",
+     "score": 5,
+     "note": "branches=4/4 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 885,
+     "tok_s": 7.3,
+     "total_ms": 51551
+    },
+    {
+     "id": "p07",
+     "role": "planner",
+     "score": 5,
+     "note": "branches=2/2 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 901,
+     "tok_s": 7.36,
+     "total_ms": 36621
+    },
+    {
+     "id": "p08",
+     "role": "planner",
+     "score": 5,
+     "note": "branches=1/1 terms=ok shape=ok",
+     "first_try_valid": true,
+     "valid_after_heal": true,
+     "ttft_ms": 533,
+     "tok_s": 7.47,
+     "total_ms": 26643
+    }
+   ]
+  }
+ ]
+}
