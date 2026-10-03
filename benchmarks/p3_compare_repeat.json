@@ -1,0 +1,112 @@
+{
+ "when": "2026-10-03 17:14:31",
+ "free_ram_gib": 7.5,
+ "runs": {
+  "Compare the populations of Hyderabad, Bangalore and Chennai": [
+   {
+    "terminal": "execution.completed",
+    "outcome": "unverified",
+    "branches": [
+     "research#1",
+     "research#2",
+     "research#3"
+    ],
+    "fetches_ok": 5,
+    "fetches_failed": 7,
+    "validator_rejections": [],
+    "seconds": 35.4,
+    "answer": "I could not verify an answer from the fetched sources."
+   },
+   {
+    "terminal": "execution.completed",
+    "outcome": "unverified",
+    "branches": [
+     "research#1",
+     "research#2",
+     "research#3"
+    ],
+    "fetches_ok": 6,
+    "fetches_failed": 6,
+    "validator_rejections": [
+     "Rejected: sentence 1 not supported by cited source(s) [1]: not stated together there: ['Bangalore', 'Chennai', '20,100,000', '13,109,989', '2022']; sentence 2 not supported by cited source(s) [2]: not stated together there: ['Bangalore', 'Chennai']; sentence 3 not supported by cited source(s) [5]: not stated together there: ['Bangalore', '20.1']; sentence 5 not supported by cited source(s) [2]: not stated together there: ['Chennai']",
+     "Rejected: sentence 2 not supported by cited source(s) [3]: not stated together there: [\"Bangalore's\", '20,100,000']"
+    ],
+    "seconds": 16.0,
+    "answer": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Hyderabad Population | Telangana, India | World Measure](https://worldmeasure.com/cities/hyderabad-ind/urban-population/2022)\n2. [Demographics of Hyderabad - Wikipedia](https://en.wikipedia.org/wiki/Demographics_of_Hyderabad)\n3. [Bangalore, India Population (2026) - Population Stat](https://populationstat.com/india/bangalore)\n4. [Bengaluru Population 2026](https://worldpopulationreview.com/cities/india/bengaluru)\n5. [Chennai Population 2026](https://"
+   },
+   {
+    "terminal": "execution.completed",
+    "outcome": "unverified",
+    "branches": [
+     "research#1",
+     "research#2",
+     "research#3"
+    ],
+    "fetches_ok": 6,
+    "fetches_failed": 6,
+    "validator_rejections": [
+     "Rejected: sentence 1 not supported by cited source(s) [1]: not stated together there: ['Bangalore', 'Chennai', '20,100,000', '13,109,989', '2022']; sentence 2 not supported by cited source(s) [2]: not stated together there: ['Bangalore', 'Chennai']; sentence 3 not supported by cited source(s) [4]: not stated together there: ['Bangalore']",
+     "Rejected: sentence 1 not supported by cited source(s) [1]: not stated together there: ['6,993,262', '2022']; sentence 2 not supported by cited source(s) [1]: not stated together there: [\"Hyderabad's\"]; sentence 3 not supported by cited source(s) [4]: not stated together there: [\"Bangalore's\", '20,100,000', '2022']; sentence 4 not supported by cited source(s) [4]: not stated together there: [\"Bangalore's\"]; sentence 5 not supported by cited source(s) [5]: n"
+    ],
+    "seconds": 15.7,
+    "answer": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Hyderabad Population | Telangana, India | World Measure](https://worldmeasure.com/cities/hyderabad-ind/urban-population/2022)\n2. [Demographics of Hyderabad - Wikipedia](https://en.wikipedia.org/wiki/Demographics_of_Hyderabad)\n3. [Bangalore, India Population (2026) - Population Stat](https://populationstat.com/india/bangalore)\n4. [Bengaluru Population 2026](https://worldpopulationreview.com/cities/india/bengaluru)\n5. [Chennai Population 2026](https://"
+   }
+  ],
+  "Compare the heights of Mount Everest, K2 and Kangchenjunga": [
+   {
+    "terminal": "execution.completed",
+    "outcome": "unverified",
+    "branches": [
+     "research#1",
+     "research#2",
+     "research#3",
+     "research#4"
+    ],
+    "fetches_ok": 9,
+    "fetches_failed": 1,
+    "validator_rejections": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; sentence 1 not supported by cited source(s) [1, 2, 5, 6]: not stated together there: ['K2', '8,611', '28,251', 'Kangchenjunga', '8,586', '27,995']",
+     "Rejected: sentence 3 not supported by cited source(s) [1, 2, 3, 5]: not stated together there: ['8,586', '27,995']"
+    ],
+    "seconds": 17.8,
+    "answer": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Mount Everest - Wikipedia](https://en.wikipedia.org/wiki/Mount_Everest)\n2. [How Tall is Mount Everest? Height in Feet & Meters 2026](https://www.magicalnepal.com/blog/how-tall-is-mount-everest/)\n3. [K2 - Wikipedia](https://en.wikipedia.org/wiki/K2)\n4. [How Tall Is K2? Exact Height in Meters & Feet | Skardu Trekkers - SKARDU TREKKERS](https://skardutrekkers.com/k2-height-how-tall-is-k2-in-meters/)\n5. [Kangchenjunga - Wikipedia](https://en.wikipedia.or"
+   },
+   {
+    "terminal": "execution.completed",
+    "outcome": "unverified",
+    "branches": [
+     "research#1",
+     "research#2",
+     "research#3",
+     "research#4"
+    ],
+    "fetches_ok": 9,
+    "fetches_failed": 1,
+    "validator_rejections": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; sentence 1 not supported by cited source(s) [1, 2, 5]: not stated together there: ['K2', '8,611', '28,251', 'Kangchenjunga', '8,586', '27,995']",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; sentence 3 not supported by cited source(s) [5]: not stated together there: ['8,586', '27,995']"
+    ],
+    "seconds": 16.4,
+    "answer": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Mount Everest - Wikipedia](https://en.wikipedia.org/wiki/Mount_Everest)\n2. [How Tall is Mount Everest? Height in Feet & Meters 2026](https://www.magicalnepal.com/blog/how-tall-is-mount-everest/)\n3. [K2 - Wikipedia](https://en.wikipedia.org/wiki/K2)\n4. [How Tall Is K2? Exact Height in Meters & Feet | Skardu Trekkers - SKARDU TREKKERS](https://skardutrekkers.com/k2-height-how-tall-is-k2-in-meters/)\n5. [Kangchenjunga - Wikipedia](https://en.wikipedia.or"
+   },
+   {
+    "terminal": "execution.completed",
+    "outcome": "unverified",
+    "branches": [
+     "research#1",
+     "research#2",
+     "research#3",
+     "research#4"
+    ],
+    "fetches_ok": 9,
+    "fetches_failed": 1,
+    "validator_rejections": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; sentence 1 not supported by cited source(s) [1, 2, 5]: not stated together there: ['K2', '8,611', '28,251', 'Kangchenjunga', '8,586', '27,995']",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; sentence 3 not supported by cited source(s) [5]: not stated together there: ['8,586', '27,995']"
+    ],
+    "seconds": 16.5,
+    "answer": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Mount Everest - Wikipedia](https://en.wikipedia.org/wiki/Mount_Everest)\n2. [How Tall is Mount Everest? Height in Feet & Meters 2026](https://www.magicalnepal.com/blog/how-tall-is-mount-everest/)\n3. [K2 - Wikipedia](https://en.wikipedia.org/wiki/K2)\n4. [How Tall Is K2? Exact Height in Meters & Feet | Skardu Trekkers - SKARDU TREKKERS](https://skardutrekkers.com/k2-height-how-tall-is-k2-in-meters/)\n5. [Kangchenjunga - Wikipedia](https://en.wikipedia.or"
+   }
+  ]
+ }
+}
