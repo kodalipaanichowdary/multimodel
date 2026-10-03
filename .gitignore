@@ -12,3 +12,6 @@ playwright-report/
 .vite/
 build/
 apps/api/data/
+# npm run demo: the video (~12 MB) and live recordings stay local; stub screenshots + DEMO.md are committed
+docs/demo/*.webm
+docs/demo/live/

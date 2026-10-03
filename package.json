@@ -15,7 +15,8 @@
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "e2e": "npm run e2e -w @pos/workspace",
-    "doctor": "node scripts/doctor.mjs"
+    "doctor": "node scripts/doctor.mjs",
+    "demo": "node scripts/demo.mjs"
   },
   "engines": {
     "node": ">=18"

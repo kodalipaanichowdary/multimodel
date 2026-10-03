@@ -59,6 +59,20 @@ apps/api/.venv/Scripts/python benchmarks/soak_p2.py     # -> benchmarks/p2_soak.
 Perf harness: open `/?stress=50` to pad the canvas to 50 nodes (FPS meter top-left).
 Regenerate UI fixtures after changing the mock script: `cd apps/api && .venv/Scripts/python scripts/gen_fixtures.py`.
 
+## Recorded demo
+
+```bash
+npm run demo             # stub model + offline fictional corpus: always works, no Ollama  -> docs/demo/
+npm run demo -- --live   # real Ollama + web; runs doctor first and stops if it fails      -> docs/demo/live/
+```
+
+A visible Edge window plays the 9 scenes slowly with a caption per scene (open/hover/popup, simple fact,
+parallel compare, honest refusal, memory, approval Allow/Deny, Stop, private/offline, audit + traces) and saves
+`NN-name.png` per scene, `demo.webm` and `DEMO.md` (what was typed, what appeared, agents, TTFT, tok/s, tools,
+seconds). Outcomes are recorded as they happen: a scene that did not go as hoped is marked **DIFFERS**, never
+retried. Each run uses fresh temp databases (ports 8003/5176). Offline mode needs an API restart, so it is
+documented in DEMO.md, not automated. The first run downloads Playwright's ffmpeg (~1.3 MB, user cache) for the video.
+
 ## Manual test checklist (P1)
 
 1. Open the UI. 6 drifting dots; drag one, scroll to zoom, drag empty space to pan.
