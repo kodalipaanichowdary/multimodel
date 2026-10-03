@@ -10,6 +10,8 @@ const P2 = { api: 8002, ui: 5175 };
 const apiDir = path.resolve(process.cwd(), "../api");
 const py = path.join(apiDir, process.platform === "win32" ? ".venv/Scripts/python.exe" : ".venv/bin/python");
 const p2Tmp = path.join(os.tmpdir(), `pos-e2e-${process.pid}`);
+const PROD_UI = 4174;
+const prodDist = path.join(os.tmpdir(), `pos-e2e-dist-${process.pid}`);
 
 const ui = (port: number, api: number) => ({
   command: `npx vite --port ${port} --strictPort`,
@@ -29,8 +31,10 @@ export default defineConfig({
     headless: process.env.HEADED ? false : true,
   },
   projects: [
-    { name: "p1", testMatch: /g1.*\.spec\.ts/, use: { baseURL: `http://localhost:${P1.ui}` } },
-    { name: "p2", testMatch: /g2.*\.spec\.ts/, use: { baseURL: `http://localhost:${P2.ui}` } },
+    { name: "p1", testMatch: /(g1.*|g3-ui)\.spec\.ts/, use: { baseURL: `http://localhost:${P1.ui}` } },
+    { name: "p2", testMatch: /(g2.*|g3-rt)\.spec\.ts/, use: { baseURL: `http://localhost:${P2.ui}` } },
+    // G3.5: production bundle (vite build + vite preview) against the P1 contract API
+    { name: "prod", testMatch: /g3-prod\.spec\.ts/, use: { baseURL: `http://localhost:${PROD_UI}` } },
   ],
   webServer: [
     {
@@ -58,5 +62,12 @@ export default defineConfig({
       reuseExistingServer: false,
     },
     ui(P2.ui, P2.api),
+    {
+      command: `npx vite build --outDir "${prodDist}" --emptyOutDir --logLevel error && npx vite preview --outDir "${prodDist}" --port ${PROD_UI} --strictPort`,
+      url: `http://localhost:${PROD_UI}`,
+      env: { API_TARGET: `http://127.0.0.1:${P1.api}` },
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
   ],
 });

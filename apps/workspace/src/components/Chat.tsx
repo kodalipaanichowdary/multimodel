@@ -180,7 +180,9 @@ function ApprovalCard({ m }: { m: Extract<ChatItem, { kind: "approval" }> }) {
 }
 
 export function Composer() {
-  const [prompt, setPrompt] = useState("");
+  // G3.1: the draft lives in the store, so it survives the dock/drawer/sheet remount
+  const prompt = useGraph((s) => s.draft);
+  const setPrompt = useGraph((s) => s.setDraft);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const wsStatus = useGraph((s) => s.wsStatus);
@@ -237,7 +239,7 @@ export function Composer() {
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Give the OS a task…"
           maxLength={4000}
-          className="min-w-0 flex-1 bg-transparent text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none"
+          className="min-w-0 flex-1 bg-transparent text-sm text-slate-100 placeholder:text-slate-600"
         />
         {taskState && (
           <span

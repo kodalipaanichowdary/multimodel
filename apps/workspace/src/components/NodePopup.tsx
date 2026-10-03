@@ -21,7 +21,14 @@ export function NodePopup() {
   const working = node ? ["running", "thinking", "waiting_approval"].includes(node.state) : false;
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    // G3.4: Esc closes and gives focus back to the node the popup belongs to
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const id = useGraph.getState().popup?.nodeId;
+      close();
+      // after this event: React Flow's own Escape handling blurs the focused node first
+      if (id) setTimeout(() => document.querySelector<HTMLElement>(`.react-flow__node[data-id="${CSS.escape(id)}"]`)?.focus(), 0);
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [close]);

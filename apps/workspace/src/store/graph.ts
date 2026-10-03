@@ -34,6 +34,9 @@ interface GraphStore extends Projection {
   /** Run shown in the Run tab; null = latest. */
   runViewTask: string | null;
   addAgentOpen: boolean;
+  /** Unsent composer text (UI-only; survives layout switches). */
+  draft: string;
+  setDraft: (text: string) => void;
   /**
    * Per run: browser receive time - server ts of the first event seen. Lets live
    * elapsed be expressed in server time without mixing clocks (see liveStats).
@@ -72,6 +75,8 @@ export const useGraph = create<GraphStore>()((set, get) => ({
   nextSelected: [],
   runViewTask: null,
   addAgentOpen: false,
+  draft: "",
+  setDraft: (draft) => set({ draft }),
   clockOffsets: {},
 
   setAgents: (list) => set((s) => ({ ...loadAgents(s, list), agentsError: null })),

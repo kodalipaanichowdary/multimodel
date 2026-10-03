@@ -94,3 +94,13 @@ body,
     animation: none !important;
   }
 }
+
+/* G3.3: one visible keyboard focus ring for every interactive element. !important so no
+   component-level outline reset (e.g. Tailwind outline-none) can hide it. */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible,
+.react-flow__node:focus-visible,
+.react-flow__controls-button:focus-visible {
+  outline: 2px solid #c4b5fd !important;
+  outline-offset: 2px !important;
+  border-radius: 6px;
+}

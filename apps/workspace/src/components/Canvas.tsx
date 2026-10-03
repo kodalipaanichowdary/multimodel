@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, type KeyboardEvent } from "react";
 import {
   Background,
   BackgroundVariant,
@@ -8,6 +8,7 @@ import {
   type Node,
   type NodeChange,
   type NodeMouseHandler,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useShallow } from "zustand/react/shallow";
@@ -17,6 +18,7 @@ import { HoverTag, type HoverTagHandle } from "./HoverTag";
 import type { EdgeKind } from "@pos/schemas";
 
 const nodeTypes = { dot: DotNode };
+const FIT = { padding: 0.35, maxZoom: 1.4 };
 
 const EDGE_COLOR: Record<EdgeKind, string> = {
   delegates: "#a78bfa",
@@ -32,6 +34,32 @@ export function Canvas() {
   const closePopup = useGraph((s) => s.closePopup);
   const select = useGraph((s) => s.select);
   const tag = useRef<HoverTagHandle>(null);
+  const wrap = useRef<HTMLDivElement>(null);
+  const { fitView } = useReactFlow();
+  // G3.2: refit when the canvas is resized (layout switch / window resize) unless the user
+  // has panned or zoomed by hand; the Controls "fit view" button hands control back.
+  const userMoved = useRef(false);
+
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    let raf = 0;
+    let last = "";
+    const ro = new ResizeObserver(([entry]) => {
+      const size = `${Math.round(entry.contentRect.width)}x${Math.round(entry.contentRect.height)}`;
+      if (size === last) return;
+      const first = last === "";
+      last = size;
+      if (first || userMoved.current) return; // initial fit is done by the fitView prop
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => fitView(FIT));
+    });
+    ro.observe(el);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [fitView]);
 
   // Stable `data` objects so memoized DotNodes skip re-render on unrelated changes.
   const dataCache = useRef(new Map<string, DotData>());
@@ -76,6 +104,19 @@ export function Canvas() {
   );
   const onEnter: NodeMouseHandler = useCallback((e, n) => tag.current?.show(n.id, e), []);
   const onLeave: NodeMouseHandler = useCallback(() => tag.current?.hide(), []);
+  // G3.4: keyboard users open a node's popup with Enter/Space on the focused node.
+  const onKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const el = (e.target as HTMLElement).closest<HTMLElement>(".react-flow__node");
+      const id = el?.dataset.id;
+      if (!el || !id) return;
+      e.preventDefault();
+      const r = el.getBoundingClientRect();
+      openPopup(id, r.left + r.width / 2, r.top + r.height / 2);
+    },
+    [openPopup],
+  );
   const onPaneClick = useCallback(() => {
     closePopup();
     select(null);
@@ -85,6 +126,8 @@ export function Canvas() {
     <div
       className="absolute inset-0"
       data-testid="canvas"
+      ref={wrap}
+      onKeyDown={onKeyDown}
       onMouseMove={(e) => tag.current?.move(e.clientX, e.clientY)}
     >
       <ReactFlow
@@ -97,17 +140,30 @@ export function Canvas() {
         onNodeMouseLeave={onLeave}
         onNodeDragStart={() => tag.current?.hide()}
         onPaneClick={onPaneClick}
-        onMoveStart={closePopup}
+        onMoveStart={(event) => {
+          closePopup();
+          if (event) {
+            userMoved.current = true; // a real pan/zoom (programmatic moves have no event)
+            wrap.current?.setAttribute("data-user-moved", "true");
+          }
+        }}
         nodesConnectable={false}
         fitView
-        fitViewOptions={{ padding: 0.35, maxZoom: 1.4 }}
+        fitViewOptions={FIT}
         minZoom={0.2}
         maxZoom={3}
         proOptions={{ hideAttribution: false }}
         colorMode="dark"
       >
         <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="#1c2030" />
-        <Controls showInteractive={false} position="bottom-left" />
+        <Controls
+          showInteractive={false}
+          position="bottom-left"
+          onFitView={() => {
+            userMoved.current = false;
+            wrap.current?.setAttribute("data-user-moved", "false");
+          }}
+        />
       </ReactFlow>
       <HoverTag ref={tag} />
     </div>

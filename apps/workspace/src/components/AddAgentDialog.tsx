@@ -166,7 +166,7 @@ export function AddAgentDialog() {
 }
 
 const INPUT =
-  "w-full min-w-0 rounded-md border border-white/10 bg-black/30 px-2 py-1.5 text-sm text-slate-100 focus:border-violet-400/60 focus:outline-none";
+  "w-full min-w-0 rounded-md border border-white/10 bg-black/30 px-2 py-1.5 text-sm text-slate-100 focus:border-violet-400/60";
 
 function Field(props: { label: string; hint?: string; error?: string[]; name: string; children: ReactNode }) {
   return (
