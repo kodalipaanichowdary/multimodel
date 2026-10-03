@@ -90,8 +90,10 @@ class ToolRegistry:
         specs: tuple[ToolSpec, ...] = DEFAULT_TOOLS,
         servers: dict[str, ModuleType] | None = None,
         local: dict[str, tuple[ToolSpec, LocalHandler]] | None = None,
+        offline: bool = False,
     ) -> None:
         self.approvals = approvals
+        self.offline = offline  # POS_OFFLINE=1: net.read tools fail fast with "offline" (G3.11)
         self.specs = {s.id: s for s in specs}
         # local tools (e.g. memory): same permission/approval/event path, Python handler instead of MCP
         self._local: dict[str, LocalHandler] = {}
@@ -149,6 +151,8 @@ class ToolRegistry:
                 f"permission denied: {agent.id} needs tool {tool_id!r} with permission {spec.permission!r}",
                 PermissionDenied,
             )
+        if self.offline and spec.permission == "net.read":
+            raise fail("offline: network tools are disabled (POS_OFFLINE=1)")
         if spec.needs_approval:
             allowed = await self.approvals.request(
                 ctx, agent.id, tool_id, reason or f"{tool_id} {json.dumps(args)[:120]}"

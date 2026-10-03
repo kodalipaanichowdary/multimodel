@@ -23,6 +23,13 @@ function storedProject(): string {
     return "default";
   }
 }
+function storedPrivate(): boolean {
+  try {
+    return localStorage.getItem("pos.private") !== "0";
+  } catch {
+    return true;
+  }
+}
 export type InspectorTab = "node" | "events" | "artifacts";
 
 export interface SchemaError {
@@ -51,6 +58,9 @@ interface GraphStore extends Projection {
   /** memory scope for new tasks (G3.9); remembered per browser */
   projectId: string;
   setProjectId: (id: string) => void;
+  /** G3.11: private tasks never leave the machine (default on); remembered per browser */
+  privateTasks: boolean;
+  setPrivateTasks: (on: boolean) => void;
   setDraft: (text: string) => void;
   /**
    * Per run: browser receive time - server ts of the first event seen. Lets live
@@ -100,6 +110,15 @@ export const useGraph = create<GraphStore>()((set, get) => ({
       /* storage unavailable: keep it for this session only */
     }
     set({ projectId });
+  },
+  privateTasks: typeof window === "undefined" ? true : storedPrivate(),
+  setPrivateTasks: (privateTasks) => {
+    try {
+      localStorage.setItem("pos.private", privateTasks ? "1" : "0");
+    } catch {
+      /* storage unavailable: keep it for this session only */
+    }
+    set({ privateTasks });
   },
   clockOffsets: {},
 

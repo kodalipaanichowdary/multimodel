@@ -13,18 +13,22 @@ from pydantic import BaseModel, ConfigDict, Field
 from . import health
 from .agent_runtime.approvals import ApprovalBroker
 from .agent_runtime.executor import RealExecutor, UnsupportedSelection
+from .audit import open_audit
 from .bus import EventBus
 from .config import Settings
 from .memory.store import PROJECT_ID, Layer, MemoryItem, open_memory
 from .memory.tools import memory_tools
 from .mock_executor import ExtraAgent, MockExecutor
 from .models.base import LLMClient
+from .models.cloud import CloudClient
 from .models.embed import OllamaEmbedder
 from .models.ollama import OllamaClient
+from .models.router import ModelRouter
 from .models.stub import StubClient
 from .persistence import EventRepository, TaskSummary, open_repository
 from .registry import AgentExistsError, AgentNotFoundError, AgentRegistry
 from .tools.registry import ToolRegistry
+from .tracing import open_tracer
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logging.getLogger("mcp").setLevel(logging.WARNING)  # in-process MCP sessions are chatty at INFO
@@ -39,6 +43,7 @@ class TaskRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=4000)
     selected: list[str] = Field(default_factory=list, max_length=20, description="agent ids")
     project_id: str = Field(default="default", pattern=PROJECT_ID, description="memory scope")
+    private: bool = Field(default=True, description="private tasks never leave the machine")
 
 
 class TaskAccepted(BaseModel):
@@ -82,7 +87,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.settings = settings
         app.state.registry = AgentRegistry.from_dir(settings.agents_dir)
         app.state.repo = open_repository(settings.db_path)
-        app.state.bus = EventBus(repo=app.state.repo)
+        app.state.audit = open_audit(settings.audit_db_path)
+        app.state.tracer = open_tracer(settings.traces_dir)
+        app.state.bus = EventBus(repo=app.state.repo, sinks=(app.state.audit, app.state.tracer))
         closed = _close_interrupted(app.state.repo, app.state.bus)
         app.state.approvals = ApprovalBroker(settings.approval_timeout_s)
         use_vectors = settings.embeddings and settings.llm_provider == "ollama"
@@ -93,22 +100,33 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             app.state.executor = MockExecutor(app.state.bus, settings.mock_step_delay_s)
         else:
             tools = ToolRegistry(
-                settings.mcp_root, app.state.approvals, local=memory_tools(app.state.memory)
+                settings.mcp_root,
+                app.state.approvals,
+                local=memory_tools(app.state.memory),
+                offline=settings.offline,
+            )
+            app.state.router = ModelRouter(
+                _llm(settings),
+                CloudClient(settings.cloud_api_key, settings.cloud_base_url, settings.cloud_model),
+                cloud_kinds=settings.cloud_kinds,
+                offline=settings.offline,
             )
             app.state.executor = RealExecutor(
                 app.state.bus,
                 app.state.registry,
-                _llm(settings),
+                app.state.router,
                 tools,
                 model_concurrency=settings.model_concurrency,
                 parallel_branches=settings.parallel_branches,
                 memory=app.state.memory,
             )
         log.info(
-            "executor=%s llm=%s db=%s (closed %d interrupted runs)",
+            "executor=%s llm=%s db=%s offline=%s cloud=%s (closed %d interrupted runs)",
             app.state.executor.name,
             "-" if settings.mock_executor else settings.llm_provider,
             settings.db_path,
+            settings.offline,
+            "enabled" if settings.cloud_api_key else "disabled (no key)",
             closed,
         )
         yield
@@ -163,7 +181,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             return TaskAccepted(
                 task_id=request.app.state.executor.submit(
-                    body.prompt, extra, project_id=body.project_id
+                    body.prompt, extra, project_id=body.project_id, private=body.private
                 )
             )
         except UnsupportedSelection as e:
@@ -190,6 +208,28 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if not request.app.state.memory.delete(item_id, project_id):
             raise HTTPException(404, f"no memory '{item_id}' in project '{project_id}' or personal")
         return Response(status_code=204)
+
+    @app.get("/audit")
+    async def audit_entries(
+        request: Request,
+        task_id: str | None = Query(None, max_length=64),
+        limit: int = Query(500, ge=1, le=5000),
+    ) -> list[dict]:
+        """Append-only log of tool calls, approvals and model calls (read-only; no write API)."""
+        return request.app.state.audit.entries(task_id, limit)
+
+    @app.get("/audit/verify")
+    async def audit_verify(request: Request) -> dict:
+        return request.app.state.audit.verify()
+
+    @app.get("/runtime")
+    async def runtime(request: Request) -> dict:
+        s: Settings = request.app.state.settings
+        return {
+            "offline": s.offline,
+            "cloud_available": bool(s.cloud_api_key) and not s.offline,
+            "cloud_kinds": sorted(s.cloud_kinds),
+        }
 
     @app.get("/tasks", response_model=list[TaskSummary])
     async def list_tasks(

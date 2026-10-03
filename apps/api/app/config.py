@@ -55,6 +55,31 @@ class Settings:
     )
     # vectors via Ollama nomic-embed-text when the real model provider is used; FTS5 otherwise
     embeddings: bool = field(default_factory=lambda: os.getenv("EMBEDDINGS", "1") != "0")
+    # G3.10: append-only audit log (SQLite) + one OTel trace file per task; "none" disables
+    audit_db_path: str = field(
+        default_factory=lambda: os.getenv(
+            "POS_AUDIT_DB", str(_REPO_ROOT / "apps" / "api" / "data" / "audit.db")
+        )
+    )
+    traces_dir: str = field(
+        default_factory=lambda: os.getenv(
+            "POS_TRACES_DIR", str(_REPO_ROOT / "apps" / "api" / "data" / "traces")
+        )
+    )
+    # G3.11: POS_OFFLINE=1 -> web tools fail fast, models local only
+    offline: bool = field(default_factory=lambda: _flag("POS_OFFLINE"))
+    # cloud adapter: disabled unless CLOUD_API_KEY is set; private tasks never use it
+    cloud_api_key: str | None = field(default_factory=lambda: os.getenv("CLOUD_API_KEY") or None)
+    cloud_base_url: str = field(
+        default_factory=lambda: os.getenv("CLOUD_BASE_URL", "https://api.openai.com/v1")
+    )
+    cloud_model: str = field(default_factory=lambda: os.getenv("CLOUD_MODEL", "gpt-4o-mini"))
+    # call kinds a NON-private task may send to the cloud (comma list of plan,research,write)
+    cloud_kinds: frozenset[str] = field(
+        default_factory=lambda: frozenset(
+            k.strip() for k in os.getenv("CLOUD_KINDS", "").split(",") if k.strip()
+        )
+    )
     approval_timeout_s: float = field(
         default_factory=lambda: float(os.getenv("APPROVAL_TIMEOUT_S", "120"))
     )

@@ -23,6 +23,7 @@ from pos_schemas import AgentDefinition, Draft, Plan, PlanStep, ResearchResult, 
 
 from ..memory.store import MemoryRepository
 from ..models.base import LLMClient, Message, Metrics
+from ..models.router import KIND_BY_AGENT, call_kind
 from ..registry import AgentRegistry
 from ..tools.registry import ApprovalDenied, ToolError, ToolRegistry
 from .context import RunContext
@@ -154,6 +155,7 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
                     f"output failed validation; retrying once with the exact errors (attempt {n})",
                 )
 
+        call_kind.set(KIND_BY_AGENT.get(a.id, "other"))  # router input (G3.11)
         async with deps.model_sem:
             healed = await generate_typed(
                 deps.llm,

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import deque
+from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING
 
 from pos_schemas import EventAdapter
@@ -18,10 +19,15 @@ log = logging.getLogger(__name__)
 
 class EventBus:
     def __init__(
-        self, queue_size: int = 1000, history: int = 500, repo: EventRepository | None = None
+        self,
+        queue_size: int = 1000,
+        history: int = 500,
+        repo: EventRepository | None = None,
+        sinks: Sequence[Callable[[BaseModel], None]] = (),
     ) -> None:
         self._subs: set[asyncio.Queue[BaseModel]] = set()
         self._repo = repo
+        self._sinks = list(sinks)  # synchronous observers (audit log, tracing); never block a run
         self._queue_size = queue_size
         self.history: deque[BaseModel] = deque(maxlen=history)
 
@@ -43,6 +49,11 @@ class EventBus:
         if self._repo is not None:  # persist before anyone sees it
             self._repo.append(event)
         self.history.append(event)
+        for sink in self._sinks:
+            try:
+                sink(event)
+            except Exception:  # an observer bug must not break the run
+                log.exception("bus: sink %r failed", sink)
         for q in self._subs:
             if q.full():  # slow consumer: drop oldest, never block producers
                 q.get_nowait()

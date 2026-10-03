@@ -18,6 +18,8 @@ def settings() -> Settings:
         mock_step_delay_s=0.0,
         db_path=":memory:",
         memory_db_path=":memory:",
+        audit_db_path=":memory:",
+        traces_dir="none",
         cors_origins=[],
     )
 

@@ -10,6 +10,7 @@ from uuid import uuid4
 from ..bus import EventBus
 from ..memory.store import MemoryRepository
 from ..models.base import LLMClient, LLMError
+from ..models.router import run_private
 from ..registry import AgentRegistry
 from ..tools.registry import ToolRegistry
 from .context import RunContext
@@ -48,7 +49,9 @@ class RealExecutor:
         self._runs: dict[str, tuple[asyncio.Task[None], RunContext]] = {}
         self.unhandled = 0  # G2.6: must stay 0
 
-    def submit(self, prompt: str, extra: object = (), project_id: str = "default") -> str:
+    def submit(
+        self, prompt: str, extra: object = (), project_id: str = "default", private: bool = True
+    ) -> str:
         extras = [
             getattr(a, "id", a)
             for a in extra
@@ -60,7 +63,7 @@ class RealExecutor:
             )
         task_id = str(uuid4())
         ctx = RunContext(task_id, self._bus)
-        t = asyncio.create_task(self._run(ctx, prompt, project_id), name=f"run-{task_id}")
+        t = asyncio.create_task(self._run(ctx, prompt, project_id, private), name=f"run-{task_id}")
         self._runs[task_id] = (t, ctx)
         t.add_done_callback(lambda _: self._runs.pop(task_id, None))
         return task_id
@@ -75,7 +78,10 @@ class RealExecutor:
     def running(self) -> list[str]:
         return list(self._runs)
 
-    async def _run(self, ctx: RunContext, prompt: str, project_id: str = "default") -> None:
+    async def _run(
+        self, ctx: RunContext, prompt: str, project_id: str = "default", private: bool = True
+    ) -> None:
+        run_private.set(private)  # this task's context only; branches inherit it (router, G3.11)
         t0 = time.perf_counter()
         ctx.emit("task.created", prompt=prompt)
         ctx.start("orchestrator", parent_id=None)

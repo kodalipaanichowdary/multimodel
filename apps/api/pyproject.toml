@@ -17,6 +17,8 @@ dependencies = [
   "langgraph>=0.6,<0.7",
   # P2: tool fabric (MCP servers in mcp/, in-process client sessions)
   "mcp>=1.2,<2",
+  # P3: OpenTelemetry SDK for per-task traces (local file exporter only; no OTLP/network exporter)
+  "opentelemetry-sdk>=1.25,<2",
 ]
 
 [project.optional-dependencies]

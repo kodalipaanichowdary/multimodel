@@ -12,10 +12,16 @@ export async function fetchAgents(): Promise<AgentDefinition[]> {
   return json(await fetch(`${BASE}/agents`), z.array(AgentDefinitionSchema));
 }
 
-export async function submitTask(prompt: string, selected: string[] = [], projectId = "default"): Promise<string> {
+export async function submitTask(
+  prompt: string,
+  selected: string[] = [],
+  projectId = "default",
+  isPrivate = true,
+): Promise<string> {
   const body: Record<string, unknown> = { prompt };
   if (selected.length) body.selected = selected;
   if (projectId !== "default") body.project_id = projectId;
+  if (!isPrivate) body.private = false; // API default is private
   const res = await fetch(`${BASE}/tasks`, {
     method: "POST",
     headers: { "content-type": "application/json" },

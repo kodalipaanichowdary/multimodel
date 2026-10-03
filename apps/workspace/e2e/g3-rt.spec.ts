@@ -94,3 +94,27 @@ test("G3.9 memory: write is a chat event, listed per project, isolated, recalled
   await expect(page.getByTestId("memory-item").filter({ hasText: "Falcon" })).toHaveCount(0);
   await setProject(page, "default");
 });
+
+test("G3.10/G3.11 privacy toggle reaches the API, persists, and the run lands in the audit log", async ({ page, request }) => {
+  await ready(page);
+  const toggle = page.getByTestId("private-toggle");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true"); // private by default
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+  const posted = page.waitForResponse((r) => r.url().endsWith("/tasks") && r.request().method() === "POST");
+  await ask(page, "What is the Zephyr?");
+  const res = await posted;
+  expect(res.request().postDataJSON()).toMatchObject({ prompt: "What is the Zephyr?", private: false });
+  const { task_id } = (await res.json()) as { task_id: string };
+
+  const rows = await (await request.get(`http://127.0.0.1:8002/audit?task_id=${task_id}`)).json();
+  const kinds = new Set(rows.map((r: { kind: string }) => r.kind));
+  expect([...kinds]).toEqual(expect.arrayContaining(["tool.started", "tool.completed", "model.metrics"]));
+  expect(await (await request.get("http://127.0.0.1:8002/audit/verify")).json()).toMatchObject({ ok: true });
+
+  await page.reload(); // the choice is remembered per browser
+  await expect(page.getByTestId("private-toggle")).toHaveAttribute("aria-pressed", "false");
+  await page.getByTestId("private-toggle").click(); // restore default for later specs
+  await expect(page.getByTestId("private-toggle")).toHaveAttribute("aria-pressed", "true");
+});

@@ -191,6 +191,8 @@ export function Composer() {
   const toggle = useGraph((s) => s.toggleSelected);
   const taskState = useGraph((s) => (s.activeTaskId ? s.nodes[`task:${s.activeTaskId}`]?.state : undefined));
   const running = taskState === "running";
+  const privateTasks = useGraph((s) => s.privateTasks);
+  const setPrivateTasks = useGraph((s) => s.setPrivateTasks);
 
   // Drop selections for agents that no longer exist.
   useEffect(() => {
@@ -204,7 +206,8 @@ export function Composer() {
     setBusy(true);
     setError(null);
     try {
-      await submitTask(p, selected, useGraph.getState().projectId);
+      const { projectId, privateTasks } = useGraph.getState();
+      await submitTask(p, selected, projectId, privateTasks);
       setPrompt("");
       useGraph.getState().clearSelected();
     } catch (err) {
@@ -250,6 +253,22 @@ export function Composer() {
             {taskState}
           </span>
         )}
+        <button
+          type="button"
+          data-testid="private-toggle"
+          aria-pressed={privateTasks}
+          onClick={() => setPrivateTasks(!privateTasks)}
+          title={
+            privateTasks
+              ? "Private: models run on this machine only"
+              : "Not private: the router may use a cloud model if one is configured"
+          }
+          className={`shrink-0 rounded-md px-1.5 py-1 text-[10px] uppercase tracking-wider ${
+            privateTasks ? "bg-emerald-500/15 text-emerald-300" : "bg-white/5 text-slate-500"
+          }`}
+        >
+          {privateTasks ? "Private" : "Cloud ok"}
+        </button>
         <button
           type="submit"
           data-testid="task-submit"
