@@ -116,3 +116,47 @@ def test_svg_titles_do_not_pollute_page_title():
         "<head><title>Real Title</title></head><body><svg><title>Icon</title></svg><p>x</p></body>"
     )
     assert title == "Real Title"
+
+
+def test_multi_citation_markers_are_parsed():
+    from app.agent_runtime.grounding import numbers
+
+    assert numbers("A [1, 2, 3]. B [2][3].") == [1, 2, 3, 2, 3]
+    assert check(d("Ada Quill chairs the Zephyr Harbor Authority [1, 2]."), PAGES).passed
+
+
+LIVE_LIKE = [
+    Page(
+        1,
+        "https://w.org/cm",
+        "Chief Minister of Telangana - Wikipedia",
+        "The Chief Minister of Telangana is the head of government. | Incumbent | Anumula Revanth Reddy "
+        "| since 7 December 2023 | Former chief minister K. Chandrashekar Rao served a second term from 13 "
+        "December 2018.",
+    )
+]
+
+
+def test_terms_must_co_occur_not_just_appear_somewhere():
+    ok = Draft(
+        answer="The Chief Minister of Telangana is Revanth Reddy since 7 December 2023 [1].",
+        citations=[1],
+    )
+    assert check(ok, LIVE_LIKE).passed, check(ok, LIVE_LIKE).issues
+    # every token of this hallucination is on the page, but not stated together
+    bad = Draft(
+        answer="Revanth Reddy has been Chief Minister since 7 December 2018 [1].", citations=[1]
+    )
+    v = check(bad, LIVE_LIKE)
+    assert not v.passed and "2018" in v.issues[0]
+    # and alignment cannot rescue it either
+    from app.agent_runtime.grounding import align
+
+    assert align(bad, LIVE_LIKE)[1] == []
+
+
+def test_dedupe_drops_repeated_sentences():
+    from app.agent_runtime.grounding import dedupe
+
+    looped = "X is Y [1]. Z is W [2]. X is Y [1]. X is Y [1]."
+    assert dedupe(looped) == "X is Y [1]. Z is W [2]."

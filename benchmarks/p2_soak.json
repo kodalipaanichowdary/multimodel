@@ -1,0 +1,235 @@
+{
+ "when": "2026-10-03 10:40:09",
+ "runs": 20,
+ "completed": 20,
+ "failed_handled": 0,
+ "outcomes": {
+  "grounded": 18,
+  "unverified": 2
+ },
+ "unhandled_executor_counter": 0,
+ "error_log_records": [],
+ "median_seconds": 9.2,
+ "runs_detail": [
+  {
+   "i": 1,
+   "prompt": "who is cm of telangana",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 23.1,
+   "events": 31,
+   "heal_retries": 0,
+   "answer_head": "Revanth Reddy [1]."
+  },
+  {
+   "i": 2,
+   "prompt": "What is the capital of Australia?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 7.9,
+   "events": 33,
+   "heal_retries": 0,
+   "answer_head": "Canberra [1]."
+  },
+  {
+   "i": 3,
+   "prompt": "Who wrote the novel Pride and Prejudice?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 8.3,
+   "events": 29,
+   "heal_retries": 0,
+   "answer_head": "Jane Austen [1]."
+  },
+  {
+   "i": 4,
+   "prompt": "What is the Model Context Protocol?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 9.2,
+   "events": 29,
+   "heal_retries": 0,
+   "answer_head": "The Model Context Protocol (MCP) is an open-source standard for connecting AI applications to external systems, providing a standardized interface for reading f"
+  },
+  {
+   "i": 5,
+   "prompt": "How tall is Mount Everest?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 11.8,
+   "events": 32,
+   "heal_retries": 0,
+   "answer_head": "Mount Everest is 8,848.86 m (29,031 ft 8+1\u20442 in) tall, as measured in 2020 through a joint survey by Nepalese and Chinese authorities [1].} [1] {"
+  },
+  {
+   "i": 6,
+   "prompt": "Who is the current CEO of Microsoft?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 8.2,
+   "events": 29,
+   "heal_retries": 0,
+   "answer_head": "Satya Nadella [1]."
+  },
+  {
+   "i": 7,
+   "prompt": "What year did the first human land on the Moon?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 8.9,
+   "events": 29,
+   "heal_retries": 0,
+   "answer_head": "1969 [1]."
+  },
+  {
+   "i": 8,
+   "prompt": "What is the boiling point of water at sea level in Celsius?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 11.1,
+   "events": 31,
+   "heal_retries": 0,
+   "answer_head": "100\u00b0C [1]."
+  },
+  {
+   "i": 9,
+   "prompt": "Who painted the Mona Lisa?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 8.7,
+   "events": 31,
+   "heal_retries": 0,
+   "answer_head": "Leonardo da Vinci [1]."
+  },
+  {
+   "i": 10,
+   "prompt": "What is the population of Hyderabad?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 11.8,
+   "events": 39,
+   "heal_retries": 0,
+   "answer_head": "According to the 2011 census of India, Hyderabad is the fourth-most populous city in India, with a population of 6.9 million residents within the city limits [3"
+  },
+  {
+   "i": 11,
+   "prompt": "who is cm of telangana",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 10.8,
+   "events": 29,
+   "heal_retries": 0,
+   "answer_head": "Revanth Reddy [1]."
+  },
+  {
+   "i": 12,
+   "prompt": "What is the capital of Australia?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 6.6,
+   "events": 33,
+   "heal_retries": 0,
+   "answer_head": "Canberra [1]."
+  },
+  {
+   "i": 13,
+   "prompt": "Who wrote the novel Pride and Prejudice?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 6.9,
+   "events": 29,
+   "heal_retries": 0,
+   "answer_head": "Jane Austen [1]."
+  },
+  {
+   "i": 14,
+   "prompt": "What is the Model Context Protocol?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 14.1,
+   "events": 29,
+   "heal_retries": 0,
+   "answer_head": "The Model Context Protocol (MCP) is an open-source standard for connecting AI applications to external systems, providing a standardized interface for reading f"
+  },
+  {
+   "i": 15,
+   "prompt": "How tall is Mount Everest?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 11.0,
+   "events": 32,
+   "heal_retries": 0,
+   "answer_head": "Mount Everest is 8,848.86 m (29,031 ft 8+1\u20442 in) tall, as measured in 2020 through a joint survey by Nepalese and Chinese authorities [1].} [1] {"
+  },
+  {
+   "i": 16,
+   "prompt": "Who is the current CEO of Microsoft?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 7.0,
+   "events": 29,
+   "heal_retries": 0,
+   "answer_head": "Satya Nadella [1]."
+  },
+  {
+   "i": 17,
+   "prompt": "What year did the first human land on the Moon?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "unverified",
+   "seconds": 15.2,
+   "events": 37,
+   "heal_retries": 0,
+   "answer_head": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support."
+  },
+  {
+   "i": 18,
+   "prompt": "What is the boiling point of water at sea level in Celsius?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 8.5,
+   "events": 31,
+   "heal_retries": 0,
+   "answer_head": "100\u00b0C [1]."
+  },
+  {
+   "i": 19,
+   "prompt": "Who painted the Mona Lisa?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "grounded",
+   "seconds": 6.9,
+   "events": 31,
+   "heal_retries": 0,
+   "answer_head": "Leonardo da Vinci [1]."
+  },
+  {
+   "i": 20,
+   "prompt": "What is the population of Hyderabad?",
+   "terminal": "execution.completed",
+   "error": null,
+   "outcome": "unverified",
+   "seconds": 23.3,
+   "events": 41,
+   "heal_retries": 1,
+   "answer_head": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support."
+  }
+ ]
+}

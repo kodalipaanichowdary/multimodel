@@ -23,7 +23,7 @@ from pydantic import (
 from .events import PlanStep
 
 _URL = r"^https?://[^\s]+$"
-_CITE = re.compile(r"\[(\d+)\]")
+_CITE = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")  # [1] or [1, 2]
 
 
 class _Strict(BaseModel):
@@ -90,7 +90,14 @@ class Draft(_Strict):
     def _markers_in_range(cls, v: str, info: ValidationInfo) -> str:
         n = (info.context or {}).get("n_sources")
         if n is not None:
-            out = sorted({int(m) for m in _CITE.findall(v) if not 1 <= int(m) <= n})
+            out = sorted(
+                {
+                    int(x)
+                    for g in _CITE.findall(v)
+                    for x in re.split(r"\s*,\s*", g)
+                    if not 1 <= int(x) <= n
+                }
+            )
             if out:
                 raise ValueError(f"citation markers out of range 1..{n}: {out}")
         return v
