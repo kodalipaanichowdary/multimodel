@@ -82,3 +82,22 @@ Regenerate UI fixtures after changing the mock script: `cd apps/api && .venv/Scr
 11. `/?stress=50`: meter shows 50 nodes and >=50 fps while panning.
 12. After a run, no two dots/labels overlap (Report and fs_write sit apart near Writer).
 13. OS "reduce motion" on: no drift, no pulses, no pulse travel; states still shown by colour and text.
+
+## Manual test checklist (P2 — real answers)
+
+Needs Ollama running (start it from its tray app so it uses the GPU) and internet.
+
+1. `npm run dev`, open http://localhost:5173. `GET /api/health` says `"executor": "real"`.
+2. Ask **who is cm of telangana**. Watch: Orchestrator plans, Research runs `web_search` then `fetch_url`
+   (yellow tool dots), Writer drafts, Validator checks. The strip shows **TTFT · tok/s** from the model.
+3. The answer cites `[1]` and lists the fetched page (Wikipedia) under **Sources**. Open Inspect → Events to see
+   the `model.metrics`, `tool.*` and the validator's notes ("Re-attached citation" / "Rejected: …").
+4. Ask something no page will answer well, e.g. a made-up name: the run ends with **Could not verify** and the
+   sources it checked, never with an invented answer.
+5. Ask a question and add **"save it to a file"**: an amber **Approval needed** card appears; the Writer waits.
+   **Allow once** writes `apps/api/data/artifacts/<id>-answer.md`; **Deny** skips the write and still answers.
+6. While a run is going, press **Stop** on the strip (or click the busy agent's dot → Stop): the agent turns red,
+   chat shows "killed by user", the chip shows ✗.
+7. Reload the page: earlier questions, answers and chips come back (SQLite event log).
+8. Stop Ollama and ask again: the run ends with a red "model unavailable" error, nothing crashes.
+

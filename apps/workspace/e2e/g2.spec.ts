@@ -50,7 +50,7 @@ test("G2.1/G2.7 grounded answer cites a fetched URL; live strip shows real model
   const result = page.getByTestId("chat-result").last();
   await expect(result).toContainText("Ada Quill");
   await expect(result.locator('a[href="https://example.org/zephyr-harbor"]')).toBeVisible();
-  await expect(strip.getByTestId("run-chip-text")).toHaveText(/^✓ 4 agents · 2 tools/);
+  await expect(strip.getByTestId("run-chip-text")).toHaveText(/^✓ 4 agents · 3 tools/);
 });
 
 test("G2.7 empty search -> could not verify", async ({ page }) => {
@@ -116,13 +116,20 @@ test("G2.4 Stop mid-run -> node + chat show ERROR (from backend events)", async 
 test("G2.4 Stop from the agent popup", async ({ page }) => {
   await ready(page);
   const strip = await submit(page, "When was Zephyr harbor founded?");
-  const node = page.getByTestId("node-agent:research");
-  await expect(node).toHaveAttribute("data-state", /running|thinking/, { timeout: 30_000 });
-  const box = (await node.boundingBox())!;
+  // the orchestrator is active for the whole run, so its popup always offers Stop mid-run
+  const orch = page.getByTestId("node-agent:orchestrator");
+  await expect(orch).toHaveAttribute("data-state", /running|thinking/, { timeout: 30_000 });
+  const box = (await orch.boundingBox())!;
   await page.mouse.click(box.x + box.width / 2, box.y + 12);
   await page.getByTestId("popup-kill").click();
   await expect(strip).toHaveAttribute("data-phase", "done", { timeout: 15_000 });
-  await expect(node).toHaveAttribute("data-state", "error");
+  const { events: ev } = await events(page);
+  const last = ev[ev.length - 1];
+  expect(last.type).toBe("execution.failed");
+  expect(last.payload.error).toBe("killed by user");
+  const killed = String(last.payload.agent_id);
+  await expect(page.getByTestId(`node-agent:${killed}`)).toHaveAttribute("data-state", "error");
+  await expect(page.getByTestId("chat-error").last()).toContainText("killed by user");
 });
 
 test("G2.10 reload restores chat + runs from the SQLite event log", async ({ page }) => {
@@ -134,7 +141,7 @@ test("G2.10 reload restores chat + runs from the SQLite event log", async ({ pag
   await expect(page.getByTestId("ws-status")).toHaveAttribute("data-status", "open");
   const restored = page.locator(`[data-testid="run-strip"][data-task="${id}"]`);
   await expect(restored).toHaveAttribute("data-phase", "done");
-  await expect(restored.getByTestId("run-chip-text")).toHaveText(/^✓ 4 agents · 2 tools/);
+  await expect(restored.getByTestId("run-chip-text")).toHaveText(/^✓ 4 agents · 3 tools/);
   await expect(page.getByTestId("chat-user").filter({ hasText: "(persist check)" })).toHaveCount(1);
   const after = await page.evaluate((tid) => {
     const s = (window as unknown as { __pos: { getState: () => { runs: Record<string, { events: { id: string }[] }> } } }).__pos.getState();

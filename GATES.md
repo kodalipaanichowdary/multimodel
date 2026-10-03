@@ -39,17 +39,17 @@ A gate passes only with pasted command output / test results as evidence.
 
 ## G2 — Real Brain
 
-- [ ] G2.1  real task: Orchestrator -> Research -> web_search + fetch_url (MCP) -> Writer -> Validator -> result; no mocks on default path
-- [ ] G2.2  every agent output is a Pydantic model; invalid -> 1 retry with exact ValidationError appended -> else fallback payload
-- [ ] G2.3  Ollama T=0, 30 prompts: schema accuracy >=95%; TTFT, tok/s, total latency logged to benchmarks/p2_baseline.json
-- [ ] G2.4  every UI state change comes from a real backend event; kill an agent mid-run -> node + chat show ERROR
-- [ ] G2.5  fs.write / terminal.exec require interactive approval (UI Allow once / Deny); Deny aborts step cleanly
-- [ ] G2.6  20 consecutive runs, zero unhandled exceptions
-- [ ] G2.7  grounding: answer cites >=1 fetched URL; if search returns nothing, agent says "could not verify" (test with stubbed empty search)
-- [ ] G2.8  live strip shows real TTFT + tok/s from model events
-- [ ] G2.9  mock executor only behind MOCK_EXECUTOR=1 (tests); default path is real
-- [ ] G2.10 event log persisted (SQLite behind a repository interface); reload restores chat/runs
-- [ ] G2.11 all G1 tests still pass; npm run check green
+- [x] G2.1  real task: Orchestrator -> Research -> web_search + fetch_url (MCP) -> Writer -> Validator -> result; no mocks on default path
+- [x] G2.2  every agent output is a Pydantic model; invalid -> 1 retry with exact ValidationError appended -> else fallback payload
+- [x] G2.3  Ollama T=0, 30 prompts: schema accuracy >=95%; TTFT, tok/s, total latency logged to benchmarks/p2_baseline.json
+- [x] G2.4  every UI state change comes from a real backend event; kill an agent mid-run -> node + chat show ERROR
+- [x] G2.5  fs.write / terminal.exec require interactive approval (UI Allow once / Deny); Deny aborts step cleanly
+- [x] G2.6  20 consecutive runs, zero unhandled exceptions
+- [x] G2.7  grounding: answer cites >=1 fetched URL; if search returns nothing, agent says "could not verify" (test with stubbed empty search)
+- [x] G2.8  live strip shows real TTFT + tok/s from model events
+- [x] G2.9  mock executor only behind MOCK_EXECUTOR=1 (tests); default path is real
+- [x] G2.10 event log persisted (SQLite behind a repository interface); reload restores chat/runs
+- [x] G2.11 all G1 tests still pass; npm run check green
 
 ## G3 — Swarm+Trust
 
