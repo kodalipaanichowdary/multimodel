@@ -145,9 +145,21 @@ function ensureNode(d: Draft, nid: string, kind: NodeKind, label: string, ref: s
   };
 }
 
-function ensureAgent(d: Draft, agentId: string): string {
+/** "research#2" is the 2nd parallel branch of agent "research" (P3). "#" never occurs in manifest ids. */
+export function baseAgentId(id: string): string {
+  return id.split("#")[0];
+}
+
+export function agentLabel(id: string, agents: Record<string, AgentDefinition>): string {
+  const [base, n] = id.split("#");
+  const name = agents[base]?.name ?? base;
+  return n ? `${name} #${n}` : name;
+}
+
+function ensureAgent(d: Draft, agentId: string, agents: Record<string, AgentDefinition> = {}): string {
   const nid = agentNodeId(agentId);
-  ensureNode(d, nid, "agent", agentId, agentId, agentNodeId("orchestrator"));
+  const near = agentId.includes("#") ? agentNodeId(baseAgentId(agentId)) : agentNodeId("orchestrator");
+  ensureNode(d, nid, "agent", agentLabel(agentId, agents), agentId, d.nodes[near] ? near : agentNodeId("orchestrator"));
   return nid;
 }
 
@@ -203,7 +215,7 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
     case "task.planned": {
       const orch = ensureAgent(d, "orchestrator");
       for (const step of ev.payload.steps) {
-        const a = ensureAgent(d, step.agent_id);
+        const a = ensureAgent(d, step.agent_id, p.agents);
         setState(d, a, "queued");
         d.detail[a] = step.goal;
         setEdge(d, "delegates", orch, a, false);
@@ -211,19 +223,19 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
       break;
     }
     case "agent.started": {
-      const a = ensureAgent(d, ev.payload.agent_id);
+      const a = ensureAgent(d, ev.payload.agent_id, p.agents);
       setState(d, a, "running");
-      if (ev.payload.parent_id) setEdge(d, "delegates", ensureAgent(d, ev.payload.parent_id), a, true);
+      if (ev.payload.parent_id) setEdge(d, "delegates", ensureAgent(d, ev.payload.parent_id, p.agents), a, true);
       break;
     }
     case "agent.thinking": {
-      const a = ensureAgent(d, ev.payload.agent_id);
+      const a = ensureAgent(d, ev.payload.agent_id, p.agents);
       setState(d, a, "thinking");
       d.detail[a] = ev.payload.message;
       break;
     }
     case "agent.completed": {
-      const a = ensureAgent(d, ev.payload.agent_id);
+      const a = ensureAgent(d, ev.payload.agent_id, p.agents);
       setState(d, a, "completed");
       d.detail[a] = ev.payload.summary;
       const parent = parentOf(d, a);
@@ -231,7 +243,7 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
       break;
     }
     case "tool.started": {
-      const a = ensureAgent(d, ev.payload.agent_id);
+      const a = ensureAgent(d, ev.payload.agent_id, p.agents);
       const t = toolNodeId(ev.payload.tool_id);
       ensureNode(d, t, "tool", ev.payload.tool_id, ev.payload.tool_id, a);
       setState(d, t, "running");
@@ -241,7 +253,7 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
       break;
     }
     case "tool.completed": {
-      const a = ensureAgent(d, ev.payload.agent_id);
+      const a = ensureAgent(d, ev.payload.agent_id, p.agents);
       const t = toolNodeId(ev.payload.tool_id);
       ensureNode(d, t, "tool", ev.payload.tool_id, ev.payload.tool_id, a);
       setState(d, t, "completed");
@@ -250,7 +262,7 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
       break;
     }
     case "tool.failed": {
-      const a = ensureAgent(d, ev.payload.agent_id);
+      const a = ensureAgent(d, ev.payload.agent_id, p.agents);
       const t = toolNodeId(ev.payload.tool_id);
       ensureNode(d, t, "tool", ev.payload.tool_id, ev.payload.tool_id, a);
       setState(d, t, "error");
@@ -261,7 +273,7 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
       break;
     }
     case "approval.requested": {
-      const a = ensureAgent(d, ev.payload.agent_id);
+      const a = ensureAgent(d, ev.payload.agent_id, p.agents);
       setState(d, a, "waiting_approval");
       d.detail[a] = `approval: ${ev.payload.tool_id} — ${ev.payload.reason}`;
       break;
@@ -290,12 +302,12 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
       break;
     }
     case "model.metrics": {
-      const a = ensureAgent(d, ev.payload.agent_id);
+      const a = ensureAgent(d, ev.payload.agent_id, p.agents);
       d.detail[a] = `${ev.payload.model} · TTFT ${ev.payload.ttft_ms} ms · ${ev.payload.tok_s} tok/s`;
       break;
     }
     case "artifact.created": {
-      const a = ensureAgent(d, ev.payload.agent_id);
+      const a = ensureAgent(d, ev.payload.agent_id, p.agents);
       const nid = artifactNodeId(ev.payload.artifact_id);
       ensureNode(d, nid, "artifact", ev.payload.title, ev.payload.artifact_id, a);
       setState(d, nid, "completed");
@@ -312,7 +324,7 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
     case "execution.failed": {
       setState(d, taskNid, "error");
       d.detail[taskNid] = ev.payload.error;
-      if (ev.payload.agent_id) setState(d, ensureAgent(d, ev.payload.agent_id), "error");
+      if (ev.payload.agent_id) setState(d, ensureAgent(d, ev.payload.agent_id, p.agents), "error");
       for (const n of Object.values(d.nodes)) {
         if (n.kind === "agent" && (n.state === "running" || n.state === "thinking")) {
           setState(d, n.id, "error");
@@ -373,7 +385,7 @@ function projectChat(
   agents: Record<string, AgentDefinition>,
 ): ChatItem[] {
   const t = ev.task_id;
-  const name = (id: string) => agents[id]?.name ?? id;
+  const name = (id: string) => agentLabel(id, agents);
   const status = (key: string, text: string, tone: ChatTone) =>
     upsert(chat, { id: `${t}:${key}`, kind: "status", task_id: t, text, tone });
   switch (ev.type) {
@@ -682,6 +694,11 @@ export function stripModel(run: Pick<Run, "events">): StripModel {
   while (leading < dots.length && dots[leading].state === "completed") leading++;
   const progress = dots.length <= 1 ? (leading > 0 ? 1 : 0) : Math.min(leading, dots.length - 1) / (dots.length - 1);
   return { dots, activeIndex, progress };
+}
+
+/** Every dot working right now: several at once when research branches run in parallel (P3). */
+export function activeIndices(model: StripModel): number[] {
+  return model.dots.flatMap((d, i) => (ACTIVE.has(d.state) ? [i] : []));
 }
 
 export interface StripSummary {

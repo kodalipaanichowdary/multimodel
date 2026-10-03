@@ -14,7 +14,17 @@ class RunContext:
         self.task_id = task_id
         self._bus = bus
         self._seq = 0
-        self.current_agent: str | None = None
+        # agents currently working, in start order. With parallel branches several are
+        # active at once; failures/kills are attributed to the most recently started one.
+        self._active: list[str] = []
+
+    @property
+    def current_agent(self) -> str | None:
+        return self._active[-1] if self._active else None
+
+    @property
+    def active(self) -> list[str]:
+        return list(self._active)
 
     def emit(self, type_name: str, **payload: Any) -> None:
         """Validate + publish one event (raises ValidationError on a contract violation)."""
@@ -22,9 +32,10 @@ class RunContext:
         self._seq += 1
         self._bus.publish(ev)
 
-    # agent lifecycle helpers keep `current_agent` honest for kill / failure attribution
     def start(self, agent_id: str, parent_id: str | None = "orchestrator") -> None:
-        self.current_agent = agent_id
+        if agent_id in self._active:
+            self._active.remove(agent_id)
+        self._active.append(agent_id)
         self.emit("agent.started", agent_id=agent_id, parent_id=parent_id)
 
     def think(self, agent_id: str, message: str) -> None:
@@ -32,5 +43,5 @@ class RunContext:
 
     def done(self, agent_id: str, summary: str) -> None:
         self.emit("agent.completed", agent_id=agent_id, summary=summary[:500])
-        if self.current_agent == agent_id:
-            self.current_agent = "orchestrator" if agent_id != "orchestrator" else None
+        if agent_id in self._active:
+            self._active.remove(agent_id)

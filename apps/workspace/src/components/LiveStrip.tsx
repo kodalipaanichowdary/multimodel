@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useGraph } from "../store/graph";
-import { liveStats, runTimeline, stripModel, stripSummary } from "../store/projection";
+import { activeIndices, agentLabel, liveStats, runTimeline, stripModel, stripSummary } from "../store/projection";
 import { STATE_COLOR } from "../lib/theme";
 import { killTask } from "../lib/api";
 import { ScorecardView } from "./Scorecard";
@@ -39,11 +39,16 @@ export function LiveStrip({ taskId }: { taskId: string }) {
   const summary = done ? stripSummary(run) : null;
   const n = model.dots.length;
   const active = model.activeIndex >= 0 ? model.dots[model.activeIndex] : null;
-  const name = (id: string) => agents[id]?.name ?? id;
+  const name = (id: string) => agentLabel(id, agents);
 
   let status = "Planning…";
   let statusColor = "#94a3b8";
-  if (active) {
+  const activeIdx = activeIndices(model);
+  const working = activeIdx.map((i) => model.dots[i]);
+  if (working.length > 1) {
+    statusColor = STATE_COLOR.running;
+    status = `${working.length} agents working: ${working.map((d) => name(d.agent_id)).join(", ")}`;
+  } else if (active) {
     statusColor = STATE_COLOR[active.state];
     const row = timeline.rows.find((r) => r.agent_id === active.agent_id);
     const tool = row?.tools.find((c) => c.status === "running");
@@ -97,6 +102,14 @@ export function LiveStrip({ taskId }: { taskId: string }) {
                 />
               </span>
             )}
+            {activeIdx.slice(1).map((i) => (
+              <span
+                key={`pulse-${i}`}
+                data-testid="strip-pulse-extra"
+                className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 strip-pulse"
+                style={{ left: `${pct(i, n)}%`, borderColor: STATE_COLOR[model.dots[i].state] }}
+              />
+            ))}
             {model.dots.map((d, i) => (
               <span
                 key={d.agent_id}

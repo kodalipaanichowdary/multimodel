@@ -42,15 +42,24 @@
     "steps": [
      {
       "agent_id": "research",
-      "goal": "Gather sources"
+      "goal": "Gather sources",
+      "id": null,
+      "depends_on": [],
+      "query": null
      },
      {
       "agent_id": "writer",
-      "goal": "Draft artifact"
+      "goal": "Draft artifact",
+      "id": null,
+      "depends_on": [],
+      "query": null
      },
      {
       "agent_id": "validator",
-      "goal": "Check output"
+      "goal": "Check output",
+      "id": null,
+      "depends_on": [],
+      "query": null
      }
     ]
    }
@@ -319,15 +328,24 @@
     "steps": [
      {
       "agent_id": "research",
-      "goal": "Gather sources"
+      "goal": "Gather sources",
+      "id": null,
+      "depends_on": [],
+      "query": null
      },
      {
       "agent_id": "writer",
-      "goal": "Draft artifact"
+      "goal": "Draft artifact",
+      "id": null,
+      "depends_on": [],
+      "query": null
      },
      {
       "agent_id": "validator",
-      "goal": "Check output"
+      "goal": "Check output",
+      "id": null,
+      "depends_on": [],
+      "query": null
      }
     ]
    }

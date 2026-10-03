@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useGraph } from "../store/graph";
+import { baseAgentId } from "../store/projection";
 import { killTask } from "../lib/api";
 import { DANGEROUS, KIND_COLOR, STATE_COLOR } from "../lib/theme";
 
@@ -10,7 +11,7 @@ const popupWidth = () => Math.min(W, window.innerWidth - 16);
 export function NodePopup() {
   const popup = useGraph((s) => s.popup);
   const node = useGraph((s) => (s.popup ? s.nodes[s.popup.nodeId] : undefined));
-  const agent = useGraph((s) => (node?.kind === "agent" ? s.agents[node.ref_id] : undefined));
+  const agent = useGraph((s) => (node?.kind === "agent" ? s.agents[baseAgentId(node.ref_id)] : undefined));
   const detail = useGraph((s) => (node ? s.detail[node.id] : undefined));
   const close = useGraph((s) => s.closePopup);
   const picked = useGraph((s) => (node ? s.nextSelected.includes(node.ref_id) : false));

@@ -21,8 +21,13 @@ class _Strict(BaseModel):
 
 
 class PlanStep(_Strict):
+    """One node of the plan DAG. id/depends_on/query are optional (P1/P2 plans omit them)."""
+
     agent_id: str = Field(min_length=1)
     goal: str = Field(min_length=1)
+    id: str | None = Field(default=None, min_length=1, max_length=40)
+    depends_on: list[str] = Field(default_factory=list, max_length=8)
+    query: str | None = Field(default=None, min_length=2, max_length=200)
 
 
 class TaskCreated(_Strict):

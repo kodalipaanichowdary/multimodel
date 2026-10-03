@@ -86,7 +86,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         else:
             tools = ToolRegistry(settings.mcp_root, app.state.approvals)
             app.state.executor = RealExecutor(
-                app.state.bus, app.state.registry, _llm(settings), tools
+                app.state.bus,
+                app.state.registry,
+                _llm(settings),
+                tools,
+                model_concurrency=settings.model_concurrency,
+                parallel_branches=settings.parallel_branches,
             )
         log.info(
             "executor=%s llm=%s db=%s (closed %d interrupted runs)",

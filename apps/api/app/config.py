@@ -33,6 +33,12 @@ class Settings:
         default_factory=lambda: os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
     )
     ollama_num_ctx: int = field(default_factory=lambda: int(os.getenv("OLLAMA_NUM_CTX", "4096")))
+    # model calls in flight at once (one 4 GB GPU -> 1); research branches still overlap tool I/O
+    model_concurrency: int = field(default_factory=lambda: int(os.getenv("MODEL_CONCURRENCY", "1")))
+    # PARALLEL_BRANCHES=0 runs research branches one at a time (sequential baseline)
+    parallel_branches: bool = field(
+        default_factory=lambda: os.getenv("PARALLEL_BRANCHES", "1") != "0"
+    )
     stub_delay_s: float = field(default_factory=lambda: float(os.getenv("STUB_DELAY_S", "0")))
     mcp_root: Path = field(
         default_factory=lambda: Path(os.getenv("MCP_ROOT", str(_REPO_ROOT / "mcp")))

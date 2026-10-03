@@ -25,10 +25,23 @@ class RealExecutor:
     name = "real"
 
     def __init__(
-        self, bus: EventBus, agents: AgentRegistry, llm: LLMClient, tools: ToolRegistry
+        self,
+        bus: EventBus,
+        agents: AgentRegistry,
+        llm: LLMClient,
+        tools: ToolRegistry,
+        *,
+        model_concurrency: int = 1,
+        parallel_branches: bool = True,
     ) -> None:
         self._bus = bus
-        self._deps = Deps(llm=llm, tools=tools, agents=agents)
+        self._deps = Deps(
+            llm=llm,
+            tools=tools,
+            agents=agents,
+            model_sem=asyncio.Semaphore(max(1, model_concurrency)),
+            branch_sem=None if parallel_branches else asyncio.Semaphore(1),
+        )
         self._runs: dict[str, tuple[asyncio.Task[None], RunContext]] = {}
         self.unhandled = 0  # G2.6: must stay 0
 

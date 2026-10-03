@@ -1,0 +1,59 @@
+{
+ "when": "2026-10-03 14:19:06",
+ "prompt": "Compare the populations of Hyderabad, Bangalore and Chennai",
+ "parallel": {
+  "parallel": true,
+  "branches": [
+   "research#1",
+   "research#2",
+   "research#3",
+   "research#4"
+  ],
+  "queries": [
+   "population of Hyderabad, Bangalore, Chennai",
+   "population of Hyderabad",
+   "population of Bangalore",
+   "population of Chennai"
+  ],
+  "research_wall_s": 1.98,
+  "branch_spans_s": {
+   "research#1": 1.58,
+   "research#2": 1.73,
+   "research#3": 1.95,
+   "research#4": 1.59
+  },
+  "peak_concurrent_branches": 4,
+  "max_model_calls_in_flight": 1,
+  "total_s": 23.4,
+  "terminal": "execution.completed",
+  "answer_head": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support."
+ },
+ "sequential": {
+  "parallel": false,
+  "branches": [
+   "research#1",
+   "research#2",
+   "research#3",
+   "research#4"
+  ],
+  "queries": [
+   "population of Hyderabad, Bangalore, Chennai",
+   "population of Hyderabad",
+   "population of Bangalore",
+   "population of Chennai"
+  ],
+  "research_wall_s": 6.31,
+  "branch_spans_s": {
+   "research#1": 1.25,
+   "research#2": 1.22,
+   "research#3": 1.8,
+   "research#4": 2.03
+  },
+  "peak_concurrent_branches": 1,
+  "max_model_calls_in_flight": 1,
+  "total_s": 27.5,
+  "terminal": "execution.completed",
+  "answer_head": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support."
+ },
+ "ratio_parallel_over_sequential": 0.31
+}

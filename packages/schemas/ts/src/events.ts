@@ -5,7 +5,16 @@ import { z } from "zod";
 const id = z.string().min(1);
 const nonNegInt = z.number().int().nonnegative();
 
-export const PlanStepSchema = z.object({ agent_id: id, goal: id }).strict();
+// One node of the plan DAG; id/depends_on/query are optional (P1/P2 plans omit them).
+export const PlanStepSchema = z
+  .object({
+    agent_id: id,
+    goal: id,
+    id: z.string().min(1).max(40).nullable().default(null),
+    depends_on: z.array(z.string()).max(8).default([]),
+    query: z.string().min(2).max(200).nullable().default(null),
+  })
+  .strict();
 
 export const PayloadSchemas = {
   "task.created": z.object({ prompt: z.string().min(1).max(4000) }).strict(),

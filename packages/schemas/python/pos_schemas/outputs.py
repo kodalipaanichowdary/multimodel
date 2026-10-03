@@ -18,6 +18,7 @@ from pydantic import (
     StrictInt,
     ValidationInfo,
     field_validator,
+    model_validator,
 )
 
 from .events import PlanStep
@@ -43,6 +44,23 @@ class Plan(_Strict):
             if bad:
                 raise ValueError(f"unknown agent_id {bad}; allowed: {sorted(allowed)}")
         return v
+
+    @model_validator(mode="after")
+    def _dag(self) -> Plan:
+        """If steps carry ids, depends_on must reference earlier ids (=> acyclic) and ids be unique."""
+        ids = [s.id for s in self.steps if s.id]
+        if len(ids) != len(set(ids)):
+            raise ValueError(f"duplicate step ids: {sorted(i for i in ids if ids.count(i) > 1)}")
+        seen: set[str] = set()
+        for s in self.steps:
+            missing = [d for d in s.depends_on if d not in seen]
+            if missing:
+                raise ValueError(
+                    f"step {s.id or s.agent_id!r} depends on unknown/later step(s) {missing}"
+                )
+            if s.id:
+                seen.add(s.id)
+        return self
 
 
 class Source(_Strict):

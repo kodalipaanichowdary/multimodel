@@ -29,6 +29,41 @@
   }
  },
  {
+  "id": "e2b",
+  "type": "task.planned",
+  "task_id": "t1",
+  "seq": 16,
+  "ts": "2026-10-02T10:00:00.150Z",
+  "payload": {
+   "steps": [
+    {
+     "id": "r1",
+     "agent_id": "research#1",
+     "goal": "pop A",
+     "depends_on": [],
+     "query": "population A"
+    },
+    {
+     "id": "r2",
+     "agent_id": "research#2",
+     "goal": "pop B",
+     "depends_on": [],
+     "query": "population B"
+    },
+    {
+     "id": "w",
+     "agent_id": "writer",
+     "goal": "compare",
+     "depends_on": [
+      "r1",
+      "r2"
+     ],
+     "query": null
+    }
+   ]
+  }
+ },
+ {
   "id": "e3",
   "type": "agent.started",
   "task_id": "t1",

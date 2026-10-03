@@ -8,6 +8,7 @@ Run standalone over stdio:  python mcp/web_search/server.py
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import re
@@ -115,7 +116,16 @@ def _stub(query: str, k: int) -> list[dict[str, str]]:
     if "zzz-no-results" in query.lower():
         return []
     docs = json.loads(STUB.read_text(encoding="utf-8"))["docs"]
-    return [{"url": d["url"], "title": d["title"], "snippet": d["text"][:160]} for d in docs][:k]
+    # rank by query-term overlap so branches with different queries get different pages;
+    # a query matching nothing gets the whole corpus (keeps generic test prompts working)
+    terms = {t for t in re.findall(r"[a-z0-9]+", query.lower()) if len(t) >= 4}
+
+    def score(d: dict) -> int:
+        hay = f"{d['title']} {d['text']}".lower()
+        return sum(t in hay for t in terms)
+
+    hits = sorted((d for d in docs if score(d)), key=score, reverse=True) or docs
+    return [{"url": d["url"], "title": d["title"], "snippet": d["text"][:160]} for d in hits][:k]
 
 
 async def web_search(query: str, k: int = 5) -> dict[str, Any]:
@@ -128,6 +138,7 @@ async def web_search(query: str, k: int = 5) -> dict[str, Any]:
     if provider == "empty":
         pass
     elif provider == "stub":
+        await asyncio.sleep(float(os.getenv("STUB_TOOL_DELAY_S", "0")))  # simulated network latency
         results = _stub(query, k)
     else:
         chain = {"auto": ["ddg", "wikipedia"], "ddg": ["ddg"], "wikipedia": ["wikipedia"]}.get(

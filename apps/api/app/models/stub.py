@@ -23,6 +23,14 @@ def _sources(text: str) -> list[dict[str, str]]:
     return [{"n": n, "url": u, "title": t or "", "text": x} for n, u, t, x in _SRC.findall(text)]
 
 
+def _compare_items(task: str) -> list[str]:
+    m = re.search(r"\b(?:compare|between)\s+(.+?)[?.!]*$", task, re.I)
+    if not m:
+        return []
+    parts = re.split(r",\s*(?:and\s+)?|\s+and\s+", m.group(1))
+    return [p.strip() for p in parts if len(p.strip()) >= 2][:4]
+
+
 def _first_sentence(text: str) -> str:
     m = re.match(r"(.+?[.!?])(\s|$)", text.strip())
     return (m.group(1) if m else text.strip())[:400]
@@ -44,14 +52,29 @@ class StubClient:
         if title == "Plan":
             task = re.search(r"TASK: (.*)", user)
             q = (task.group(1) if task else user)[:200].strip() or "query"
-            out: dict[str, Any] = {
-                "search_query": q if len(q) >= 2 else q + " ?",
-                "steps": [
+            items = _compare_items(q)
+            if len(items) >= 2:  # "Compare A, B and C" -> one independent research branch each
+                ids = [f"r{i}" for i in range(1, len(items) + 1)]
+                steps: list[dict[str, Any]] = [
+                    {
+                        "id": rid,
+                        "agent_id": "research",
+                        "goal": f"Facts about {it}",
+                        "query": it[:200],
+                    }
+                    for rid, it in zip(ids, items, strict=True)
+                ]
+                steps += [
+                    {"id": "w", "agent_id": "writer", "goal": "Compare", "depends_on": ids},
+                    {"id": "v", "agent_id": "validator", "goal": "Check", "depends_on": ["w"]},
+                ]
+            else:
+                steps = [
                     {"agent_id": "research", "goal": "Find and read sources"},
                     {"agent_id": "writer", "goal": "Answer with citations"},
                     {"agent_id": "validator", "goal": "Check grounding"},
-                ],
-            }
+                ]
+            out: dict[str, Any] = {"search_query": q if len(q) >= 2 else q + " ?", "steps": steps}
         elif title == "ResearchResult":
             src = _sources(user)
             out = {

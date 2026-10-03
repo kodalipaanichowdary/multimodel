@@ -232,5 +232,24 @@
     "by": "user"
    }
   }
+ },
+ {
+  "why": "depends_on not a list",
+  "event": {
+   "id": "x",
+   "type": "task.planned",
+   "task_id": "t1",
+   "seq": 0,
+   "ts": "2026-10-02T10:00:00Z",
+   "payload": {
+    "steps": [
+     {
+      "agent_id": "writer",
+      "goal": "g",
+      "depends_on": "r1"
+     }
+    ]
+   }
+  }
  }
 ]

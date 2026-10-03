@@ -52,6 +52,7 @@ export default defineConfig({
       env: {
         LLM_PROVIDER: "stub",
         STUB_DELAY_S: "0.6",
+        STUB_TOOL_DELAY_S: "0.4",
         SEARCH_PROVIDER: "stub",
         FETCH_PROVIDER: "stub",
         FS_WRITE_ROOT: path.join(p2Tmp, "artifacts"),

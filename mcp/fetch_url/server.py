@@ -161,6 +161,7 @@ async def fetch_url(url: str, max_chars: int = 20000) -> dict[str, Any]:
     """Fetch a public page; returns {url, final_url, status, title, text, truncated}."""
     max_chars = max(500, min(int(max_chars), 50000))
     if os.getenv("FETCH_PROVIDER", "live").lower() == "stub":
+        await asyncio.sleep(float(os.getenv("STUB_TOOL_DELAY_S", "0")))  # simulated network latency
         return _stub(url, max_chars)
     current = url
     async with httpx.AsyncClient(
