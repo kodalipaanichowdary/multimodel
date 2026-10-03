@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
-import os from "node:os";
 import path from "node:path";
+import { runDir } from "./e2e/run-dir";
 
 // p1: P1 contract server (scripted mock executor, nothing persisted) -> g1*.spec.ts
 // p2: real runtime (LangGraph pipeline, MCP tools, approvals, SQLite) with the deterministic
@@ -9,9 +9,10 @@ const P1 = { api: 8001, ui: 5174 };
 const P2 = { api: 8002, ui: 5175 };
 const apiDir = path.resolve(process.cwd(), "../api");
 const py = path.join(apiDir, process.platform === "win32" ? ".venv/Scripts/python.exe" : ".venv/bin/python");
-const p2Tmp = path.join(os.tmpdir(), `pos-e2e-${process.pid}`);
+// fresh per run, never keyed by PID (Windows reuses PIDs -> stale pos.db; see e2e/run-dir.ts)
+const p2Tmp = runDir();
 const PROD_UI = 4174;
-const prodDist = path.join(os.tmpdir(), `pos-e2e-dist-${process.pid}`);
+const prodDist = path.join(p2Tmp, "dist");
 
 const ui = (port: number, api: number) => ({
   command: `npx vite --port ${port} --strictPort`,
