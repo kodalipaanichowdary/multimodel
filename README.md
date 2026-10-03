@@ -1,15 +1,29 @@
 # Personal AI OS
 
-Spatial multi-agent workspace. Current phase: **P1 Living Shell** (see `GATES.md`).
+Spatial multi-agent workspace. Current phase: **P2 Real Brain** (see `GATES.md`, ADRs in `docs/decisions`).
 
 ```
 apps/workspace   React + React Flow UI (projection of backend events)
-apps/api         FastAPI: /agents, /tasks, /ws, /health; P1 mock executor
+apps/api         FastAPI: /agents, /tasks, /tasks/{id}/events|kill, /approvals/{id}, /ws, /health; real runtime
+mcp/<tool>       MCP tool servers: web_search, fetch_url, fs_write
+benchmarks/      run_p2.py (schema/latency matrix), soak_p2.py (20 live runs)
 packages/schemas Pydantic (python/) + zod (ts/) contracts, shared fixtures
 agents/<id>      manifest.yaml per agent
 scripts/         setup / dev / check / preview (Node, no extra deps)
 docs/decisions   ADRs
 ```
+
+## Prerequisites for real answers
+
+Ollama running on `127.0.0.1:11434` with the models in `agents/*/manifest.yaml`:
+
+```
+ollama pull llama3.2:3b
+ollama pull phi3.5
+ollama pull mistral:7b      # benchmark only; needs ~5 GB free RAM
+```
+
+Without Ollama the API still starts; a task then ends with `model unavailable` (a handled failure).
 
 ## Quick start
 
@@ -23,15 +37,24 @@ npm run build    # production UI -> apps/workspace/dist
 npm run preview  # build, then serve dist with vite preview (:4173) + API (:8000)
 ```
 
-Ports and the mock step delay come from `.env.example`; copy it to `.env` to override
-(`API_PORT`, `UI_PORT`, `MOCK_STEP_DELAY_S`). `dev`/`preview` refuse to start if a port is taken.
+All settings live in `.env.example` (ports, executor, model provider, search provider, approval timeout,
+event log path); copy it to `.env` to override. `dev`/`preview` refuse to start if a port is taken.
 
 **Windows (PowerShell):** run the commands exactly as above. They are plain `node` scripts, so no
 execution-policy change and no admin prompt is needed. The venv lives at `appspi\.venv\Scripts\python.exe`.
 
 **Playwright:** uses the installed Microsoft Edge by default (`PW_CHANNEL=chrome` for Chrome); no browser
 download. The suite starts its own API + UI on 8001/5174, so it can run while `npm run dev` is up.
-`HEADED=1 npm run e2e` measures FPS with real vsync.
+`HEADED=1 npm run e2e` measures FPS with real vsync. The suite starts two server pairs: P1 contract
+(mock executor, 8001/5174) and the real runtime with a stub model + offline tool corpus (8002/5175).
+
+Live checks (real Ollama + internet):
+
+```
+cd apps/api && RUN_LIVE=1 .venv/Scripts/python -m pytest tests/test_live.py -s   # golden question
+apps/api/.venv/Scripts/python benchmarks/run_p2.py      # -> benchmarks/p2_baseline.{json,md}
+apps/api/.venv/Scripts/python benchmarks/soak_p2.py     # -> benchmarks/p2_soak.json
+```
 
 Perf harness: open `/?stress=50` to pad the canvas to 50 nodes (FPS meter top-left).
 Regenerate UI fixtures after changing the mock script: `cd apps/api && .venv/Scripts/python scripts/gen_fixtures.py`.

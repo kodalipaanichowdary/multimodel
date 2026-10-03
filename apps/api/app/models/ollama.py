@@ -15,7 +15,15 @@ from .base import LLMError, LLMResult, Message, Metrics
 class OllamaClient:
     name = "ollama"
 
-    def __init__(self, base_url: str = "http://127.0.0.1:11434", timeout_s: float = 180.0) -> None:
+    def __init__(
+        self,
+        base_url: str = "http://127.0.0.1:11434",
+        timeout_s: float = 180.0,
+        num_ctx: int = 4096,
+    ) -> None:
+        # num_ctx drives KV-cache size: 8192 pushed phi3.5 (no GQA) to 5.6 GB and onto swap.
+        # P2 prompts are ~1k tokens; 4096 matches Ollama's own default for a 4 GB GPU.
+        self._num_ctx = num_ctx
         self._base = base_url.rstrip("/")
         self._timeout = httpx.Timeout(timeout_s, connect=5.0)
 
@@ -31,7 +39,7 @@ class OllamaClient:
                 "temperature": profile.temperature,
                 "num_predict": profile.max_tokens,
                 "seed": 0,
-                "num_ctx": 8192,
+                "num_ctx": self._num_ctx,
             },
             "keep_alive": "10m",
         }

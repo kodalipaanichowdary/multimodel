@@ -32,6 +32,7 @@ class Settings:
     ollama_url: str = field(
         default_factory=lambda: os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
     )
+    ollama_num_ctx: int = field(default_factory=lambda: int(os.getenv("OLLAMA_NUM_CTX", "4096")))
     stub_delay_s: float = field(default_factory=lambda: float(os.getenv("STUB_DELAY_S", "0")))
     mcp_root: Path = field(
         default_factory=lambda: Path(os.getenv("MCP_ROOT", str(_REPO_ROOT / "mcp")))

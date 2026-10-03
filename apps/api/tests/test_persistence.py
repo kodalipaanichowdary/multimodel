@@ -45,3 +45,16 @@ def test_events_survive_restart_and_open_runs_are_closed(tmp_path, settings):
         last = c.get("/tasks/orphan/events").json()[-1]
         assert last["type"] == "execution.failed" and "interrupted" in last["payload"]["error"]
         assert c.get("/tasks/missing/events").status_code == 404
+
+
+def test_null_repository_keeps_nothing(settings):
+    from dataclasses import replace as _r
+
+    with (
+        TestClient(create_app(_r(settings, db_path="none"))) as c,
+        c.websocket_connect("/ws") as ws,
+    ):
+        c.post("/tasks", json={"prompt": "not kept"})
+        while '"execution.' not in ws.receive_text():
+            pass
+        assert c.get("/tasks").json() == []

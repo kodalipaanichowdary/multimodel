@@ -112,3 +112,25 @@ class SqliteEventRepository:
         for (body,) in rows:
             parse_event(body)
         return len(rows)
+
+
+class NullEventRepository:
+    """POS_DB_PATH=none: keep nothing (P1 contract tests need fresh pages, not restored history)."""
+
+    def append(self, event: BaseModel) -> None:
+        return None
+
+    def tasks(self, limit: int = 20) -> list[TaskSummary]:
+        return []
+
+    def events(self, task_id: str) -> list[dict[str, Any]]:
+        return []
+
+    def unfinished(self) -> list[tuple[str, int]]:
+        return []
+
+
+def open_repository(path: str) -> EventRepository:
+    if path.strip().lower() in ("", "none", "off"):
+        return NullEventRepository()
+    return SqliteEventRepository(path)

@@ -19,7 +19,7 @@ from .mock_executor import ExtraAgent, MockExecutor
 from .models.base import LLMClient
 from .models.ollama import OllamaClient
 from .models.stub import StubClient
-from .persistence import SqliteEventRepository, TaskSummary
+from .persistence import EventRepository, TaskSummary, open_repository
 from .registry import AgentExistsError, AgentNotFoundError, AgentRegistry
 from .tools.registry import ToolRegistry
 
@@ -50,11 +50,11 @@ def _llm(settings: Settings) -> LLMClient:
     if settings.llm_provider == "stub":
         return StubClient(settings.stub_delay_s)
     if settings.llm_provider == "ollama":
-        return OllamaClient(settings.ollama_url)
+        return OllamaClient(settings.ollama_url, num_ctx=settings.ollama_num_ctx)
     raise ValueError(f"unknown LLM_PROVIDER {settings.llm_provider!r}")
 
 
-def _close_interrupted(repo: SqliteEventRepository, bus: EventBus) -> int:
+def _close_interrupted(repo: EventRepository, bus: EventBus) -> int:
     """Runs left open by a crash/restart can never finish: close them in the log."""
     n = 0
     for task_id, last_seq in repo.unfinished():
@@ -77,7 +77,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(app: FastAPI):
         app.state.settings = settings
         app.state.registry = AgentRegistry.from_dir(settings.agents_dir)
-        app.state.repo = SqliteEventRepository(settings.db_path)
+        app.state.repo = open_repository(settings.db_path)
         app.state.bus = EventBus(repo=app.state.repo)
         closed = _close_interrupted(app.state.repo, app.state.bus)
         app.state.approvals = ApprovalBroker(settings.approval_timeout_s)
