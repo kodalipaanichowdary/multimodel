@@ -51,7 +51,7 @@ test("G3.6 parallel branches: several active dots at once, one node per branch",
     await expect(page.getByTestId(`node-agent:research#${i}`)).toContainText(`Research #${i}`);
     await expect(strip.getByTestId(`strip-dot-research#${i}`)).toHaveAttribute("data-state", "completed");
   }
-  await expect(strip.getByTestId("run-chip-text")).toHaveText(/^✓ 6 agents · 12 tools/); // 3x(search + 2 fetch + execution-memory note)
+  await expect(strip.getByTestId("run-chip-text")).toHaveText(/^\u2713 6 agents \u00b7 12 tools/); // 3x(search + 2 fetch + execution-memory note)
   await expect(page.getByTestId("chat-result").last()).toContainText("[1]");
 });
 
