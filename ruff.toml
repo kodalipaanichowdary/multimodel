@@ -1,0 +1,7 @@
+# Single ruff config for every Python dir (apps/api, packages/schemas/python, mcp, benchmarks)
+line-length = 100
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC", "RUF"]
+ignore = ["UP007", "E501"]  # line length is owned by ruff format

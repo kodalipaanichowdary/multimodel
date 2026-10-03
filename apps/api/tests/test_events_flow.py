@@ -1,10 +1,9 @@
 import asyncio
 
 import pytest
-from pos_schemas import EVENT_TYPES, make_event, parse_event
-
 from app.bus import EventBus
 from app.mock_executor import MockExecutor, script
+from pos_schemas import EVENT_TYPES, make_event, parse_event
 
 TERMINAL = {"execution.completed", "execution.failed"}
 

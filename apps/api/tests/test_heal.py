@@ -1,10 +1,9 @@
 import json
 
 import pytest
-from pos_schemas import ModelProfile, Verdict
-
 from app.agent_runtime.heal import generate_typed
 from app.models.base import LLMResult, Message, Metrics
+from pos_schemas import ModelProfile, Verdict
 
 PROFILE = ModelProfile(model="fake")
 M = Metrics(model="fake", ttft_ms=1, tok_s=1.0, total_ms=2, prompt_tokens=3, completion_tokens=4)

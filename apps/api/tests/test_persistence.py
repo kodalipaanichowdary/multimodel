@@ -1,10 +1,9 @@
 from dataclasses import replace
 
-from fastapi.testclient import TestClient
-from pos_schemas import make_event
-
 from app.main import create_app
 from app.persistence import SqliteEventRepository
+from fastapi.testclient import TestClient
+from pos_schemas import make_event
 
 
 def ev(t, task, seq, **p):

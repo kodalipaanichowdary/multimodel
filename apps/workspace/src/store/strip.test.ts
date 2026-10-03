@@ -18,6 +18,8 @@ describe("liveStats", () => {
       events_per_sec: 4, // seq 14..21 have ts in (3250, 5250]
       elapsed_ms: 5250,
       done: true,
+      model: null,
+      model_calls: 0,
     });
   });
 
@@ -35,6 +37,8 @@ describe("liveStats", () => {
       events_per_sec: 4, // seq 1..8 in (0, 2000]
       elapsed_ms: 2000,
       done: true,
+      model: null,
+      model_calls: 0,
     });
   });
 
@@ -49,6 +53,8 @@ describe("liveStats", () => {
       events_per_sec: 3.5, // 7 events in (-400, 1600]
       elapsed_ms: 1600,
       done: false,
+      model: null,
+      model_calls: 0,
     });
     // same server instant expressed with a different offset -> identical
     expect(liveStats(run(events), BASE + 1600 - 500, -500)).toEqual(s);

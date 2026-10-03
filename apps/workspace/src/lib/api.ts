@@ -61,3 +61,30 @@ export async function createAgent(agent: AgentDefinition): Promise<AgentDefiniti
   if (!res.ok) throw parseApiError(res.status, await res.json().catch(() => null));
   return AgentDefinitionSchema.parse(await res.json());
 }
+
+export async function decideApproval(approvalId: string, decision: "allow" | "deny"): Promise<void> {
+  const res = await fetch(`${BASE}/approvals/${encodeURIComponent(approvalId)}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ decision }),
+  });
+  if (!res.ok) throw parseApiError(res.status, await res.json().catch(() => null));
+}
+
+export async function killTask(taskId: string): Promise<void> {
+  const res = await fetch(`${BASE}/tasks/${encodeURIComponent(taskId)}/kill`, { method: "POST" });
+  if (!res.ok) throw parseApiError(res.status, await res.json().catch(() => null));
+}
+
+const TaskSummarySchema = z.object({ task_id: z.string(), prompt: z.string(), status: z.string(), events: z.number() });
+
+/** Persisted event log, oldest run first, each run in seq order (raw JSON; zod-validated on ingest). */
+export async function fetchHistory(limit = 20): Promise<unknown[]> {
+  const tasks = await json(await fetch(`${BASE}/tasks?limit=${limit}`), z.array(TaskSummarySchema));
+  const out: unknown[] = [];
+  for (const t of [...tasks].reverse()) {
+    const res = await fetch(`${BASE}/tasks/${encodeURIComponent(t.task_id)}/events`);
+    if (res.ok) out.push(...((await res.json()) as unknown[]));
+  }
+  return out;
+}

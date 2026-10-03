@@ -1,9 +1,8 @@
 """P1 patch: agents added via POST /agents and flagged `selected` get one mock step."""
 
 import pytest
-from pos_schemas import parse_event
-
 from app.mock_executor import ExtraAgent, script
+from pos_schemas import parse_event
 
 CRITIC = {
     "id": "critic",

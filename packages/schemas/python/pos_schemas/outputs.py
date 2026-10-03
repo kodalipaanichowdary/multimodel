@@ -8,8 +8,17 @@ Every model call is parsed into one of these. Semantic checks that need run stat
 from __future__ import annotations
 
 import re
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, ValidationInfo, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictBool,
+    StrictInt,
+    ValidationInfo,
+    field_validator,
+)
 
 from .events import PlanStep
 
@@ -59,20 +68,21 @@ class ResearchResult(_Strict):
 
 
 class Draft(_Strict):
+    """The model cites by source NUMBER ([n] in the text, n in `citations`); code maps n -> URL."""
+
     answer: str = Field(min_length=1, max_length=4000)
-    citations: list[str] = Field(max_length=10, description="URLs, in [n] order")
+    citations: list[Annotated[StrictInt, Field(ge=1)]] = Field(
+        max_length=10, description="source numbers cited, e.g. [1, 2]"
+    )
 
     @field_validator("citations")
     @classmethod
-    def _cited_urls(cls, v: list[str], info: ValidationInfo) -> list[str]:
-        for u in v:
-            if not re.match(_URL, u):
-                raise ValueError(f"citation is not an http(s) URL: {u!r}")
-        allowed = (info.context or {}).get("source_urls")
-        if allowed is not None:
-            bad = [u for u in v if u not in allowed]
+    def _cited_numbers(cls, v: list[int], info: ValidationInfo) -> list[int]:
+        n = (info.context or {}).get("n_sources")
+        if n is not None:
+            bad = [c for c in v if not 1 <= c <= n]
             if bad:
-                raise ValueError(f"citations must be source URLs; unknown: {bad}")
+                raise ValueError(f"citations must be source numbers 1..{n}; got {bad}")
         return v
 
     @field_validator("answer")

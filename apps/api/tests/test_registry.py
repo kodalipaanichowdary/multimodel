@@ -1,8 +1,6 @@
 from pathlib import Path
 
 import pytest
-from pos_schemas import AgentDefinition, AgentPatch
-
 from app.registry import (
     AgentExistsError,
     AgentNotFoundError,
@@ -10,6 +8,7 @@ from app.registry import (
     ManifestError,
     load_manifest,
 )
+from pos_schemas import AgentDefinition, AgentPatch
 
 from .conftest import REPO
 

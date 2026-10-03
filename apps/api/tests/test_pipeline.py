@@ -4,11 +4,10 @@ stub model (answers only from the prompt's SOURCES) + stub search/fetch corpus."
 import json
 from dataclasses import replace
 
-from fastapi.testclient import TestClient
-from pos_schemas import parse_event
-
 from app.main import create_app
 from app.models.base import LLMResult, Metrics
+from fastapi.testclient import TestClient
+from pos_schemas import parse_event
 
 TERMINAL = ("execution.completed", "execution.failed")
 
@@ -106,7 +105,7 @@ def test_ungrounded_answer_is_revised_once_then_falls_back(real_client):
     ungrounded = json.dumps(
         {
             "answer": "The authority is chaired by Bob Marsh [1].",
-            "citations": ["https://example.org/zephyr-harbor"],
+            "citations": [1],
         }
     )
     llm = Scripted([ungrounded, ungrounded])
@@ -127,13 +126,13 @@ def test_revision_that_fixes_grounding_passes(real_client):
     bad = json.dumps(
         {
             "answer": "It is chaired by Bob Marsh [1].",
-            "citations": ["https://example.org/zephyr-harbor"],
+            "citations": [1],
         }
     )
     good = json.dumps(
         {
             "answer": "The Zephyr Harbor Authority is chaired by Ada Quill [1].",
-            "citations": ["https://example.org/zephyr-harbor"],
+            "citations": [1],
         }
     )
     real_client.app.state.executor._deps.llm = Scripted([bad, good])
@@ -146,7 +145,7 @@ def test_invalid_model_output_heals_with_metrics_per_attempt(real_client):
     good = json.dumps(
         {
             "answer": "The Zephyr Harbor Authority is chaired by Ada Quill [1].",
-            "citations": ["https://example.org/zephyr-harbor"],
+            "citations": [1],
         }
     )
     llm = Scripted(['{"answer": ""}', good])

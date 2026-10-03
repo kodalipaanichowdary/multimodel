@@ -67,7 +67,7 @@ class StubClient:
             if src:
                 out = {
                     "answer": f"{_first_sentence(src[0]['text'])} [1]",
-                    "citations": [src[0]["url"]],
+                    "citations": [1],
                 }
             else:
                 out = {"answer": "I could not verify this.", "citations": []}

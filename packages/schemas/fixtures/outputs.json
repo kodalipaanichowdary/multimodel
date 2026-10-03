@@ -49,7 +49,7 @@
    "data": {
     "answer": "X is Y [1].",
     "citations": [
-     "https://example.org/a"
+     1
     ]
    }
   },
@@ -139,11 +139,11 @@
   },
   {
    "model": "Draft",
-   "why": "citation not url",
+   "why": "citation not a number",
    "data": {
     "answer": "a [1]",
     "citations": [
-     "wikipedia"
+     "https://example.org/a"
     ]
    }
   },
@@ -152,6 +152,16 @@
    "why": "passed not bool",
    "data": {
     "passed": "yes"
+   }
+  },
+  {
+   "model": "Draft",
+   "why": "citation zero",
+   "data": {
+    "answer": "a [1]",
+    "citations": [
+     0
+    ]
    }
   }
  ]

@@ -168,5 +168,57 @@ def check(draft: Draft, pages: list[Page]) -> Verdict:
     return Verdict(passed=not issues, issues=issues)
 
 
+def _fully_supported_by(terms: list[str], page: Page) -> bool:
+    text = (page.title + " " + page.text).lower()
+    return bool(terms) and all(_found(t, text) for t in terms)
+
+
+def align(draft: Draft, pages: list[Page]) -> tuple[Draft, list[str]]:
+    """Re-point a sentence's [n] marker to the fetched source that contains ALL of its key terms.
+
+    Only for sentences that are uncited or not supported by what they cite. Never invents
+    support: a sentence whose terms are not all in one fetched page is left as is (check() fails it).
+    Returns the aligned draft and a note per change.
+    """
+    by_n = {p.n: p for p in pages}
+    out, notes = [], []
+    for i, s in enumerate(sentences(draft.answer), 1):
+        marks = [int(m) for m in CITE.findall(s)]
+        terms = key_terms(s)
+        cited_ok = (
+            bool(marks)
+            and all(m in by_n for m in marks)
+            and (
+                not terms
+                or _fully_supported_by(
+                    terms,
+                    Page(
+                        0,
+                        "",
+                        " ".join(by_n[m].title for m in marks),
+                        " ".join(by_n[m].text for m in marks),
+                    ),
+                )
+            )
+        )
+        if cited_ok or not terms or HEDGE.search(s):
+            out.append(s)
+            continue
+        target = next((p.n for p in pages if _fully_supported_by(terms, p)), None)
+        if target is None:
+            out.append(s)
+            continue
+        bare = CITE.sub("", s).rstrip()
+        stop = bare[-1] if bare and bare[-1] in ".!?" else ""
+        out.append(f"{bare.rstrip('.!?').rstrip()} [{target}]{stop or '.'}")
+        notes.append(
+            f"sentence {i}: citation {marks or 'none'} -> [{target}] (all of {terms[:6]} found in source {target})"
+        )
+    if not notes:
+        return draft, []
+    cites = sorted({int(m) for m in CITE.findall(" ".join(out))})
+    return Draft(answer=" ".join(out), citations=cites), notes
+
+
 def is_hedge(answer: str) -> bool:
     return HEDGE.search(answer) is not None and not CITE.search(answer)

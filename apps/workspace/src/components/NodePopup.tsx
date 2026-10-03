@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useGraph } from "../store/graph";
+import { killTask } from "../lib/api";
 import { DANGEROUS, KIND_COLOR, STATE_COLOR } from "../lib/theme";
 
 const W = 300;
@@ -14,6 +15,10 @@ export function NodePopup() {
   const close = useGraph((s) => s.closePopup);
   const picked = useGraph((s) => (node ? s.nextSelected.includes(node.ref_id) : false));
   const toggle = useGraph((s) => s.toggleSelected);
+  const activeTask = useGraph((s) =>
+    s.activeTaskId && s.nodes[`task:${s.activeTaskId}`]?.state === "running" ? s.activeTaskId : null,
+  );
+  const working = node ? ["running", "thinking", "waiting_approval"].includes(node.state) : false;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
@@ -66,6 +71,15 @@ export function NodePopup() {
           {agent ? (
             <>
               <p className="mb-3 break-words text-slate-400">{agent.description}</p>
+              {working && activeTask && (
+                <button
+                  data-testid="popup-kill"
+                  onClick={() => killTask(activeTask).catch((e) => console.warn("[kill]", e))}
+                  className="mb-2 w-full rounded-md border border-red-400/50 px-2 py-1 text-xs text-red-200 hover:bg-red-500/15"
+                >
+                  ■ Stop {agent.name} (kills this run)
+                </button>
+              )}
               {agent.id !== "orchestrator" && (
                 <button
                   data-testid="popup-select"

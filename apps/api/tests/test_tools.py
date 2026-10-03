@@ -2,8 +2,6 @@ import asyncio
 from pathlib import Path
 
 import pytest
-from pos_schemas import AgentDefinition, parse_event
-
 from app.agent_runtime.approvals import ApprovalBroker
 from app.agent_runtime.context import RunContext
 from app.bus import EventBus
@@ -15,6 +13,7 @@ from app.tools.registry import (
     ToolSpec,
     load_server,
 )
+from pos_schemas import AgentDefinition, parse_event
 
 from .conftest import REPO
 

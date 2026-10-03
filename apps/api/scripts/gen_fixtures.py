@@ -12,9 +12,8 @@ import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from pos_schemas import make_event
-
 from app.mock_executor import script
+from pos_schemas import make_event
 
 OUT = (
     Path(__file__).resolve().parents[3]

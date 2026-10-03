@@ -6,6 +6,7 @@ validate -> on ValidationError, append the exact e.errors() and retry once -> el
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from typing import Any, Generic, TypeVar
@@ -16,6 +17,7 @@ from pydantic import BaseModel, ValidationError
 from ..models.base import LLMClient, Message, Metrics
 
 T = TypeVar("T", bound=BaseModel)
+log = logging.getLogger("pos.heal")
 
 MAX_ATTEMPTS = 2  # first try + one healing retry
 
@@ -67,6 +69,13 @@ async def generate_typed(
             value = model_cls.model_validate_json(res.text, context=context)
         except ValidationError as e:
             errors.append(e.errors(include_url=False, include_context=False))
+            log.warning(
+                "%s attempt %d invalid: %s | output: %.300s",
+                model_cls.__name__,
+                attempt,
+                json.dumps(errors[-1], default=str)[:600],
+                res.text,
+            )
             convo = [*convo, Message("assistant", res.text), Message("user", error_feedback(e))]
             continue
         return Healed(

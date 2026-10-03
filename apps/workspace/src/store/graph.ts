@@ -43,7 +43,7 @@ interface GraphStore extends Projection {
   setAgents: (list: AgentDefinition[]) => void;
   setAgentsError: (msg: string | null) => void;
   /** Entry point for every wire message. zod-validates before projecting. */
-  ingest: (raw: string) => void;
+  ingest: (raw: string, opts?: { history?: boolean }) => void;
   setWsStatus: (s: WsStatus) => void;
   moveNode: (id: string, pos: XY) => void;
   openPopup: (nodeId: string, x: number, y: number) => void;
@@ -77,7 +77,7 @@ export const useGraph = create<GraphStore>()((set, get) => ({
   setAgents: (list) => set((s) => ({ ...loadAgents(s, list), agentsError: null })),
   setAgentsError: (agentsError) => set({ agentsError }),
 
-  ingest: (raw) => {
+  ingest: (raw, opts) => {
     let json: unknown;
     try {
       json = JSON.parse(raw);
@@ -99,10 +99,12 @@ export const useGraph = create<GraphStore>()((set, get) => ({
     const next = applyEvent(s, r.data);
     if (next === s) return;
     const ev = r.data;
+    // Live frames capture the browser-vs-server offset from a run's first event. Restored
+    // history arrives late, so receipt time says nothing about the server clock: use 0.
     const clockOffsets =
       ev.task_id in s.clockOffsets
         ? s.clockOffsets
-        : { ...s.clockOffsets, [ev.task_id]: Date.now() - Date.parse(ev.ts) };
+        : { ...s.clockOffsets, [ev.task_id]: opts?.history ? 0 : Date.now() - Date.parse(ev.ts) };
     // A new run brings the chat forward.
     set(
       ev.type === "task.created"

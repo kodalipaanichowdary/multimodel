@@ -140,6 +140,10 @@ function summarize(e: PosEvent): string {
       return `${e.payload.tool_id}: ${e.payload.reason}`;
     case "approval.granted":
       return `by ${e.payload.by}`;
+    case "approval.denied":
+      return `by ${e.payload.by}: ${e.payload.reason}`;
+    case "model.metrics":
+      return `${e.payload.agent_id} ${e.payload.model} #${e.payload.attempt} TTFT ${e.payload.ttft_ms}ms ${e.payload.tok_s} tok/s`;
     case "artifact.created":
       return e.payload.title;
     case "execution.completed":

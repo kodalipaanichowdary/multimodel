@@ -30,18 +30,16 @@ def test_research_sources_must_be_fetched():
 
 
 def test_draft_citations_and_markers_checked_against_context():
-    ctx = {"source_urls": {"https://a.org/1", "https://b.org/2"}, "n_sources": 2}
+    ctx = {"n_sources": 2}
     Draft.model_validate_json(
-        json.dumps({"answer": "X is Y [1]. Z [2].", "citations": ["https://a.org/1"]}), context=ctx
+        json.dumps({"answer": "X is Y [1]. Z [2].", "citations": [1, 2]}), context=ctx
     )
-    with pytest.raises(ValidationError, match="unknown"):
-        Draft.model_validate_json(
-            json.dumps({"answer": "X [1].", "citations": ["https://elsewhere.org"]}), context=ctx
-        )
+    with pytest.raises(ValidationError, match=r"source numbers 1\.\.2"):
+        Draft.model_validate_json(json.dumps({"answer": "X [1].", "citations": [5]}), context=ctx)
     with pytest.raises(ValidationError, match="out of range"):
-        Draft.model_validate_json(
-            json.dumps({"answer": "X [3].", "citations": ["https://a.org/1"]}), context=ctx
-        )
+        Draft.model_validate_json(json.dumps({"answer": "X [3].", "citations": [1]}), context=ctx)
+    with pytest.raises(ValidationError):  # the exact failure seen live: marker strings
+        Draft.model_validate_json(json.dumps({"answer": "X [1].", "citations": ["1"]}), context=ctx)
 
 
 def test_json_schema_is_exportable_for_constrained_decoding():

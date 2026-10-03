@@ -34,7 +34,20 @@ export type ChatItem =
   | { id: string; kind: "user"; task_id: string; text: string }
   | { id: string; kind: "status"; task_id: string; text: string; tone: ChatTone }
   | { id: string; kind: "result"; task_id: string; artifact: Artifact }
-  | { id: string; kind: "error"; task_id: string; agent_id: string | null; tool_id: string | null; error: string };
+  | { id: string; kind: "error"; task_id: string; agent_id: string | null; tool_id: string | null; error: string }
+  | {
+      id: string;
+      kind: "approval";
+      task_id: string;
+      approval_id: string;
+      agent_id: string;
+      tool_id: string;
+      reason: string;
+      status: ApprovalStatus;
+      by: string | null;
+    };
+
+export type ApprovalStatus = "pending" | "granted" | "denied" | "cancelled";
 
 export interface Projection {
   agents: Record<string, AgentDefinition>;
@@ -263,6 +276,24 @@ export function applyEvent(p: Projection, ev: PosEvent): Projection {
       if (req) setState(d, agentNodeId(req.payload.agent_id), "running");
       break;
     }
+    case "approval.denied": {
+      const req = [...p.log]
+        .reverse()
+        .find(
+          (e): e is EventOf<"approval.requested"> =>
+            e.type === "approval.requested" && e.payload.approval_id === ev.payload.approval_id,
+        );
+      if (req) {
+        setState(d, agentNodeId(req.payload.agent_id), "running");
+        d.detail[agentNodeId(req.payload.agent_id)] = `approval denied (${ev.payload.by}): ${req.payload.tool_id}`;
+      }
+      break;
+    }
+    case "model.metrics": {
+      const a = ensureAgent(d, ev.payload.agent_id);
+      d.detail[a] = `${ev.payload.model} · TTFT ${ev.payload.ttft_ms} ms · ${ev.payload.tok_s} tok/s`;
+      break;
+    }
     case "artifact.created": {
       const a = ensureAgent(d, ev.payload.agent_id);
       const nid = artifactNodeId(ev.payload.artifact_id);
@@ -370,13 +401,24 @@ function projectChat(
     case "tool.failed":
       return status(`tool:${ev.payload.call_id}`, `${ev.payload.tool_id} failed: ${ev.payload.error}`, "error");
     case "approval.requested":
-      return status(
-        `appr:${ev.payload.approval_id}`,
-        `${name(ev.payload.agent_id)} awaiting approval: ${ev.payload.tool_id}`,
-        "warn",
-      );
+      return upsert(chat, {
+        id: `${t}:appr:${ev.payload.approval_id}`,
+        kind: "approval",
+        task_id: t,
+        approval_id: ev.payload.approval_id,
+        agent_id: ev.payload.agent_id,
+        tool_id: ev.payload.tool_id,
+        reason: ev.payload.reason,
+        status: "pending",
+        by: null,
+      });
     case "approval.granted":
-      return status(`appr:${ev.payload.approval_id}`, `Approved by ${ev.payload.by}`, "done");
+    case "approval.denied": {
+      const id = `${t}:appr:${ev.payload.approval_id}`;
+      const card = chat.find((c) => c.id === id);
+      if (!card || card.kind !== "approval") return chat;
+      return upsert(chat, { ...card, status: ev.type === "approval.granted" ? "granted" : "denied", by: ev.payload.by });
+    }
     case "artifact.created":
       return upsert(chat, {
         id: `${t}:result:${ev.payload.artifact_id}`,
@@ -388,9 +430,12 @@ function projectChat(
       const failedTool = [...run.events]
         .reverse()
         .find((e): e is EventOf<"tool.failed"> => e.type === "tool.failed");
-      const settled = chat.map((c) =>
-        c.task_id === t && c.kind === "status" && c.tone === "running" ? { ...c, tone: "error" as const } : c,
-      );
+      const settled = chat.map((c): ChatItem => {
+        if (c.task_id !== t) return c;
+        if (c.kind === "status" && c.tone === "running") return { ...c, tone: "error" };
+        if (c.kind === "approval" && c.status === "pending") return { ...c, status: "cancelled" };
+        return c;
+      });
       return upsert(settled, {
         id: `${t}:error`,
         kind: "error",
@@ -503,6 +548,7 @@ export function runTimeline(run: Pick<Run, "events">): Timeline {
         row(e.payload.agent_id).state = "waiting_approval";
         break;
       case "approval.granted":
+      case "approval.denied":
         for (const r of rows.values()) if (r.state === "waiting_approval") r.state = "running";
         break;
       case "tool.started": {
@@ -553,6 +599,9 @@ export interface LiveStats {
   events_per_sec: number;
   elapsed_ms: number;
   done: boolean;
+  /** latest model call (model.metrics); null until the first one */
+  model: { agent_id: string; name: string; ttft_ms: number; tok_s: number } | null;
+  model_calls: number;
 }
 
 export const EVPS_WINDOW_MS = 2000;
@@ -567,7 +616,7 @@ export function liveStats(run: Pick<Run, "events">, nowMs: number, clockOffsetMs
   const ev = run.events;
   const done = runStatus(run) !== "running";
   if (ev.length === 0) {
-    return { tools_running: 0, tools_done: 0, tools_failed: 0, events_per_sec: 0, elapsed_ms: 0, done };
+    return { tools_running: 0, tools_done: 0, tools_failed: 0, events_per_sec: 0, elapsed_ms: 0, done, model: null, model_calls: 0 };
   }
   const first = Date.parse(ev[0].ts);
   const last = Date.parse(ev[ev.length - 1].ts);
@@ -577,7 +626,13 @@ export function liveStats(run: Pick<Run, "events">, nowMs: number, clockOffsetMs
   let completed = 0;
   let failed = 0;
   let inWindow = 0;
+  let model: LiveStats["model"] = null;
+  let modelCalls = 0;
   for (const e of ev) {
+    if (e.type === "model.metrics") {
+      modelCalls++;
+      model = { agent_id: e.payload.agent_id, name: e.payload.model, ttft_ms: e.payload.ttft_ms, tok_s: e.payload.tok_s };
+    }
     if (e.type === "tool.started") started++;
     if (e.type === "tool.completed") {
       completed++;
@@ -596,6 +651,8 @@ export function liveStats(run: Pick<Run, "events">, nowMs: number, clockOffsetMs
     events_per_sec: inWindow / (EVPS_WINDOW_MS / 1000),
     elapsed_ms: serverNow - first,
     done,
+    model,
+    model_calls: modelCalls,
   };
 }
 

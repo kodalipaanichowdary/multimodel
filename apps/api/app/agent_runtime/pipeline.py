@@ -17,7 +17,7 @@ from ..models.base import LLMClient, Message, Metrics
 from ..registry import AgentRegistry
 from ..tools.registry import ApprovalDenied, ToolError, ToolRegistry
 from .context import RunContext
-from .grounding import CITE, Page, check, is_hedge
+from .grounding import CITE, Page, align, check, is_hedge
 from .heal import Healed, generate_typed
 from .passages import select
 from .workflow import State, Workflow
@@ -180,7 +180,8 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
                 "You are Writer. Answer the TASK using ONLY the numbered SOURCES. End every sentence with the "
                 "marker of the source that states it, like [1]. Copy names, numbers and dates exactly as written in "
                 "the sources. If the sources do not answer the task, say you could not verify it. citations = the "
-                "URLs of the sources you cited. 1-4 short sentences.",
+                "numbers of the sources you cited, e.g. [1]. Write 1-3 complete sentences that restate the "
+                "subject of the task, e.g. 'The X of Y is Z [1].'",
             ),
             Message("user", f"TASK: {s['prompt']}\n\nSOURCES:\n{_sources_block(pages)}"),
         ]
@@ -199,7 +200,7 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
             msgs,
             Draft,
             Draft(answer="I could not verify an answer from the fetched sources.", citations=[]),
-            context={"source_urls": {p.url for p in pages}, "n_sources": len(pages)},
+            context={"n_sources": len(pages)},
         )
         ctx.done(w.id, "draft ready" if not issues else "revised draft ready")
         return {**s, "draft": h.value, "revisions": s.get("revisions", 0) + (1 if issues else 0)}
@@ -212,7 +213,13 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
             verdict = Verdict(passed=False, issues=["no sources"])
         else:
             ctx.think(v.id, "Checking every sentence against the cited pages")
-            verdict = check(s["draft"], s["pages"])
+            draft, notes = align(s["draft"], s["pages"])
+            for note in notes:
+                ctx.think(v.id, f"Re-attached citation: {note}"[:500])
+            verdict = check(draft, s["pages"])
+            s = {**s, "draft": draft}
+        if not verdict.passed and s.get("draft") is not None:
+            ctx.think(v.id, "Rejected: " + "; ".join(verdict.issues)[:450])
         ctx.done(
             v.id,
             "grounded: all claims supported"

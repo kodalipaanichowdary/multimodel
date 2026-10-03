@@ -20,7 +20,7 @@ export const ResearchResultSchema = z
 export const DraftSchema = z
   .object({
     answer: z.string().min(1).max(4000),
-    citations: z.array(z.string().regex(/^https?:\/\/[^\s]+$/, "citation is not an http(s) URL")).max(10),
+    citations: z.array(z.number().int().positive()).max(10), // source numbers; code maps n -> URL
   })
   .strict();
 

@@ -1,7 +1,6 @@
-from pos_schemas import Draft
-
 from app.agent_runtime.grounding import Page, check, key_terms, sentences
 from app.agent_runtime.passages import select
+from pos_schemas import Draft
 
 PAGES = [
     Page(
@@ -14,7 +13,7 @@ PAGES = [
 ]
 
 
-def d(answer: str, cites=("https://ex.org/a",)) -> Draft:
+def d(answer: str, cites=(1,)) -> Draft:
     return Draft(answer=answer, citations=list(cites))
 
 
@@ -86,3 +85,34 @@ def test_marker_after_full_stop_counts():
     assert check(
         d("The Zephyr Harbor Authority is chaired by Ada Quill since 2024. [1]"), PAGES
     ).passed
+
+
+def test_align_repoints_marker_only_when_one_source_has_every_term():
+    from app.agent_runtime.grounding import align
+
+    # right fact, wrong / missing citation -> re-pointed to the page that states it
+    fixed, notes = align(d("Ada Quill opened the north pier in March [1]."), PAGES)
+    assert fixed.answer == "Ada Quill opened the north pier in March [2]." and fixed.citations == [
+        2
+    ]
+    assert check(fixed, PAGES).passed and "-> [2]" in notes[0]
+    fixed, _ = align(d("The Zephyr Harbor Authority is chaired by Ada Quill", cites=()), PAGES)
+    assert fixed.answer.endswith("Ada Quill [1].") and check(fixed, PAGES).passed
+    # a claim no fetched page fully supports is NOT rescued
+    same, notes = align(d("The Zephyr Harbor Authority is chaired by Bob Marsh [1]."), PAGES)
+    assert notes == [] and not check(same, PAGES).passed
+    # correct citations are left alone
+    ok = d("The Zephyr Harbor Authority is chaired by Ada Quill [1].")
+    assert align(ok, PAGES) == (ok, [])
+
+
+def test_svg_titles_do_not_pollute_page_title():
+    from app.tools.registry import load_server
+
+    from .conftest import REPO
+
+    fetch = load_server(REPO / "mcp", "fetch_url")
+    title, _text = fetch.html_to_text(
+        "<head><title>Real Title</title></head><body><svg><title>Icon</title></svg><p>x</p></body>"
+    )
+    assert title == "Real Title"

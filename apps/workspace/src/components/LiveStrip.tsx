@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useGraph } from "../store/graph";
 import { liveStats, runTimeline, stripModel, stripSummary } from "../store/projection";
 import { STATE_COLOR } from "../lib/theme";
+import { killTask } from "../lib/api";
 import { ScorecardView } from "./Scorecard";
 
 /** Re-render every `ms` while `on`; returns the browser clock. */
@@ -61,7 +62,7 @@ export function LiveStrip({ taskId }: { taskId: string }) {
   return (
     <div className="pt-1" data-testid="run-strip-wrap" data-task={taskId}>
       <div
-        className="relative h-12 overflow-hidden rounded-lg"
+        className="relative h-16 overflow-hidden rounded-lg"
         data-testid="run-strip"
         data-task={taskId}
         data-phase={done ? "done" : "live"}
@@ -111,7 +112,7 @@ export function LiveStrip({ taskId }: { taskId: string }) {
               />
             ))}
           </div>
-          <div className="flex items-center gap-3 text-[11px] tabular-nums text-slate-400">
+          <div className="flex items-center gap-2 text-[11px] tabular-nums text-slate-400">
             <span
               aria-live="polite"
               data-testid="strip-status"
@@ -120,6 +121,24 @@ export function LiveStrip({ taskId }: { taskId: string }) {
             >
               {status}
             </span>
+            {stats.model && (
+              <span className="shrink-0 text-slate-400" data-testid="strip-model" title={`${stats.model.name} · ${stats.model_calls} model call(s)`}>
+                TTFT <b className="font-medium text-slate-200" data-testid="strip-ttft">{stats.model.ttft_ms}</b>ms ·{" "}
+                <b className="font-medium text-slate-200" data-testid="strip-toks">{stats.model.tok_s.toFixed(1)}</b> tok/s
+              </span>
+            )}
+            {!done && (
+              <button
+                data-testid="run-stop"
+                onClick={() => killTask(taskId).catch((e) => console.warn("[kill]", e))}
+                className="shrink-0 rounded border border-red-400/40 px-1.5 py-px text-[10px] font-medium uppercase tracking-wider text-red-200 hover:bg-red-500/15"
+                title="Stop this run (kills the active agent)"
+              >
+                Stop
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-3 text-[11px] tabular-nums text-slate-400">
             <span className="shrink-0" title="tools running / done / failed">
               <span className="text-cyan-300" data-testid="strip-tools-running">{stats.tools_running}</span>
               <span className="text-slate-600"> run · </span>

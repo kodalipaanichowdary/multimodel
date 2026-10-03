@@ -78,9 +78,10 @@ class _Text(HTMLParser):
         self.title = ""
         self._skip = 0
         self._in_title = False
+        self._title_done = False
 
     def handle_starttag(self, tag: str, attrs: Any) -> None:
-        if tag == "title":
+        if tag == "title" and not self._title_done:
             self._in_title = True
         if tag in _SKIP:
             self._skip += 1
@@ -88,8 +89,11 @@ class _Text(HTMLParser):
             self.parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
-        if tag == "title":
+        if tag == "title" and self._in_title:
             self._in_title = False
+            self._title_done = (
+                True  # first <title> only; SVG <title>s in the body are not the page title
+            )
         if tag in _SKIP and self._skip:
             self._skip -= 1
         if tag in _BLOCK:

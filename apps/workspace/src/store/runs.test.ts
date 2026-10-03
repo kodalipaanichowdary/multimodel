@@ -135,14 +135,14 @@ describe("chat projection", () => {
   it("happy: user prompt, live status lines settle to done, result (no auto scorecard item)", () => {
     const p = fold(HAPPY);
     expect(p.chat.map((c) => c.kind)).toEqual([
-      "user", "status", "status", "status", "status", "status", "status", "status", "status", "result",
+      "user", "status", "status", "status", "status", "status", "approval", "status", "status", "result",
     ]);
     const statuses = p.chat.filter((c) => c.kind === "status");
     expect(statuses.every((c) => c.kind === "status" && c.tone === "done" || (c.kind === "status" && c.tone === "info"))).toBe(true);
     const texts = statuses.map((c) => (c.kind === "status" ? c.text : ""));
     expect(texts).toContain("Research done (1.0s)");
     expect(texts).toContain("web_search done (420 ms)");
-    expect(texts).toContain("Approved by mock-auto");
+    expect(p.chat.find((c) => c.kind === "approval")).toMatchObject({ status: "granted", by: "mock-auto", tool_id: "fs_write" });
     expect(texts[1]).toBe("Plan: Research → Writer → Validator");
     const result = p.chat.find((c) => c.kind === "result");
     expect(result?.kind === "result" && result.artifact.content).toContain("# Report (mock)");

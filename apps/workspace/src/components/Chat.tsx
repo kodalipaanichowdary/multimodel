@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
-import { submitTask } from "../lib/api";
+import { decideApproval, submitTask } from "../lib/api";
 import { useGraph } from "../store/graph";
 import type { ChatItem, ChatTone } from "../store/projection";
 import { STATE_COLOR } from "../lib/theme";
@@ -101,6 +101,8 @@ function Message({ m }: { m: ChatItem }) {
           )}
         </div>
       );
+    case "approval":
+      return <ApprovalCard m={m} />;
     case "error":
       return (
         <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200" data-testid="chat-error">
@@ -118,6 +120,63 @@ function Message({ m }: { m: ChatItem }) {
         </div>
       );
   }
+}
+
+const APPROVAL_LOOK = {
+  pending: { border: "border-amber-400/50 bg-amber-500/10", label: "Approval needed", color: "text-amber-200" },
+  granted: { border: "border-emerald-500/30 bg-emerald-500/5", label: "Allowed", color: "text-emerald-300" },
+  denied: { border: "border-red-500/40 bg-red-500/10", label: "Denied", color: "text-red-300" },
+  cancelled: { border: "border-white/10 bg-white/[0.02]", label: "Cancelled (run ended)", color: "text-slate-400" },
+} as const;
+
+/** fs.write / terminal.exec gate. The run is blocked on the server until one of these is clicked. */
+function ApprovalCard({ m }: { m: Extract<ChatItem, { kind: "approval" }> }) {
+  const agentName = useGraph((s) => s.agents[m.agent_id]?.name ?? m.agent_id);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const look = APPROVAL_LOOK[m.status];
+  async function decide(decision: "allow" | "deny") {
+    setBusy(true);
+    setError(null);
+    try {
+      await decideApproval(m.approval_id, decision);
+    } catch (e) {
+      setError(String(e));
+      setBusy(false);
+    }
+  }
+  return (
+    <div className={`rounded-lg border p-3 text-sm ${look.border}`} data-testid="approval-card" data-status={m.status} data-approval={m.approval_id}>
+      <p className={`font-semibold ${look.color}`}>
+        ⚠ {look.label}
+        {m.by && m.status !== "pending" && <span className="font-normal text-slate-400"> · by {m.by}</span>}
+      </p>
+      <p className="mt-1 break-words text-xs text-slate-300">
+        <b>{agentName}</b> wants to run <code className="rounded bg-white/10 px-1">{m.tool_id}</code>: {m.reason}
+      </p>
+      {m.status === "pending" && (
+        <div className="mt-2 flex gap-2">
+          <button
+            data-testid="approval-allow"
+            disabled={busy}
+            onClick={() => decide("allow")}
+            className="rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+          >
+            Allow once
+          </button>
+          <button
+            data-testid="approval-deny"
+            disabled={busy}
+            onClick={() => decide("deny")}
+            className="rounded-md border border-red-400/50 px-3 py-1 text-xs font-medium text-red-200 hover:bg-red-500/15 disabled:opacity-40"
+          >
+            Deny
+          </button>
+        </div>
+      )}
+      {error && <p className="mt-1 break-words text-xs text-red-400">{error}</p>}
+    </div>
+  );
 }
 
 export function Composer() {
