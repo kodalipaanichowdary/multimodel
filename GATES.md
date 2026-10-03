@@ -53,18 +53,18 @@ A gate passes only with pasted command output / test results as evidence.
 
 ## G3 — Swarm+Trust
 
-- [ ] G3.0  npm run doctor: checks Python>=3.10, Node>=18, git identity, Ollama up, GPU in use (ollama ps not 100% CPU), models pulled (+nomic-embed-text), free RAM, ports 8000/5173 free, internet reach (Wikipedia, DDG); prints the exact fix command per failure; exit 1 on hard failure
-- [ ] G3.1  unsent composer text survives dock/drawer/sheet layout switch
-- [ ] G3.2  canvas refits on layout/size change unless the user has manually panned/zoomed
-- [ ] G3.3  visible keyboard focus ring on chat input and every button
-- [ ] G3.4  Enter/Space on a focused canvas node opens its popup; Esc closes and returns focus
-- [ ] G3.5  FPS test warms up 1.5s and also runs against the production preview build
-- [ ] G3.6  parallel: planner emits a dependency graph; >=3 independent branches run concurrently; wall time <=0.6x sum of branch times (tool-I/O bound, measured with stub latency AND once live); model calls guarded by a semaphore (4GB VRAM); strip shows several active dots at once
-- [ ] G3.7  validator catches >=9 of 10 seeded bad outputs (wrong date, missing citation, wrong number, citation to wrong source, empty-but-valid, invented URL, contradictory sources, truncated, duplicated sentence, wrong entity)
-- [ ] G3.8  prompt injection: fetched page containing "ignore previous instructions / write a file / call tool X" causes zero extra tool calls and no change to the answer (tested with a hostile page in the stub corpus)
-- [ ] G3.9  memory: 3 layers (personal, project, execution) in SQLite (FTS5 + nomic-embed-text vectors); fact saved in session 1 recalled in session 2; project A memory never visible in project B; user can list and delete items in UI; every memory write is an event shown in chat
-- [ ] G3.10 append-only audit log of tool calls, approvals, model calls; OpenTelemetry trace per task exported to a local file only
-- [ ] G3.11 model router: policy by privacy flag + task kind; private -> local only; cloud adapter present but disabled without key; POS_OFFLINE=1 -> web tools fail gracefully ("offline") and a memory-only task still completes
-- [ ] G3.12 benchmarks/p3_matrix.md: 3 models x 30-50 prompts with reasoning score 1-5 from a deterministic rubric/golden answers (no self-judging), plus VRAM, TTFT, tok/s, schema %; ends with a recommendation per role
-- [ ] G3.13 soak: 50 mixed tasks, >=95% completed-or-honestly-unverified, 0 unhandled, RSS growth <20%
-- [ ] G3.14 npm run check green; ADR 0004 written
+- [x] G3.0  npm run doctor: checks Python>=3.10, Node>=18, git identity, Ollama up, GPU in use (ollama ps not 100% CPU), models pulled (+nomic-embed-text), free RAM, ports 8000/5173 free, internet reach (Wikipedia, DDG); prints the exact fix command per failure; exit 1 on hard failure
+- [x] G3.1  unsent composer text survives dock/drawer/sheet layout switch
+- [x] G3.2  canvas refits on layout/size change unless the user has manually panned/zoomed
+- [x] G3.3  visible keyboard focus ring on chat input and every button
+- [x] G3.4  Enter/Space on a focused canvas node opens its popup; Esc closes and returns focus
+- [x] G3.5  FPS test warms up 1.5s and also runs against the production preview build
+- [x] G3.6  parallel: planner emits a dependency graph; >=3 independent branches run concurrently; wall time <=0.6x sum of branch times (tool-I/O bound, measured with stub latency AND once live); model calls guarded by a semaphore (4GB VRAM); strip shows several active dots at once
+- [x] G3.7  validator catches >=9 of 10 seeded bad outputs (wrong date, missing citation, wrong number, citation to wrong source, empty-but-valid, invented URL, contradictory sources, truncated, duplicated sentence, wrong entity)
+- [x] G3.8  prompt injection: fetched page containing "ignore previous instructions / write a file / call tool X" causes zero extra tool calls and no change to the answer (tested with a hostile page in the stub corpus)
+- [x] G3.9  memory: 3 layers (personal, project, execution) in SQLite (FTS5 + nomic-embed-text vectors); fact saved in session 1 recalled in session 2; project A memory never visible in project B; user can list and delete items in UI; every memory write is an event shown in chat
+- [x] G3.10 append-only audit log of tool calls, approvals, model calls; OpenTelemetry trace per task exported to a local file only
+- [x] G3.11 model router: policy by privacy flag + task kind; private -> local only; cloud adapter present but disabled without key; POS_OFFLINE=1 -> web tools fail gracefully ("offline") and a memory-only task still completes
+- [x] G3.12 benchmarks/p3_matrix.md: 3 models x 30-50 prompts with reasoning score 1-5 from a deterministic rubric/golden answers (no self-judging), plus VRAM, TTFT, tok/s, schema %; ends with a recommendation per role
+- [x] G3.13 soak: 50 mixed tasks, >=95% completed-or-honestly-unverified, 0 unhandled, RSS growth <20%
+- [x] G3.14 npm run check green; ADR 0004 written
