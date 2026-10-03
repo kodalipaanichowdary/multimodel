@@ -143,8 +143,15 @@ async def check_url(url: str) -> None:
         raise FetchError(f"blocked non-public address: {u.hostname}")
 
 
+def _stub_docs() -> list[dict]:
+    docs = json.loads(STUB.read_text(encoding="utf-8"))["docs"]
+    if os.getenv("STUB_HOSTILE") == "1":  # tests: add the prompt-injection page
+        docs += json.loads(STUB.with_name("hostile.json").read_text(encoding="utf-8"))["docs"]
+    return docs
+
+
 def _stub(url: str, max_chars: int) -> dict[str, Any]:
-    for d in json.loads(STUB.read_text(encoding="utf-8"))["docs"]:
+    for d in _stub_docs():
         if d["url"] == url:
             return {
                 "url": url,

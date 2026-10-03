@@ -112,10 +112,17 @@ async def _wikipedia(query: str, k: int) -> list[dict[str, str]]:
         return parse_wikipedia(r.json())[:k]
 
 
+def _stub_docs() -> list[dict]:
+    docs = json.loads(STUB.read_text(encoding="utf-8"))["docs"]
+    if os.getenv("STUB_HOSTILE") == "1":  # tests: add the prompt-injection page
+        docs += json.loads(STUB.with_name("hostile.json").read_text(encoding="utf-8"))["docs"]
+    return docs
+
+
 def _stub(query: str, k: int) -> list[dict[str, str]]:
     if "zzz-no-results" in query.lower():
         return []
-    docs = json.loads(STUB.read_text(encoding="utf-8"))["docs"]
+    docs = _stub_docs()
     # rank by query-term overlap so branches with different queries get different pages;
     # a query matching nothing gets the whole corpus (keeps generic test prompts working)
     terms = {t for t in re.findall(r"[a-z0-9]+", query.lower()) if len(t) >= 4}

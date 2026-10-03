@@ -193,3 +193,86 @@ def align(draft: Draft, pages: list[Page]) -> tuple[Draft, list[str]]:
 
 def is_hedge(answer: str) -> bool:
     return HEDGE.search(answer) is not None and not MARKER.search(answer)
+
+
+# ---------------------------------------------------------------------------- full validator (P3)
+
+_URL_IN_TEXT = re.compile(r"https?://[^\s)\]>\"']+")
+_WORDS = re.compile(r"[A-Za-z0-9]{2,}")
+_NAME = re.compile(r"\b[A-Z][a-z]{2,}\b")
+_NUM = re.compile(r"\b\d[\d,.]*\b")
+
+
+def _contradictions(draft: Draft, pages: list[Page], prompt: str) -> list[str]:
+    """Another fetched page states the same subject with different details.
+
+    For a cited sentence: subject = its key terms that also occur in the task, value = the rest
+    (the answer: names, numbers). A page conflicts when its title shares a subject term, it never
+    mentions any value term, and one window holds every subject term plus another name/number.
+    """
+    task_words = {w.lower() for w in _WORDS.findall(prompt)}
+    issues: list[str] = []
+    for i, s in enumerate(sentences(draft.answer), 1):
+        cited = set(numbers(s))
+        terms = key_terms(s)
+        subject = [t for t in terms if t.lower() in task_words]
+        value = [t for t in terms if t.lower() not in task_words]
+        if not cited or len(subject) < 2 or not value:
+            continue
+        wants_number = any(v[0].isdigit() for v in value)
+        wants_name = any(not v[0].isdigit() for v in value)
+        for p in pages:
+            if p.n in cited or not any(_found(t, p.title.lower()) for t in subject):
+                continue
+            if any(_found(v, (p.title + " " + p.text).lower()) for v in value):
+                continue
+            segs = [x for x in _SEG.split(p.text) if x.strip()]
+            for j in range(len(segs)):
+                window = " ".join(segs[j : j + WINDOW])
+                if not all(_found(t, window.lower()) for t in subject):
+                    continue
+                other_names = [
+                    n
+                    for n in _NAME.findall(window)
+                    if n.lower() not in task_words and n not in subject
+                ]
+                if (wants_number and _NUM.search(window)) or (wants_name and other_names):
+                    issues.append(
+                        f"sentence {i}: sources disagree; source [{p.n}] states the same subject without "
+                        f"{value[:4]}: {window[:100]!r}"
+                    )
+                    break
+    return issues
+
+
+def validate_draft(
+    draft: Draft, pages: list[Page], prompt: str = ""
+) -> tuple[Draft, Verdict, list[str]]:
+    """The Validator. Returns (possibly repaired draft, verdict, notes for the event log).
+
+    Repairs (noted, never silent): repeated sentences removed; a marker re-pointed to the page
+    where the sentence's terms co-occur. Rejections: truncated output, no substantive claim,
+    URLs that were not fetched, unsupported / uncited sentences, sources that disagree.
+    """
+    notes: list[str] = []
+    issues: list[str] = []
+    raw = draft.answer.strip()
+    if raw.count("[") != raw.count("]") or not re.search(r"([.!?]|\])[\"')]*\s*$", raw):
+        issues.append("truncated: the answer does not end in a complete, cited sentence")
+    if len(_WORDS.findall(MARKER.sub(" ", raw))) < 3:
+        issues.append("no substantive claim in the answer")
+    fetched = {p.url.rstrip("/") for p in pages}
+    invented = [u for u in _URL_IN_TEXT.findall(raw) if u.rstrip("/.,;") not in fetched]
+    if invented:
+        issues.append(f"answer contains URLs that were not fetched: {invented[:3]}")
+    deduped = dedupe(raw)
+    dropped = len(sentences(raw)) - len(sentences(deduped))
+    if dropped:
+        notes.append(f"Removed {dropped} repeated sentence(s)")
+    fixed, align_notes = align(draft.model_copy(update={"answer": deduped}), pages)
+    notes += [f"Re-attached citation: {n}" for n in align_notes]
+    verdict = check(fixed, pages)
+    issues += verdict.issues
+    if verdict.passed:
+        issues += _contradictions(fixed, pages, prompt)
+    return fixed, Verdict(passed=not issues, issues=issues), notes
