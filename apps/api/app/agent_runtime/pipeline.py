@@ -113,7 +113,10 @@ QUERY_MAX_WORDS = 10  # clamp: small models sometimes loop ("feet and inches and
 
 
 def clamp_query(q: str, max_words: int = QUERY_MAX_WORDS) -> str:
-    """Drop repeated words (case-insensitive, first occurrence kept), then cap words and chars."""
+    """Runaway queries only (> max_words): drop repeated words (case-insensitive, first kept), then
+    cap. Short queries pass unchanged, so legitimate repeats ("New York to New Jersey") survive."""
+    if len(q.split()) <= max_words:
+        return q[:200]
     seen: set[str] = set()
     words = []
     for w in q.split():

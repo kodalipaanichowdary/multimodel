@@ -39,6 +39,7 @@ def test_clamp_keeps_normal_queries_unchanged():
         "Kilimanjaro height",
         "population of Lyon 2024",
         "Who chairs the Zephyr Harbor Authority?",
+        "New York to New Jersey distance",  # short query: legitimate repeats are kept
     ):
         assert clamp_query(q) == q
 
