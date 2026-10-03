@@ -101,3 +101,32 @@ Needs Ollama running (start it from its tray app so it uses the GPU) and interne
 7. Reload the page: earlier questions, answers and chips come back (SQLite event log).
 8. Stop Ollama and ask again: the run ends with a red "model unavailable" error, nothing crashes.
 
+## Manual test checklist (P3 - parallel, memory, trust)
+
+Start with `npm run doctor` (all `ok`; fix anything it prints). Ollama from its tray app, internet on.
+
+1. **Resize while open (G3.1-G3.3)**: type something in the composer, drag the window from wide to 820px to 390px
+   and back. The text is still there; the graph re-fits each time. Pan the canvas by hand, resize again: your view
+   is kept. The fit-view button (bottom-left) re-enables auto-fit.
+2. **Keyboard (G3.4)**: press Tab through the page: every focused control shows a violet ring. Tab to an agent dot,
+   press Enter: its popup opens; Esc closes it and focus returns to the dot.
+3. **Parallel (G3.6)**: ask **Compare the populations of Lyon, Marseille and Nice**. Three nodes "Research #1..#3"
+   appear; the strip shows several pulsing dots and "3 agents working". Run tab: their bars overlap in time.
+4. **Validator (G3.7)**: Inspect -> Events on any run shows the validator's notes ("Re-attached citation",
+   "Removed 1 repeated sentence(s)", "Rejected: ..."). A made-up question still ends with **Could not verify**.
+5. **Memory (G3.9)**: Memory tab -> project `alpha`. Say **Remember that the launch code word is Falcon**: chat shows
+   "Memory: saved to project memory", the item is listed. Switch project to `beta`: the list is empty and
+   **What is the launch code word?** does not know it. Back to `alpha`: it answers Falcon citing `[1]` (memory).
+   Delete the item with **Delete**: it disappears and is no longer recalled.
+6. **Privacy (G3.11)**: the composer chip reads **Private** (default; models stay on this machine). Click it to
+   "Cloud ok": without `CLOUD_API_KEY` everything still runs locally (API log: `cloud=disabled (no key)`).
+7. **Audit + trace (G3.10)**: after a run, open http://localhost:8000/audit (tool calls, approvals, model calls,
+   each row hash-chained) and http://localhost:8000/audit/verify (`"ok": true`). A file
+   `apps/api/data/traces/<task_id>.jsonl` holds the run's spans (task -> agents -> tools / model calls).
+8. **Offline (G3.11)**: stop `npm run dev`, start it with `POS_OFFLINE=1` (PowerShell: `$env:POS_OFFLINE=1; npm run dev`).
+   A web question ends with Could not verify and a `tool.failed "offline"` in Events, no crash. A question answered
+   from memory (step 5) still works.
+9. **Benchmarks (G3.12, G3.13)**: only with >= 6 GiB free RAM:
+   `apps/api/.venv/Scripts/python benchmarks/run_p3_matrix.py` -> `benchmarks/p3_matrix.md`;
+   `apps/api/.venv/Scripts/python benchmarks/soak_p3.py 50` -> `benchmarks/p3_soak.json` (exit 0 = gate passed).
+
