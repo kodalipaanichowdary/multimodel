@@ -5,7 +5,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Query, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pos_schemas import AgentDefinition, AgentPatch, make_event
 from pydantic import BaseModel, ConfigDict, Field
@@ -15,8 +15,11 @@ from .agent_runtime.approvals import ApprovalBroker
 from .agent_runtime.executor import RealExecutor, UnsupportedSelection
 from .bus import EventBus
 from .config import Settings
+from .memory.store import PROJECT_ID, Layer, MemoryItem, open_memory
+from .memory.tools import memory_tools
 from .mock_executor import ExtraAgent, MockExecutor
 from .models.base import LLMClient
+from .models.embed import OllamaEmbedder
 from .models.ollama import OllamaClient
 from .models.stub import StubClient
 from .persistence import EventRepository, TaskSummary, open_repository
@@ -35,6 +38,7 @@ class TaskRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     prompt: str = Field(min_length=1, max_length=4000)
     selected: list[str] = Field(default_factory=list, max_length=20, description="agent ids")
+    project_id: str = Field(default="default", pattern=PROJECT_ID, description="memory scope")
 
 
 class TaskAccepted(BaseModel):
@@ -81,10 +85,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.bus = EventBus(repo=app.state.repo)
         closed = _close_interrupted(app.state.repo, app.state.bus)
         app.state.approvals = ApprovalBroker(settings.approval_timeout_s)
+        use_vectors = settings.embeddings and settings.llm_provider == "ollama"
+        app.state.memory = open_memory(
+            settings.memory_db_path, OllamaEmbedder(settings.ollama_url) if use_vectors else None
+        )
         if settings.mock_executor:
             app.state.executor = MockExecutor(app.state.bus, settings.mock_step_delay_s)
         else:
-            tools = ToolRegistry(settings.mcp_root, app.state.approvals)
+            tools = ToolRegistry(
+                settings.mcp_root, app.state.approvals, local=memory_tools(app.state.memory)
+            )
             app.state.executor = RealExecutor(
                 app.state.bus,
                 app.state.registry,
@@ -92,6 +102,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 tools,
                 model_concurrency=settings.model_concurrency,
                 parallel_branches=settings.parallel_branches,
+                memory=app.state.memory,
             )
         log.info(
             "executor=%s llm=%s db=%s (closed %d interrupted runs)",
@@ -150,9 +161,35 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(422, f"unknown agent(s) in selected: {', '.join(unknown)}")
         extra = [ExtraAgent(id=a, name=reg.get(a).name) for a in body.selected]
         try:
-            return TaskAccepted(task_id=request.app.state.executor.submit(body.prompt, extra))
+            return TaskAccepted(
+                task_id=request.app.state.executor.submit(
+                    body.prompt, extra, project_id=body.project_id
+                )
+            )
         except UnsupportedSelection as e:
             raise HTTPException(422, str(e)) from None
+
+    @app.get("/memory", response_model=list[MemoryItem])
+    async def list_memory(
+        request: Request,
+        project_id: str = Query("default", pattern=PROJECT_ID),
+        layer: Layer | None = None,
+        q: str | None = Query(None, max_length=300),
+    ) -> list[MemoryItem]:
+        """Memories visible in a project: its own + personal (+ execution notes of its tasks)."""
+        repo = request.app.state.memory
+        if q:
+            items = await repo.search(q, project_id, None, 20)
+            return [i for i in items if layer is None or i.layer == layer]
+        return repo.list(project_id, layer)
+
+    @app.delete("/memory/{item_id}", status_code=204, response_model=None)
+    async def delete_memory(
+        item_id: str, request: Request, project_id: str = Query("default", pattern=PROJECT_ID)
+    ) -> Response:
+        if not request.app.state.memory.delete(item_id, project_id):
+            raise HTTPException(404, f"no memory '{item_id}' in project '{project_id}' or personal")
+        return Response(status_code=204)
 
     @app.get("/tasks", response_model=list[TaskSummary])
     async def list_tasks(

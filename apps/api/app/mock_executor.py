@@ -153,7 +153,9 @@ class MockExecutor:
         self._by_id: dict[str, asyncio.Task[None]] = {}
         self.unhandled = 0
 
-    def submit(self, prompt: str, extra: Sequence[ExtraAgent] = ()) -> str:
+    def submit(
+        self, prompt: str, extra: Sequence[ExtraAgent] = (), project_id: str = "default"
+    ) -> str:
         task_id = str(uuid4())
         t = asyncio.create_task(self._run(task_id, prompt, tuple(extra)), name=f"mock-{task_id}")
         self._running.add(t)

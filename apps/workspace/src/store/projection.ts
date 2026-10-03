@@ -407,7 +407,9 @@ function projectChat(
     case "tool.completed":
       return status(
         `tool:${ev.payload.call_id}`,
-        `${ev.payload.tool_id} done (${ev.payload.duration_ms} ms)`,
+        ev.payload.tool_id.startsWith("memory_")
+          ? `Memory: ${ev.payload.result_preview}` // every memory read/write is visible in chat
+          : `${ev.payload.tool_id} done (${ev.payload.duration_ms} ms)`,
         "done",
       );
     case "tool.failed":

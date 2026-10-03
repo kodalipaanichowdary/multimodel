@@ -12,11 +12,14 @@ export async function fetchAgents(): Promise<AgentDefinition[]> {
   return json(await fetch(`${BASE}/agents`), z.array(AgentDefinitionSchema));
 }
 
-export async function submitTask(prompt: string, selected: string[] = []): Promise<string> {
+export async function submitTask(prompt: string, selected: string[] = [], projectId = "default"): Promise<string> {
+  const body: Record<string, unknown> = { prompt };
+  if (selected.length) body.selected = selected;
+  if (projectId !== "default") body.project_id = projectId;
   const res = await fetch(`${BASE}/tasks`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify(selected.length ? { prompt, selected } : { prompt }),
+    body: JSON.stringify(body),
   });
   return (await json(res, z.object({ task_id: z.string() }))).task_id;
 }
@@ -87,4 +90,28 @@ export async function fetchHistory(limit = 20): Promise<unknown[]> {
     if (res.ok) out.push(...((await res.json()) as unknown[]));
   }
   return out;
+}
+
+export const MemoryItemSchema = z.object({
+  id: z.string(),
+  layer: z.enum(["personal", "project", "execution"]),
+  project_id: z.string(),
+  task_id: z.string().nullable(),
+  text: z.string(),
+  source: z.string(),
+  created_at: z.number(),
+  embedded: z.boolean(),
+  score: z.number().nullable(),
+});
+export type MemoryItem = z.infer<typeof MemoryItemSchema>;
+
+export async function listMemory(projectId: string, q?: string): Promise<MemoryItem[]> {
+  const params = new URLSearchParams({ project_id: projectId });
+  if (q) params.set("q", q);
+  return json(await fetch(`${BASE}/memory?${params}`), z.array(MemoryItemSchema));
+}
+
+export async function deleteMemory(id: string, projectId: string): Promise<void> {
+  const res = await fetch(`${BASE}/memory/${encodeURIComponent(id)}?project_id=${encodeURIComponent(projectId)}`, { method: "DELETE" });
+  if (!res.ok) throw parseApiError(res.status, await res.json().catch(() => null));
 }

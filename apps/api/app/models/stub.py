@@ -16,7 +16,7 @@ from pos_schemas import ModelProfile
 
 from .base import LLMResult, Message, Metrics
 
-_SRC = re.compile(r"^\[(\d+)\] (https?://\S+)\n(?:TITLE: (.*)\n)?TEXT: (.*)$", re.MULTILINE)
+_SRC = re.compile(r"^\[(\d+)\] ([a-z]+://\S+)\n(?:TITLE: (.*)\n)?TEXT: (.*)$", re.MULTILINE)
 
 
 def _sources(text: str) -> list[dict[str, str]]:

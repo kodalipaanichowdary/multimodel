@@ -3,6 +3,7 @@ import { useGraph, type DockTab } from "../store/graph";
 import type { LayoutMode } from "../lib/useLayoutMode";
 import { ChatView, Composer } from "./Chat";
 import { Inspector } from "./Inspector";
+import { MemoryPanel } from "./MemoryPanel";
 import { RunView } from "./RunView";
 
 const WS_COLOR = { open: "#10b981", connecting: "#f59e0b", closed: "#ef4444" } as const;
@@ -10,6 +11,7 @@ const TABS: { id: DockTab; label: string }[] = [
   { id: "chat", label: "Chat" },
   { id: "run", label: "Run" },
   { id: "inspect", label: "Inspect" },
+  { id: "memory", label: "Memory" },
 ];
 
 /** Tabs + panels + composer. Panels stay mounted (hidden) so scroll and live state survive tab switches. */
@@ -67,6 +69,9 @@ function DockPanel({ onCollapse, collapseLabel }: { onCollapse?: () => void; col
       </div>
       <div className={`min-h-0 flex-1 flex-col ${tab === "inspect" ? "flex" : "hidden"}`}>
         <Inspector />
+      </div>
+      <div className={`min-h-0 flex-1 flex-col ${tab === "memory" ? "flex" : "hidden"}`}>
+        {tab === "memory" && <MemoryPanel />}
       </div>
       <Composer />
     </div>

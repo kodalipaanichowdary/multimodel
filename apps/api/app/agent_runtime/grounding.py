@@ -32,7 +32,7 @@ WINDOW = 3
 _STOP = set(
     "the a an this that these those it its he she they his her their there as in on at of for from "
     "by with and or but according currently current today since also however yes no i we you is "
-    "was are were be been has have had who what which when where source sources answer based per "
+    "was are were be been has have had who what which when where source sources answer based per my your our "
     "mr mrs ms dr sri shri".split()
 )
 

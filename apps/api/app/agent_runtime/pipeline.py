@@ -21,6 +21,7 @@ from typing import Annotated, Any, TypedDict
 
 from pos_schemas import AgentDefinition, Draft, Plan, PlanStep, ResearchResult, Verdict
 
+from ..memory.store import MemoryRepository
 from ..models.base import LLMClient, Message, Metrics
 from ..registry import AgentRegistry
 from ..tools.registry import ApprovalDenied, ToolError, ToolRegistry
@@ -38,6 +39,13 @@ PAGES_PER_BRANCH = 2  # several branches: fewer pages each, same total budget
 PASSAGE_CHARS = 1600
 PASSAGE_CHARS_MULTI = 1000
 MAX_WRITER_PAGES = 6
+REMEMBER = re.compile(
+    r"^\s*(please\s+)?(remember|memorize|memorise|note|keep in mind)\s+(that\s+)?(?P<fact>.{3,500})$",
+    re.I | re.S,
+)
+PERSONAL = re.compile(
+    r"\b(about me|for all (my )?projects|personally|everywhere|in every project)\b", re.I
+)
 SAVE_INTENT = re.compile(
     r"\b(save|export|write (it |this |the answer )?(to|into) (a )?file)\b", re.I
 )
@@ -52,6 +60,8 @@ class Deps:
     model_sem: asyncio.Semaphore = field(default_factory=lambda: asyncio.Semaphore(1))
     # 1 = run research branches one at a time (sequential baseline for G3.6 measurements)
     branch_sem: asyncio.Semaphore | None = None
+    # memory layer (personal / project / execution); None = no memory
+    memory: MemoryRepository | None = None
 
 
 @dataclass(frozen=True)
@@ -66,6 +76,9 @@ class BranchSpec:
 
 class RunState(TypedDict, total=False):
     prompt: str
+    project_id: str
+    memory_pages: list[tuple[str, str, str]]
+    remembered: str
     plan: Plan
     query: str
     branches: list[BranchSpec]
@@ -155,6 +168,67 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
             ctx.think(a.id, "output invalid twice; using fallback payload")
         return healed
 
+    # ---------------------------------------------------------------- memory (recall / remember)
+    async def recall(s: RunState) -> RunState:
+        pid = s.get("project_id", "default")
+        keeper = agent("memory")
+        m = REMEMBER.match(s["prompt"])
+        if m:
+            fact = m.group("fact").strip().rstrip(".") + "."
+            layer = "personal" if PERSONAL.search(s["prompt"]) else "project"
+            ctx.start(keeper.id)
+            try:
+                await deps.tools.call(
+                    ctx,
+                    keeper,
+                    "memory_write",
+                    {
+                        "layer": layer,
+                        "text": fact,
+                        "project_id": pid,
+                        "task_id": ctx.task_id,
+                        "source": "user",
+                    },
+                )
+            except ToolError as e:
+                ctx.done(keeper.id, f"could not save: {e}"[:200])
+                return {
+                    "remembered": f"**Could not save** to memory: {e}",
+                    "status": "memory_failed",
+                }
+            ctx.done(keeper.id, f"saved to {layer} memory")
+            where = "every project" if layer == "personal" else f"project `{pid}`"
+            return {
+                "remembered": f"Saved to **{layer}** memory ({where}): \u201c{fact}\u201d",
+                "status": "remembered",
+            }
+        if deps.memory is None or not deps.memory.list(pid):
+            return {"memory_pages": []}  # nothing stored in scope: no recall step, no events
+        ctx.start(keeper.id)
+        ctx.think(keeper.id, f"Recalling from personal + project `{pid}` memory")
+        try:
+            res = await deps.tools.call(
+                ctx,
+                keeper,
+                "memory_search",
+                {"query": s["prompt"], "project_id": pid, "task_id": ctx.task_id, "k": 3},
+            )
+            items = res.get("items", [])
+        except ToolError:
+            items = []
+        ctx.done(keeper.id, f"{len(items)} relevant memor{'y' if len(items) == 1 else 'ies'}")
+        return {
+            "memory_pages": [
+                (f"memory://{i['id']}", f"Memory ({i['layer']})", i["text"]) for i in items
+            ]
+        }
+
+    def after_recall(s: RunState) -> str:
+        return "finalize_memory" if s.get("remembered") else "plan"
+
+    async def finalize_memory(s: RunState) -> RunState:
+        return {"content": s["remembered"], "status": s.get("status", "remembered")}
+
     # ---------------------------------------------------------------- plan
     async def plan(s: RunState) -> RunState:
         orch = agent("orchestrator")
@@ -228,7 +302,12 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
         return [
             Branch(
                 "research_branch",
-                {"prompt": s["prompt"], "branch": b, "multi": len(s["branches"]) > 1},
+                {
+                    "prompt": s["prompt"],
+                    "branch": b,
+                    "multi": len(s["branches"]) > 1,
+                    "project_id": s.get("project_id", "default"),
+                },
             )
             for b in todo
         ]
@@ -294,6 +373,24 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
                     },
                     context={"fetched_urls": {u for u, _, _ in pages}},
                 )
+                if (
+                    deps.memory is not None
+                ):  # execution layer: the run's scratchpad, one note per branch
+                    try:
+                        await deps.tools.call(
+                            ctx,
+                            r,
+                            "memory_write",
+                            {
+                                "layer": "execution",
+                                "text": f"{b.query}: {result.summary}"[:1000],
+                                "project_id": p.get("project_id", "default"),
+                                "task_id": ctx.task_id,
+                                "source": r.id,
+                            },
+                        )
+                    except ToolError:
+                        pass
                 ctx.done(r.id, f"{len(result.sources)} sources collected for the writer")
                 return {
                     "branch_results": [
@@ -334,6 +431,9 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
         order = {b.instance: i for i, b in enumerate(s["branches"])}
         seen: set[str] = set()
         pages: list[Page] = []
+        for url, title, text in s.get("memory_pages", []):  # recalled memories are sources too
+            seen.add(url)
+            pages.append(Page(len(pages) + 1, url, title, text))
         for res in sorted(s.get("branch_results", []), key=lambda r: order.get(r["instance"], 99)):
             for url, title, text in res["pages"]:
                 if url in seen or len(pages) >= MAX_WRITER_PAGES:
@@ -463,6 +563,8 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
 
     return (
         Workflow("p3-research", RunState)
+        .step("recall", recall)
+        .step("finalize_memory", finalize_memory)
         .step("plan", plan)
         .step("research_branch", research_branch)
         .step("next_level", next_level)
@@ -470,6 +572,8 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
         .step("write", write)
         .step("validate", validate)
         .step("finalize", finalize)
+        .route("recall", after_recall, {"plan": "plan", "finalize_memory": "finalize_memory"})
+        .edge("finalize_memory", "end")
         .fan_out("plan", dispatch)
         .edge("research_branch", "next_level")  # fan-in: runs once after every branch of a level
         .fan_out("next_level", dispatch)

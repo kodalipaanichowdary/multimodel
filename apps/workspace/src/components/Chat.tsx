@@ -204,7 +204,7 @@ export function Composer() {
     setBusy(true);
     setError(null);
     try {
-      await submitTask(p, selected);
+      await submitTask(p, selected, useGraph.getState().projectId);
       setPrompt("");
       useGraph.getState().clearSelected();
     } catch (err) {

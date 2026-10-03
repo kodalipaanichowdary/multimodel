@@ -10,7 +10,19 @@ import {
 } from "./projection";
 
 export type WsStatus = "connecting" | "open" | "closed";
-export type DockTab = "chat" | "run" | "inspect";
+export type DockTab = "chat" | "run" | "inspect" | "memory";
+
+/** same rule as the API (memory scope key) */
+export const PROJECT_ID = /^[a-z0-9][a-z0-9_-]{0,39}$/;
+
+function storedProject(): string {
+  try {
+    const p = localStorage.getItem("pos.project") ?? "default";
+    return PROJECT_ID.test(p) ? p : "default";
+  } catch {
+    return "default";
+  }
+}
 export type InspectorTab = "node" | "events" | "artifacts";
 
 export interface SchemaError {
@@ -36,6 +48,9 @@ interface GraphStore extends Projection {
   addAgentOpen: boolean;
   /** Unsent composer text (UI-only; survives layout switches). */
   draft: string;
+  /** memory scope for new tasks (G3.9); remembered per browser */
+  projectId: string;
+  setProjectId: (id: string) => void;
   setDraft: (text: string) => void;
   /**
    * Per run: browser receive time - server ts of the first event seen. Lets live
@@ -77,6 +92,15 @@ export const useGraph = create<GraphStore>()((set, get) => ({
   addAgentOpen: false,
   draft: "",
   setDraft: (draft) => set({ draft }),
+  projectId: typeof window === "undefined" ? "default" : storedProject(),
+  setProjectId: (projectId) => {
+    try {
+      localStorage.setItem("pos.project", projectId);
+    } catch {
+      /* storage unavailable: keep it for this session only */
+    }
+    set({ projectId });
+  },
   clockOffsets: {},
 
   setAgents: (list) => set((s) => ({ ...loadAgents(s, list), agentsError: null })),

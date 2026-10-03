@@ -48,6 +48,13 @@ class Settings:
             "POS_DB_PATH", str(_REPO_ROOT / "apps" / "api" / "data" / "pos.db")
         )
     )
+    memory_db_path: str = field(
+        default_factory=lambda: os.getenv(
+            "POS_MEMORY_DB", str(_REPO_ROOT / "apps" / "api" / "data" / "memory.db")
+        )
+    )
+    # vectors via Ollama nomic-embed-text when the real model provider is used; FTS5 otherwise
+    embeddings: bool = field(default_factory=lambda: os.getenv("EMBEDDINGS", "1") != "0")
     approval_timeout_s: float = field(
         default_factory=lambda: float(os.getenv("APPROVAL_TIMEOUT_S", "120"))
     )

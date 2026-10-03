@@ -51,6 +51,46 @@ test("G3.6 parallel branches: several active dots at once, one node per branch",
     await expect(page.getByTestId(`node-agent:research#${i}`)).toContainText(`Research #${i}`);
     await expect(strip.getByTestId(`strip-dot-research#${i}`)).toHaveAttribute("data-state", "completed");
   }
-  await expect(strip.getByTestId("run-chip-text")).toHaveText(/^✓ 6 agents/);
+  await expect(strip.getByTestId("run-chip-text")).toHaveText(/^✓ 6 agents · 12 tools/); // 3x(search + 2 fetch + execution-memory note)
   await expect(page.getByTestId("chat-result").last()).toContainText("[1]");
+});
+
+async function setProject(page: Page, id: string) {
+  await page.getByTestId("dock-tab-memory").click();
+  await page.getByTestId("project-input").fill(id);
+  await page.getByTestId("project-input").press("Enter");
+}
+
+async function ask(page: Page, prompt: string) {
+  const before = await page.getByTestId("run-strip").count();
+  await page.getByTestId("task-input").fill(prompt);
+  await page.getByTestId("task-submit").click();
+  const strip = page.getByTestId("run-strip").nth(before);
+  await expect(strip).toHaveAttribute("data-phase", "done", { timeout: 60_000 });
+  return page.getByTestId("chat-result").last();
+}
+
+test("G3.9 memory: write is a chat event, listed per project, isolated, recalled, deletable", async ({ page }) => {
+  await ready(page);
+  await setProject(page, "alpha-e2e");
+  const saved = await ask(page, "Remember that the launch code word is Falcon");
+  await expect(saved).toContainText("Saved to project memory");
+  await expect(page.getByTestId("chat-status").filter({ hasText: "Memory: saved to project memory: the launch code word is Falcon." })).toBeVisible();
+  await page.getByTestId("dock-tab-memory").click();
+  await expect(page.getByTestId("memory-item").filter({ hasText: "launch code word is Falcon" })).toHaveAttribute("data-layer", "project");
+
+  await setProject(page, "beta-e2e"); // another project: nothing visible, nothing recalled
+  await expect(page.getByTestId("memory-item").filter({ hasText: "Falcon" })).toHaveCount(0);
+  const other = await ask(page, "What is the launch code word?");
+  await expect(other).not.toContainText("Falcon");
+
+  await setProject(page, "alpha-e2e");
+  const recalled = await ask(page, "What is the launch code word?");
+  await expect(recalled).toContainText("Falcon");
+  await expect(page.getByTestId("chat-status").filter({ hasText: "Memory: 1 memory recalled" }).last()).toBeVisible();
+
+  await page.getByTestId("dock-tab-memory").click();
+  await page.getByTestId("memory-item").filter({ hasText: "Falcon" }).getByTestId("memory-delete").click();
+  await expect(page.getByTestId("memory-item").filter({ hasText: "Falcon" })).toHaveCount(0);
+  await setProject(page, "default");
 });

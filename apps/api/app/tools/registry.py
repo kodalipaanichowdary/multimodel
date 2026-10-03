@@ -12,6 +12,7 @@ import asyncio
 import importlib.util
 import json
 import time
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
@@ -31,12 +32,14 @@ DANGEROUS: frozenset[Permission] = frozenset({"fs.write", "terminal.exec"})
 class ToolSpec:
     id: str
     permission: Permission
-    server: str  # directory under mcp/
+    server: str | None  # directory under mcp/; None = local tool (handler passed to the registry)
 
     @property
     def needs_approval(self) -> bool:
         return self.permission in DANGEROUS
 
+
+LocalHandler = Callable[[dict[str, Any]], Awaitable[dict[str, Any]]]
 
 DEFAULT_TOOLS = (
     ToolSpec("web_search", "net.read", "web_search"),
@@ -68,6 +71,8 @@ def load_server(mcp_root: Path, name: str) -> ModuleType:
 
 
 def _preview(result: dict[str, Any]) -> str:
+    if "preview" in result:
+        return str(result["preview"])
     if "results" in result:
         return f"{len(result['results'])} results"
     if "text" in result:
@@ -84,9 +89,15 @@ class ToolRegistry:
         approvals: ApprovalBroker,
         specs: tuple[ToolSpec, ...] = DEFAULT_TOOLS,
         servers: dict[str, ModuleType] | None = None,
+        local: dict[str, tuple[ToolSpec, LocalHandler]] | None = None,
     ) -> None:
         self.approvals = approvals
         self.specs = {s.id: s for s in specs}
+        # local tools (e.g. memory): same permission/approval/event path, Python handler instead of MCP
+        self._local: dict[str, LocalHandler] = {}
+        for tool_id, (spec, handler) in (local or {}).items():
+            self.specs[tool_id] = spec
+            self._local[tool_id] = handler
         self._servers = dict(servers or {})
         self._root = mcp_root
 
@@ -96,6 +107,8 @@ class ToolRegistry:
         return self._servers[spec.server]
 
     async def _invoke(self, spec: ToolSpec, args: dict[str, Any]) -> dict[str, Any]:
+        if spec.id in self._local:
+            return await self._local[spec.id](args)
         mod = self._server(spec)
         async with create_connected_server_and_client_session(mod.server._mcp_server) as client:
             res = await client.call_tool(spec.id, args)
