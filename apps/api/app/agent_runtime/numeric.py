@@ -65,3 +65,17 @@ def number_found(token: str, haystack: str) -> bool | None:
     if v is None:
         return None
     return v in values_in(haystack)
+
+
+_TEMP = re.compile(NUMBER.pattern + r"\s+degrees (celsius|fahrenheit)\b", re.I)
+
+
+def temperature_pairs(text: str) -> set[tuple[Decimal, str]]:
+    """(value, scale) for every temperature in `text` after unit unification: a claim of
+    '212 degrees Celsius' must find 212 in Celsius, not 212 next to some other Celsius value."""
+    out: set[tuple[Decimal, str]] = set()
+    for m in _TEMP.finditer(units(text)):
+        v = value(m.group(0).split()[0])
+        if v is not None:
+            out.add((v, m.group(1).lower()))
+    return out

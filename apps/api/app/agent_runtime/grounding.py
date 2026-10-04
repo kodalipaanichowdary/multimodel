@@ -17,6 +17,8 @@ from dataclasses import dataclass
 
 from pos_schemas import Draft, Verdict
 
+from .numeric import number_found, temperature_pairs, units
+
 # [1], [1, 2, 3], [1][2]  (MARKER finds groups; numbers() expands them)
 MARKER = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
 _SENT = re.compile(r"(?<=[.!?])\s+(?=\S)|(?<=\])\s+(?=[A-Z])")
@@ -33,7 +35,9 @@ _STOP = set(
     "the a an this that these those it its he she they his her their there as in on at of for from "
     "by with and or but according currently current today since also however yes no i we you is "
     "was are were be been has have had who what which when where source sources answer based per my your our "
-    "mr mrs ms dr sri shri".split()
+    "mr mrs ms dr sri shri "
+    # Q.3: sentence connectives a writer capitalises at the start; they state nothing checkable
+    "therefore thus overall additionally meanwhile furthermore moreover whereas although".split()
 )
 
 
@@ -95,21 +99,36 @@ def key_terms(sentence: str) -> list[str]:
 
 def _found(term: str, haystack: str) -> bool:
     if term[0].isdigit():
+        # Q.3: plain numbers match by VALUE (8,849 == 8849 == 8 849; 8,848 != 8,848.86;
+        # 849 != 8,849). Dates/times/ratios ("12/05", "3:45") keep literal matching.
+        by_value = number_found(term, haystack)
+        if by_value is not None:
+            return by_value
         return re.search(rf"(?<!\d){re.escape(term)}(?!\d)", haystack) is not None
     return re.search(rf"(?<![\w]){re.escape(term.lower())}(?![\w])", haystack) is not None
 
 
 def _segments(text: str) -> list[str]:
-    return [s.lower() for s in _SEG.split(text) if s.strip()]
+    # units unified first (100 C / 100 degC -> 100 degrees celsius); segmenting is unchanged
+    return [units(s).lower() for s in _SEG.split(text) if s.strip()]
 
 
-def support(terms: list[str], pages: list[Page]) -> tuple[bool, list[str]]:
-    """Do the terms co-occur in one window of one of `pages`? Returns (ok, best missing list)."""
+def claim_pairs(sentence: str) -> set:
+    """Temperatures a sentence states, as (value, scale): each must appear as such in one window."""
+    return temperature_pairs(MARKER.sub(" ", sentence))
+
+
+def support(
+    terms: list[str], pages: list[Page], pairs: set | None = None
+) -> tuple[bool, list[str]]:
+    """Do the terms co-occur in one window of one of `pages`? Returns (ok, best missing list).
+    `pairs`: (value, scale) temperatures that must appear bound together in that same window."""
     best_missing = terms
+    pairs = pairs or set()
     for p in pages:
-        title = p.title.lower()
+        title = units(p.title).lower()
         need = [t for t in terms if t[0].isdigit() or not _found(t, title)]
-        if not need:
+        if not need and not pairs:
             return True, []
         segs = _segments(p.text) or [""]
         for i in range(len(segs)):
@@ -117,7 +136,7 @@ def support(terms: list[str], pages: list[Page]) -> tuple[bool, list[str]]:
             missing = [t for t in need if not _found(t, window)]
             numbers_ok = not any(t[0].isdigit() for t in missing)
             ratio = 1 - len(missing) / len(terms)
-            if numbers_ok and ratio >= MIN_SUPPORT:
+            if numbers_ok and ratio >= MIN_SUPPORT and pairs <= temperature_pairs(window):
                 return True, []
             if len(missing) < len(best_missing):
                 best_missing = missing
@@ -141,7 +160,7 @@ def check(draft: Draft, pages: list[Page]) -> Verdict:
             continue
         terms = key_terms(s)
         if terms:
-            ok, missing = support(terms, [by_n[m] for m in dict.fromkeys(marks)])
+            ok, missing = support(terms, [by_n[m] for m in dict.fromkeys(marks)], claim_pairs(s))
             if not ok:
                 issues.append(
                     f"sentence {i} not supported by cited source(s) {sorted(set(marks))}: "
@@ -170,12 +189,12 @@ def align(draft: Draft, pages: list[Page]) -> tuple[Draft, list[str]]:
         cited_ok = (
             bool(marks)
             and len(cited) == len(set(marks))
-            and (not terms or support(terms, cited)[0])
+            and (not terms or support(terms, cited, claim_pairs(s))[0])
         )
         if cited_ok or not terms or HEDGE.search(s):
             out.append(s)
             continue
-        target = next((p.n for p in pages if support(terms, [p])[0]), None)
+        target = next((p.n for p in pages if support(terms, [p], claim_pairs(s))[0]), None)
         if target is None:
             out.append(s)
             continue
