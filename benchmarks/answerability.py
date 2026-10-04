@@ -7,6 +7,7 @@ per item). No self-judging: expected substrings and numeric ranges only.
     ... --holdout            run ONLY the 10 holdout rows (once, at the end)
     ... --only f01,n02       subset (debugging; not gate evidence)
     ... --stub               deterministic stub model + offline corpus (harness smoke only)
+    ... --rescore L1 L2      re-score saved runs with the current scorer (no model calls)
 
 Precondition (ENV RULES, phase Q): doctor green, free RAM >= 7 GiB (checked; --force overrides).
 Never starts Ollama. Writes benchmarks/answerability_<label>.json.
@@ -128,9 +129,32 @@ def score_compare(q: dict, status: str, content: str) -> tuple[str, dict]:
         return "wrong", items
     if all(v == "correct" for v in vals):
         return "full", items
+    if "omitted" in vals and "correct" in vals:
+        return "incomplete", items  # Q.5: every item named, or stated as not verified
     if "correct" in vals:
         return "partial", items
     return "unverified", items
+
+
+def rescore(label: str) -> None:
+    """Re-score a saved run from its stored answers with the current scorer (no model calls)."""
+    path = ROOT / "benchmarks" / f"answerability_{label}.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    spec = {
+        q["id"]: q
+        for q in json.loads((ROOT / "benchmarks" / "answerability.json").read_text("utf-8"))[
+            "questions"
+        ]
+    }
+    for r in data["runs"]:
+        q = spec[r["id"]]
+        if q["cat"] == "compare":
+            r["score"], r["items"] = score_compare(q, r["status"], r["content"])
+        else:
+            r["score"] = score_single(q, r["status"], r["content"])
+    data.update(summarize(data["runs"]))
+    path.write_text(json.dumps(data, indent=1, ensure_ascii=True), encoding="utf-8")
+    print(f"rescored {path.name}")
 
 
 # ------------------------------------------------------------------ live run
@@ -243,6 +267,10 @@ def summarize(rows: list[dict]) -> dict:
 
 def main() -> int:
     args = sys.argv[1:]
+    if "--rescore" in args:
+        for label in args[args.index("--rescore") + 1 :]:
+            rescore(label)
+        return 0
     label = args[args.index("--label") + 1] if "--label" in args else time.strftime("run%Y%m%d%H%M")
     only = set(args[args.index("--only") + 1].split(",")) if "--only" in args else None
     holdout = "--holdout" in args
