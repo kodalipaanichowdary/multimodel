@@ -68,3 +68,16 @@ A gate passes only with pasted command output / test results as evidence.
 - [x] G3.12 benchmarks/p3_matrix.md: 3 models x 30-50 prompts with reasoning score 1-5 from a deterministic rubric/golden answers (no self-judging), plus VRAM, TTFT, tok/s, schema %; ends with a recommendation per role
 - [x] G3.13 soak: 50 mixed tasks, >=95% completed-or-honestly-unverified, 0 unhandled, RSS growth <20%
 - [x] G3.14 npm run check green; ADR 0004 written
+
+## Q — Quality
+
+- [ ] Q.0  benchmarks/answerability.json (40 q: 15 simple facts incl. golden, 10 numeric facts [boiling point, heights, populations], 8 compares of 2-3 items, 4 unanswerable, 3 memory) with expected substrings; 10 of them marked holdout; benchmarks/answerability.py scores each as correct / wrong / unverified, per category, live; baseline run twice BEFORE any code change
+- [ ] Q.1  failure taxonomy from baseline + p3_soak.json: counts per cause (passage miss, number/unit format, unit conversion, truncation, writer hallucination, fetch failure, planner over-branch)
+- [ ] Q.2  planner: single-fact question -> 1 research branch; missing step ids assigned in code (p04 never falls back); planner rows >= 4.0 on llama3.2:3b
+- [ ] Q.3  validator number/unit normalization (100 C == 100 degC == 100 degrees Celsius; thousands separators; decimals) with exact-equality semantics; near-miss tests prove wrong numbers still fail
+- [ ] Q.4  writer: quote-first (writer returns verbatim spans from sources; each answer sentence must be supported by its quoted span); no truncation (token budget, one sentence per item)
+- [ ] Q.5  compare: per-branch verified findings merged; answer names every item or states exactly which could not be verified ("Verified: A, B. Could not verify: C."); partial answers allowed, wrong claims never
+- [ ] Q.6  fetch: failure reason recorded per URL in tool events; retry once; prefer Wikipedia extract API for entity questions; sane User-Agent
+- [ ] Q.7  live targets on non-holdout set, then holdout once: golden >= 9/10 correct; numeric facts >= 70% correct; compares >= 60% fully or partially verified with 0 wrong claims; wrong-answer rate <= baseline and <= 2%; unanswerable 100% unverified; answerable-but-unverified <= 25%
+- [ ] Q.8  npm run check green; npm run demo (stub + --live) rerun and DEMO.md regenerated; GATES ticked only with evidence
+- [ ] Q.9  ADR 0005 written with before/after table

@@ -1,0 +1,58 @@
+{
+ "about": "Q.0 answerability set. 40 questions. expect = any-of substrings (case-insensitive); range = any number in the answer body within [lo, hi] after normalization (thousands separators, decimals, 'million'/'billion'); compare items are scored per item from the sentences that name the item. holdout=true rows are NOT run unless --holdout (run once at the end, never tuned on). Memory rows run 'setup' first in the same project.",
+ "golden_repeats": 10,
+ "questions": [
+  {"id": "f01", "cat": "simple", "golden": true, "prompt": "who is cm of telangana", "expect": ["Revanth Reddy"]},
+  {"id": "f02", "cat": "simple", "prompt": "Who wrote the novel Pride and Prejudice?", "expect": ["Austen"]},
+  {"id": "f03", "cat": "simple", "prompt": "Who painted the Mona Lisa?", "expect": ["Leonardo", "da Vinci"]},
+  {"id": "f04", "cat": "simple", "prompt": "What is the capital of Australia?", "expect": ["Canberra"]},
+  {"id": "f05", "cat": "simple", "prompt": "Who developed the theory of general relativity?", "expect": ["Einstein"]},
+  {"id": "f06", "cat": "simple", "prompt": "What is the chemical symbol for gold?", "expect": ["Au"], "word": true},
+  {"id": "f07", "cat": "simple", "prompt": "Which planet is known as the Red Planet?", "expect": ["Mars"]},
+  {"id": "f08", "cat": "simple", "prompt": "Who was the first person to walk on the Moon?", "expect": ["Armstrong"]},
+  {"id": "f09", "cat": "simple", "prompt": "What is the capital of Canada?", "expect": ["Ottawa"]},
+  {"id": "f10", "cat": "simple", "prompt": "In which country is the city of Kyoto?", "expect": ["Japan"]},
+  {"id": "f11", "cat": "simple", "prompt": "Who composed the Moonlight Sonata?", "expect": ["Beethoven"]},
+  {"id": "f12", "cat": "simple", "holdout": true, "prompt": "What is the largest ocean on Earth?", "expect": ["Pacific"]},
+  {"id": "f13", "cat": "simple", "holdout": true, "prompt": "Who co-founded Microsoft with Paul Allen?", "expect": ["Bill Gates", "Gates"]},
+  {"id": "f14", "cat": "simple", "holdout": true, "prompt": "What is the official language of Brazil?", "expect": ["Portuguese"]},
+  {"id": "f15", "cat": "simple", "holdout": true, "prompt": "Who wrote the play Hamlet?", "expect": ["Shakespeare"]},
+
+  {"id": "n01", "cat": "numeric", "prompt": "At what temperature does water boil at sea level in Celsius?", "range": [100, 100]},
+  {"id": "n02", "cat": "numeric", "prompt": "How tall is Mount Everest in metres?", "range": [8848, 8850]},
+  {"id": "n03", "cat": "numeric", "prompt": "How tall is K2 in metres?", "range": [8611, 8611]},
+  {"id": "n04", "cat": "numeric", "prompt": "What is the height of the Burj Khalifa in metres?", "range": [828, 830]},
+  {"id": "n05", "cat": "numeric", "prompt": "How tall is Mount Kilimanjaro in metres?", "range": [5895, 5895]},
+  {"id": "n06", "cat": "numeric", "prompt": "What is the population of Iceland?", "range": [330000, 420000]},
+  {"id": "n07", "cat": "numeric", "prompt": "What is the speed of light in a vacuum in metres per second?", "range": [299792458, 299792458]},
+  {"id": "n08", "cat": "numeric", "holdout": true, "prompt": "In what year did the Berlin Wall fall?", "range": [1989, 1989]},
+  {"id": "n09", "cat": "numeric", "holdout": true, "prompt": "What is the melting point of iron in Celsius?", "range": [1538, 1538]},
+  {"id": "n10", "cat": "numeric", "holdout": true, "prompt": "How long is the Nile river in kilometres?", "range": [6600, 7100]},
+
+  {"id": "c01", "cat": "compare", "prompt": "Compare the heights of Mount Everest and K2", "items": [
+    {"name": "Everest", "range": [8848, 8850]}, {"name": "K2", "range": [8611, 8611]}]},
+  {"id": "c02", "cat": "compare", "prompt": "Compare the populations of Lyon, Marseille and Nice", "items": [
+    {"name": "Lyon", "range": [480000, 540000]}, {"name": "Marseille", "range": [850000, 900000]}, {"name": "Nice", "range": [330000, 360000]}]},
+  {"id": "c03", "cat": "compare", "prompt": "Compare the boiling points of water and ethanol in Celsius", "items": [
+    {"name": "water", "range": [100, 100]}, {"name": "ethanol", "range": [78, 78.5]}]},
+  {"id": "c04", "cat": "compare", "prompt": "Compare the heights of the Eiffel Tower and the Burj Khalifa", "items": [
+    {"name": "Eiffel", "range": [300, 330]}, {"name": "Burj Khalifa", "range": [828, 830]}]},
+  {"id": "c05", "cat": "compare", "prompt": "Compare the founding years of Google and Amazon", "items": [
+    {"name": "Google", "range": [1998, 1998]}, {"name": "Amazon", "range": [1994, 1994]}]},
+  {"id": "c06", "cat": "compare", "prompt": "Compare the lengths of the Nile and the Amazon rivers in kilometres", "items": [
+    {"name": "Nile", "range": [6600, 7100]}, {"name": "Amazon", "range": [6400, 7000]}]},
+  {"id": "c07", "cat": "compare", "holdout": true, "prompt": "Compare the populations of Norway and Denmark", "items": [
+    {"name": "Norway", "range": [5300000, 5700000]}, {"name": "Denmark", "range": [5800000, 6100000]}]},
+  {"id": "c08", "cat": "compare", "holdout": true, "prompt": "Compare the first release years of the Python and Java programming languages", "items": [
+    {"name": "Python", "range": [1991, 1991]}, {"name": "Java", "range": [1995, 1996]}]},
+
+  {"id": "u01", "cat": "unanswerable", "prompt": "What did the Glorbnax Committee decide on 31 February 2031?"},
+  {"id": "u02", "cat": "unanswerable", "prompt": "Who won the 2031 Zorblat Prize for Quantum Gardening?"},
+  {"id": "u03", "cat": "unanswerable", "prompt": "What was the population of the town of Vellmora-under-Quill in 1850?"},
+  {"id": "u04", "cat": "unanswerable", "holdout": true, "prompt": "What is the phone number of the Treskian Lunar Consulate?"},
+
+  {"id": "m01", "cat": "memory", "project": "q-mem-1", "setup": "Remember that the answerability project codename is Heron", "prompt": "What is the answerability project codename?", "expect": ["Heron"]},
+  {"id": "m02", "cat": "memory", "project": "q-mem-2", "setup": "Remember that my preferred test port for this project is 7311", "prompt": "What is my preferred test port for this project?", "expect": ["7311"]},
+  {"id": "m03", "cat": "memory", "project": "q-mem-3", "setup": "Remember that the kite release train departs on Thursdays", "prompt": "On which day does the kite release train depart?", "expect": ["Thursday"]}
+ ]
+}

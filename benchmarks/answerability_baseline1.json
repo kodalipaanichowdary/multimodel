@@ -1,0 +1,2037 @@
+{
+ "label": "baseline1",
+ "when": "2026-10-04 12:55:42",
+ "mode": "live (Ollama + live web)",
+ "set": "non-holdout",
+ "free_ram_gib_at_start": 7.2,
+ "total_seconds": 2629.2,
+ "per_category": {
+  "simple": {
+   "unverified": 9,
+   "n": 20,
+   "wrong": 5,
+   "correct": 6
+  },
+  "numeric": {
+   "unverified": 2,
+   "n": 7,
+   "correct": 5
+  },
+  "compare": {
+   "unverified": 5,
+   "n": 6,
+   "full": 1
+  },
+  "unanswerable": {
+   "correct": 3,
+   "n": 3
+  },
+  "memory": {
+   "correct": 1,
+   "n": 3,
+   "unverified": 1,
+   "wrong": 1
+  }
+ },
+ "metrics": {
+  "golden_correct": "0/10",
+  "numeric_correct_pct": 71.4,
+  "compare_full_or_partial_pct": 16.7,
+  "compare_wrong": 0,
+  "wrong_rate_pct": 15.4,
+  "unanswerable_refused_pct": 100.0,
+  "answerable_unverified_pct": 47.2
+ },
+ "runs": [
+  {
+   "task_id": "a26aa059-dc5b-44fe-926c-cdfeae2931cf",
+   "status": "unverified",
+   "seconds": 21.4,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)\n2. [Revanth Reddy - Wikipedia](https://en.wikipedia.org/wiki/Revanth_Reddy)\n3. [Chief Minister - Telangana State Portal](https://www.telangana.gov.in/government/chief-minister/)\n4. [K. Chandrashekar Rao - Wikipedia](https://en.wikipedia.org/wiki/K._Chandrashekar_Rao)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy",
+     "https://www.telangana.gov.in/government/chief-minister/",
+     "https://en.wikipedia.org/wiki/K._Chandrashekar_Rao"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 2: citation none -> [4] (['Chandrashekar', 'Rao'] stated together in source 4)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'",
+     "Rejected: sentence 1 has no [n] citation: 'K.'"
+    ],
+    "summaries": [
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 3 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 1,
+   "golden": true
+  },
+  {
+   "task_id": "55f2a0b7-e853-423c-b2af-210fb6f73182",
+   "status": "grounded",
+   "seconds": 8.2,
+   "content": "As per the Constitution of India, the governor of Telangana is the state's de jure head, but de facto executive authority rests with the chief minister, a template applicable to all other Indian states.[1]\n\n**Sources**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://anantamias.com/telangana-chief-ministers-list/",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'; sentence 2 has no [n] citation: 'Chandrashekar Rao'"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 4 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "wrong",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 2,
+   "golden": true
+  },
+  {
+   "task_id": "2d879dad-9103-4934-88a8-e15ea7316fef",
+   "status": "unverified",
+   "seconds": 10.4,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)\n2. [Chief Minister - Telangana State Portal](https://www.telangana.gov.in/government/chief-minister/)\n3. [Chief Ministers of Telangana: Complete List, Tenure and Party - Anantam IAS](https://anantamias.com/telangana-chief-ministers-list/)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://anantamias.com/telangana-chief-ministers-list/",
+     "https://www.telangana.gov.in/government/chief-minister/",
+     "https://www.telangana.gov.in/government/chief-minister/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'; sentence 2 has no [n] citation: 'Chandrashekar Rao'",
+     "Re-attached citation: sentence 1: citation none -> [1] (['Chief', 'Minister', 'Telangana'] stated together in source 1)",
+     "Rejected: sentence 2 not supported by cited source(s) [3]: not stated together there: ['Chandrashekar', 'Rao']"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 4 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 3,
+   "golden": true
+  },
+  {
+   "task_id": "b029eca9-810f-45bb-8ca9-1abbc6b5d1c1",
+   "status": "unverified",
+   "seconds": 11.4,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)\n2. [Chief Minister - Telangana State Portal](https://www.telangana.gov.in/government/chief-minister/)\n3. [Revanth Reddy - Wikipedia](https://en.wikipedia.org/wiki/Revanth_Reddy)\n4. [K. Chandrashekar Rao - Wikipedia](https://en.wikipedia.org/wiki/K._Chandrashekar_Rao)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy",
+     "https://en.wikipedia.org/wiki/K._Chandrashekar_Rao",
+     "https://www.telangana.gov.in/government/chief-minister/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 2: citation none -> [4] (['Chandrashekar', 'Rao'] stated together in source 4)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'",
+     "Rejected: sentence 1 has no [n] citation: 'K.'"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 3 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 4,
+   "golden": true
+  },
+  {
+   "task_id": "46478b6e-43c2-4e1b-9226-d38eb1457cad",
+   "status": "grounded",
+   "seconds": 8.3,
+   "content": "As per the Constitution of India, the governor of Telangana is the state's de jure head, but de facto executive authority rests with the chief minister, a template applicable to all other Indian states.[1]\n\n**Sources**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://deshneta.in/chief-ministers-of-telangana/",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy",
+     "https://anantamias.com/telangana-chief-ministers-list/"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://deshneta.in/chief-ministers-of-telangana/"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'; sentence 2 has no [n] citation: 'Chandrashekar Rao'"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 4 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "wrong",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 5,
+   "golden": true
+  },
+  {
+   "task_id": "2c960d37-3a54-45d8-b205-4cc586adef0c",
+   "status": "unverified",
+   "seconds": 11.7,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)\n2. [Revanth Reddy - Wikipedia](https://en.wikipedia.org/wiki/Revanth_Reddy)\n3. [Chief Minister - Telangana State Portal](https://www.telangana.gov.in/government/chief-minister/)\n4. [K. Chandrashekar Rao - Wikipedia](https://en.wikipedia.org/wiki/K._Chandrashekar_Rao)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://www.telangana.gov.in/government/chief-minister/",
+     "https://en.wikipedia.org/wiki/K._Chandrashekar_Rao",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 2: citation none -> [4] (['Chandrashekar', 'Rao'] stated together in source 4)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'",
+     "Rejected: sentence 1 has no [n] citation: 'K.'"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 3 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 6,
+   "golden": true
+  },
+  {
+   "task_id": "dadb1360-39f7-4e6a-98ab-54664584b1e4",
+   "status": "grounded",
+   "seconds": 8.3,
+   "content": "As per the Constitution of India, the governor of Telangana is the state's de jure head, but de facto executive authority rests with the chief minister, a template applicable to all other Indian states.[1]\n\n**Sources**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://anantamias.com/telangana-chief-ministers-list/",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'; sentence 2 has no [n] citation: 'Chandrashekar Rao'"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 4 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "wrong",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 7,
+   "golden": true
+  },
+  {
+   "task_id": "1891c115-4c0a-41bb-862a-f9000ba020ee",
+   "status": "grounded",
+   "seconds": 9.8,
+   "content": "As per the Constitution of India, the governor of Telangana is the state's de jure head, but de facto executive authority rests with the chief minister, a template applicable to all other Indian states.[1]\n\n**Sources**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://anantamias.com/telangana-chief-ministers-list/",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy",
+     "https://www.telangana.gov.in/Government/Council-of-Ministers/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'; sentence 2 has no [n] citation: 'Chandrashekar Rao'"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 4 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "wrong",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 8,
+   "golden": true
+  },
+  {
+   "task_id": "13d87b9c-0104-490f-9f2a-acec3b3d8877",
+   "status": "grounded",
+   "seconds": 10.3,
+   "content": "As per the Constitution of India, the governor of Telangana is the state's de jure head, but de facto executive authority rests with the chief minister, a template applicable to all other Indian states.[1]\n\n**Sources**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy",
+     "https://deshneta.in/chief-ministers-of-telangana/",
+     "https://www.telangana.gov.in/government/chief-minister/",
+     "https://anantamias.com/telangana-chief-ministers-list/"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://deshneta.in/chief-ministers-of-telangana/"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'; sentence 2 has no [n] citation: 'Chandrashekar Rao'"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 4 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "wrong",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 9,
+   "golden": true
+  },
+  {
+   "task_id": "9cf8e6db-8a4e-4f68-ad36-0d661c2bdd30",
+   "status": "unverified",
+   "seconds": 15.0,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Chief Minister of Telangana - Wikipedia](https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana)\n2. [Chief Minister - Telangana State Portal](https://www.telangana.gov.in/government/chief-minister/)\n3. [Revanth Reddy - Wikipedia](https://en.wikipedia.org/wiki/Revanth_Reddy)\n4. [K. Chandrashekar Rao - Wikipedia](https://en.wikipedia.org/wiki/K._Chandrashekar_Rao)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Telangana Chief Minister current",
+     "Telangana Chief Minister name",
+     "Telangana Chief Minister term"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/Chief_Minister_of_Telangana",
+     "https://en.wikipedia.org/wiki/K._Chandrashekar_Rao",
+     "https://en.wikipedia.org/wiki/Revanth_Reddy",
+     "https://www.telangana.gov.in/government/chief-minister/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 2: citation none -> [4] (['Chandrashekar', 'Rao'] stated together in source 4)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer; sentence 1 has no [n] citation: 'K.'",
+     "Rejected: sentence 7 not supported by cited source(s) [4]: not stated together there: ['Following', 'Andhra', 'Pradesh', 'Reorganisation', 'Act', '2']"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 3 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "f01",
+   "cat": "simple",
+   "rep": 10,
+   "golden": true
+  },
+  {
+   "task_id": "06b9b1c7-c955-48b4-be48-19b653f30278",
+   "status": "unverified",
+   "seconds": 15.9,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Pride and Prejudice - Wikipedia](https://en.wikipedia.org/wiki/Pride_and_Prejudice)\n2. [Jane Austen - Wikipedia](https://en.wikipedia.org/wiki/Jane_Austen)\n3. [Jane Austen, Author of Pride and Prejudice | LiteraryLadiesGuide](https://www.literaryladiesguide.com/author-biography/jane-austen/)",
+   "diag": {
+    "planned_steps": 3,
+    "research_branches": 1,
+    "queries": [
+     "author of Pride and Prejudice"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Pride_and_Prejudice",
+     "https://en.wikipedia.org/wiki/Jane_Austen",
+     "https://www.literaryladiesguide.com/author-biography/jane-austen/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Jane', 'Austen'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; sentence 2 has no [n] citation: 'The novel was initially titled'"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research: 3 sources read, confidence 1.00",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 2 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "f02",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "da1c471d-99f5-471e-bfe4-bf20dd1d5ef4",
+   "status": "grounded",
+   "seconds": 10.7,
+   "content": "Leonardo da Vinci painted the Mona Lisa [1].\n\n**Sources**\n1. [Mona Lisa - Wikipedia](https://en.wikipedia.org/wiki/Mona_Lisa)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Who painted the Mona Lisa art piece",
+     "Artist who painted Mona Lisa",
+     "Leonardo da Vinci Mona Lisa",
+     "Mona Lisa artist"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Mona_Lisa",
+     "https://en.wikipedia.org/wiki/Mona_Lisa",
+     "https://en.wikipedia.org/wiki/Mona_Lisa",
+     "https://en.wikipedia.org/wiki/Mona_Lisa",
+     "https://artincontext.org/mona-lisa-by-leonardo-da-vinci/",
+     "https://www.britannica.com/topic/Mona-Lisa-painting",
+     "https://www.britannica.com/topic/Mona-Lisa-painting",
+     "https://artincontext.org/mona-lisa-by-leonardo-da-vinci/",
+     "https://artincontext.org/mona-lisa-by-leonardo-da-vinci/",
+     "https://www.britannica.com/topic/Mona-Lisa-painting",
+     "https://artincontext.org/mona-lisa-by-leonardo-da-vinci/"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Mona-Lisa-painting",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Mona-Lisa-painting",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Mona-Lisa-painting"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Leonardo', 'Vinci'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 1 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "f03",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "133987ea-c155-4c41-aa5c-a95331c693b4",
+   "status": "grounded",
+   "seconds": 13.8,
+   "content": "Canberra is the capital city of Australia [1]. Canberra was established in 1913 [2].\n\n**Sources**\n1. [Canberra - Wikipedia](https://en.wikipedia.org/wiki/Canberra)\n2. [What is the Capital of Australia? | Mappr](https://www.mappr.co/capital-cities/australia/)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "What is the capital of Australia",
+     "What is the capital of Australia",
+     "What is the capital of Australia",
+     "What is the capital of Australia"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Canberra",
+     "https://en.wikipedia.org/wiki/Canberra",
+     "https://en.wikipedia.org/wiki/Canberra",
+     "https://en.wikipedia.org/wiki/Canberra",
+     "https://www.mappr.co/capital-cities/australia/",
+     "https://www.mappr.co/capital-cities/australia/",
+     "https://www.mappr.co/capital-cities/australia/",
+     "https://www.mappr.co/capital-cities/australia/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Canberra'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "f04",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "846a611a-a71c-4f96-b711-6b8bfedb785e",
+   "status": "grounded",
+   "seconds": 17.6,
+   "content": "Albert Einstein developed the theory of general relativity between 1907 and 1915, with contributions by many others after 1915, and the final form of general relativity was published in 1916 [2]. According to Wikipedia, general relativity is a theory of gravitation developed by Einstein in the years 1907\u20131915 [2]. Einstein's theory of general relativity generalizes special relativity and refines Isaac Newton's law of universal gravitation [1]. The relation between the curvature of spacetime and the energy, momentum, and stress of whatever is present, including matter and radiation, is specified by the Einstein field equations [1]. In summary, general relativity is the accepted description of the gravitation of macroscopic objects in modern physics, published by Albert Einstein in May 1916 [1].\n\n**Sources**\n1. [General relativity - Wikipedia](https://en.wikipedia.org/wiki/General_relativity)\n2. [Theory of relativity - Wikipedia](https://en.wikipedia.org/wiki/Theory_of_relativity)",
+   "diag": {
+    "planned_steps": 3,
+    "research_branches": 1,
+    "queries": [
+     "who developed general relativity theory"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/General_relativity",
+     "https://en.wikipedia.org/wiki/Theory_of_relativity",
+     "https://www.britannica.com/story/how-albert-einstein-developed-the-theory-of-general-relativity",
+     "https://www.britannica.com/science/general-relativity",
+     "https://www.scientificlib.com/en/Physics/GeneralRelativity/HistoryOfGeneralRelativity.html"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/story/how-albert-einstein-developed-the-theory-of-general-relativity",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/science/general-relativity",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Albert', 'Einstein'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research: 2 sources read, confidence 1.00",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "f05",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "8bc4edf3-c8a7-493c-a64f-c0aac78af6e6",
+   "status": "grounded",
+   "seconds": 18.0,
+   "content": "The chemical symbol for gold is Au, as stated in Wikipedia [1] and the Periodic Table [2].\n\n**Sources**\n1. [Gold - Wikipedia](https://en.wikipedia.org/wiki/Gold)\n2. [Gold (Au) - Periodic Table](https://www.periodictable.one/element/79)",
+   "diag": {
+    "planned_steps": 3,
+    "research_branches": 1,
+    "queries": [
+     "What is the chemical symbol for gold?"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Gold",
+     "https://www.periodictable.one/element/79",
+     "https://www.periodic-table.org/gold-chemical-symbol/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Au'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research: 3 sources read, confidence 1.00",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "f06",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "2f09a81e-6560-4918-bd82-3678527f3454",
+   "status": "unverified",
+   "seconds": 11.2,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Mars - Wikipedia](https://en.wikipedia.org/wiki/Mars)\n2. [Mars - NASA Science](https://science.nasa.gov/mars/)\n3. [Planet Sizes and Locations in Our Solar System](https://science.nasa.gov/solar-system/planets/planet-sizes-and-locations-in-our-solar-system/)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "What planet is known as the Red Planet?",
+     "Planet known as Red Planet",
+     "Red planet in our solar system",
+     "Planet Mars"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Mars",
+     "https://en.wikipedia.org/wiki/Mars",
+     "https://www.britannica.com/science/Why-is-Mars-Called-the-Red-Planet",
+     "https://science.nasa.gov/solar-system/planets/planet-sizes-and-locations-in-our-solar-system/",
+     "https://science.nasa.gov/mars/"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/science/Why-is-Mars-Called-the-Red-Planet"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Mars'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer",
+     "Re-attached citation: sentence 1: citation none -> [1] (['Mars'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#4: no usable sources",
+     "research#2: no usable sources",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "f07",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "0960820c-3516-468b-82ab-2f9a78ee655d",
+   "status": "grounded",
+   "seconds": 12.0,
+   "content": "Neil Armstrong was the first person to walk on the Moon, approximately six hours after landing on July 20, 1969 [3].\n\n**Sources**\n3. [Neil Armstrong - Wikipedia](https://en.wikipedia.org/wiki/Neil_Armstrong)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Who was the first person to walk on the Moon?",
+     "Who was the first person to set foot on Moon?",
+     "Who was the first person to walk on lunar surface?",
+     "Who was the first person to step on the Moon?"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Apollo_11",
+     "https://en.wikipedia.org/wiki/Apollo_11",
+     "https://en.wikipedia.org/wiki/Apollo_11",
+     "https://en.wikipedia.org/wiki/Neil_Armstrong",
+     "https://www.nasa.gov/mission/apollo-11/",
+     "https://en.wikipedia.org/wiki/Neil_Armstrong",
+     "https://en.wikipedia.org/wiki/Neil_Armstrong",
+     "https://en.wikipedia.org/wiki/Apollo_11"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [3] (['Neil', 'Armstrong', 'Moon', 'July', '20', '1969'] stated together in source 3)"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "f08",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "5affab6b-23da-4dbf-8ea6-67c3dcb75490",
+   "status": "grounded",
+   "seconds": 14.2,
+   "content": "Ottawa is the capital city of Canada, located in the southeastern portion of the province of Ontario, at the confluence of the Ottawa River and the Rideau River [1].\n\n**Sources**\n1. [Ottawa - Wikipedia](https://en.wikipedia.org/wiki/Ottawa)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "What is the capital of Canada",
+     "What is the capital of Canada",
+     "What is the capital of Canada",
+     "What is the capital of Canada"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Ottawa",
+     "https://en.wikipedia.org/wiki/Ottawa",
+     "https://en.wikipedia.org/wiki/Ottawa",
+     "https://en.wikipedia.org/wiki/Ottawa",
+     "https://geographypin.com/capital-of-canada-ottawa/",
+     "https://geographypin.com/capital-of-canada-ottawa/",
+     "https://geographypin.com/capital-of-canada-ottawa/",
+     "https://geographypin.com/capital-of-canada-ottawa/",
+     "https://en.wikipedia.org/wiki/Canada",
+     "https://www.worldatlas.com/articles/what-is-the-capital-of-canada.html",
+     "https://en.wikipedia.org/wiki/Canada",
+     "https://www.worldatlas.com/articles/what-is-the-capital-of-canada.html",
+     "https://www.worldatlas.com/articles/what-is-the-capital-of-canada.html",
+     "https://www.worldatlas.com/articles/what-is-the-capital-of-canada.html"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://geographypin.com/capital-of-canada-ottawa/",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://geographypin.com/capital-of-canada-ottawa/",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://geographypin.com/capital-of-canada-ottawa/",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://geographypin.com/capital-of-canada-ottawa/",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: page larger than 2000000 bytes",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: page larger than 2000000 bytes"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Ottawa'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "f09",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "ce7c700b-2712-49f4-9f42-9aa44bb844cd",
+   "status": "unverified",
+   "seconds": 16.2,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Kyoto - Wikipedia](https://en.wikipedia.org/wiki/Kyoto)\n2. [Kyoto Prefecture - Wikipedia](https://en.wikipedia.org/wiki/Kyoto_Prefecture)\n3. [Kyoto - Wikipedia](https://gpe.wikipedia.org/wiki/Kyoto)",
+   "diag": {
+    "planned_steps": 3,
+    "research_branches": 1,
+    "queries": [
+     "city of Kyoto country"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Kyoto",
+     "https://en.wikipedia.org/wiki/Kyoto_Prefecture",
+     "https://www.britannica.com/place/Kyoto-Japan",
+     "https://gpe.wikipedia.org/wiki/Kyoto"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/place/Kyoto-Japan"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Japan'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer",
+     "Re-attached citation: sentence 5: citation [2] -> [1] (['2020', '56.8', 'Kyoto', \"Prefecture's\"] stated together in source 1)",
+     "Rejected: sentence 6: sources disagree; source [2] states the same subject without ['Assembly']: \"Kyoto City Kyoto, the capital and largest city, hosts 57% of the prefecture's total population. Othe\"; sentence 7: sources disagree; source [1] states the same subject without ['University']: 'This article is about the city in Japan. For the prefecture where the city is located, see Kyoto Pre'; sentence 7: sources disagree; source [2] states the same subject w"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research: 3 sources read, confidence 1.00",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 3 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "f10",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "9d988ce8-dc8f-4ab4-a874-7014ccb85638",
+   "status": "unverified",
+   "seconds": 15.6,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Piano Sonata No. 14 (Beethoven) - Wikipedia](https://en.wikipedia.org/wiki/Piano_Sonata_No._14_(Beethoven))\n2. [The \"Moonlight\" Sonata - Story Behind the Masterpiece -](https://lvbeethoven.com/the-moonlight-sonata-story-behind-the-masterpiece/)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Who composed the Moonlight Sonata",
+     "Who composed the Moonlight Sonata",
+     "Who composed the Moonlight Sonata",
+     "Who composed the Moonlight Sonata"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Piano_Sonata_No._14_(Beethoven)",
+     "https://en.wikipedia.org/wiki/Piano_Sonata_No._14_(Beethoven)",
+     "https://en.wikipedia.org/wiki/Piano_Sonata_No._14_(Beethoven)",
+     "https://en.wikipedia.org/wiki/Piano_Sonata_No._14_(Beethoven)",
+     "https://www.britannica.com/topic/Moonlight-Sonata",
+     "https://www.britannica.com/topic/Moonlight-Sonata",
+     "https://www.britannica.com/topic/Moonlight-Sonata",
+     "https://www.britannica.com/topic/Moonlight-Sonata",
+     "https://lvbeethoven.com/the-moonlight-sonata-story-behind-the-masterpiece/",
+     "https://lvbeethoven.com/the-moonlight-sonata-story-behind-the-masterpiece/",
+     "https://lvbeethoven.com/the-moonlight-sonata-story-behind-the-masterpiece/",
+     "https://lvbeethoven.com/the-moonlight-sonata-story-behind-the-masterpiece/"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Moonlight-Sonata",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Moonlight-Sonata",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Moonlight-Sonata",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Moonlight-Sonata"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Ludwig', 'Beethoven'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence",
+     "Re-attached citation: sentence 1: citation none -> [1] (['Ludwig', 'Beethoven', 'Moonlight', 'Sonata', '1801', '1802'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 1 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "f11",
+   "cat": "simple",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "9930f116-8b8e-4195-bd62-490910754eec",
+   "status": "unverified",
+   "seconds": 12.6,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Boiling point - Wikipedia](https://en.wikipedia.org/wiki/Boiling_point)\n2. [At What Temperature Does Water Boil (Celsius)? | Clear Facts Now](https://kitchprep.com/at-what-temperature-does-water-boil-celsius/)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "water boiling point sea level celsius",
+     "water boiling point sea level celsius",
+     "water boiling point sea level celsius"
+    ],
+    "fetch_urls": [
+     "https://sciencenotes.org/boiling-point-of-water-what-temperature-does-water-boil/",
+     "https://sciencenotes.org/boiling-point-of-water-what-temperature-does-water-boil/",
+     "https://sciencenotes.org/boiling-point-of-water-what-temperature-does-water-boil/",
+     "https://en.wikipedia.org/wiki/Boiling_point",
+     "https://en.wikipedia.org/wiki/Boiling_point",
+     "https://en.wikipedia.org/wiki/Boiling_point",
+     "https://kitchprep.com/at-what-temperature-does-water-boil-celsius/",
+     "https://kitchprep.com/at-what-temperature-does-water-boil-celsius/",
+     "https://kitchprep.com/at-what-temperature-does-water-boil-celsius/"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://sciencenotes.org/boiling-point-of-water-what-temperature-does-water-boil/",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://sciencenotes.org/boiling-point-of-water-what-temperature-does-water-boil/",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://sciencenotes.org/boiling-point-of-water-what-temperature-does-water-boil/"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['100'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer",
+     "Rejected: sentence 1 not supported by cited source(s) [1]: not stated together there: ['100', 'Celsius']"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "n01",
+   "cat": "numeric",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "3d8fdb98-b1ba-49c8-808a-89adeceb8711",
+   "status": "grounded",
+   "seconds": 14.8,
+   "content": "Mount Everest's height was most recently measured in 2020 through a joint survey by Nepalese and Chinese authorities as 8,848.86 m [1].\n\n**Sources**\n1. [Mount Everest - Wikipedia](https://en.wikipedia.org/wiki/Mount_Everest)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Mount Everest height in meters",
+     "Mount Everest height in meters",
+     "Mount Everest height in meters",
+     "Mount Everest height in meters"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Mount_Everest",
+     "https://en.wikipedia.org/wiki/Mount_Everest",
+     "https://en.wikipedia.org/wiki/Mount_Everest",
+     "https://en.wikipedia.org/wiki/Mount_Everest",
+     "https://www.britannica.com/place/Mount-Everest",
+     "https://www.britannica.com/place/Mount-Everest",
+     "https://www.britannica.com/place/Mount-Everest",
+     "https://www.britannica.com/place/Mount-Everest",
+     "https://www.magicalnepal.com/blog/how-tall-is-mount-everest/",
+     "https://www.magicalnepal.com/blog/how-tall-is-mount-everest/",
+     "https://www.magicalnepal.com/blog/how-tall-is-mount-everest/",
+     "https://www.magicalnepal.com/blog/how-tall-is-mount-everest/"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/place/Mount-Everest",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/place/Mount-Everest",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/place/Mount-Everest",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/place/Mount-Everest"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['8,848.86'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "n02",
+   "cat": "numeric",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "319a27e1-0c13-4131-8d6d-7d97c50f0ca8",
+   "status": "grounded",
+   "seconds": 13.5,
+   "content": "According to Wikipedia, K2's height given on maps and encyclopedias is 8,611 metres (28,251 ft) [1]. However, a Pakistani-Italian expedition in 2014 measured the height of K2 to be 8,609.02 metres (28,244.8 ft) [1]. The next attempt on K2 did not result in a revised height [1].\n\n**Sources**\n1. [K2 - Wikipedia](https://en.wikipedia.org/wiki/K2)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "K2 height in meters",
+     "K2 height in meters",
+     "K2 height in meters",
+     "K2 height in meters"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/K2",
+     "https://en.wikipedia.org/wiki/K2",
+     "https://en.wikipedia.org/wiki/K2",
+     "https://en.wikipedia.org/wiki/K2",
+     "https://skardutrekkers.com/k2-height-how-tall-is-k2-in-meters/",
+     "https://skardutrekkers.com/k2-height-how-tall-is-k2-in-meters/",
+     "https://skardutrekkers.com/k2-height-how-tall-is-k2-in-meters/",
+     "https://skardutrekkers.com/k2-height-how-tall-is-k2-in-meters/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['8,611'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "n03",
+   "cat": "numeric",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "c50feece-e5f4-47ac-9695-0cfe1b72779d",
+   "status": "unverified",
+   "seconds": 14.1,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Burj Khalifa - Wikipedia](https://en.wikipedia.org/wiki/Burj_Khalifa)\n2. [List of tallest buildings - Wikipedia](https://en.wikipedia.org/wiki/List_of_tallest_buildings)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Burj Khalifa height in metres",
+     "Burj Khalifa height",
+     "Burj Khalifa height",
+     "Burj Khalifa height"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Burj_Khalifa",
+     "https://en.wikipedia.org/wiki/Burj_Khalifa",
+     "https://en.wikipedia.org/wiki/Burj_Khalifa",
+     "https://en.wikipedia.org/wiki/Burj_Khalifa",
+     "https://www.britannica.com/topic/Burj-Khalifa",
+     "https://en.wikipedia.org/wiki/List_of_tallest_buildings",
+     "https://www.britannica.com/topic/Burj-Khalifa",
+     "https://en.wikipedia.org/wiki/List_of_tallest_buildings",
+     "https://en.wikipedia.org/wiki/List_of_tallest_buildings",
+     "https://www.britannica.com/topic/Burj-Khalifa",
+     "https://en.wikipedia.org/wiki/List_of_tallest_buildings"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Burj-Khalifa",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Burj-Khalifa",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Burj-Khalifa"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [2] (['828'] stated together in source 2)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer",
+     "Rejected: sentence 1 not supported by cited source(s) [2]: not stated together there: ['Council', 'Urban', 'Habitat']"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "n04",
+   "cat": "numeric",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "0745fd43-0205-4fde-b2d1-39f140c52aeb",
+   "status": "grounded",
+   "seconds": 13.7,
+   "content": "According to Wikipedia, Mount Kilimanjaro is 5,895 m above sea level [1].\n\n**Sources**\n1. [Mount Kilimanjaro - Wikipedia](https://en.wikipedia.org/wiki/Mount_Kilimanjaro)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Mount Kilimanjaro height in metres",
+     "Mount Kilimanjaro height in metres",
+     "Mount Kilimanjaro height in metres",
+     "Mount Kilimanjaro height in metres"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Mount_Kilimanjaro",
+     "https://en.wikipedia.org/wiki/Mount_Kilimanjaro",
+     "https://en.wikipedia.org/wiki/Mount_Kilimanjaro",
+     "https://en.wikipedia.org/wiki/Mount_Kilimanjaro",
+     "https://mountkilimanjaro.guide/mount-kilimanjaro-height/",
+     "https://mountkilimanjaro.guide/mount-kilimanjaro-height/",
+     "https://mountkilimanjaro.guide/mount-kilimanjaro-height/",
+     "https://mountkilimanjaro.guide/mount-kilimanjaro-height/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['5,895'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "n05",
+   "cat": "numeric",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "1fdc195a-bdcc-4ef8-8834-ae57c57119ab",
+   "status": "grounded",
+   "seconds": 13.4,
+   "content": "The population of Iceland was 387,758 on 1 January 2023 [1].\n\n**Sources**\n1. [The population on 1 January 2023 - Statistics Iceland](https://statice.is/publications/news-archive/inhabitants/the-population-on-1-january-2023/)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Iceland population 2023",
+     "Iceland population 2020",
+     "Iceland population 2019",
+     "Iceland population 2018"
+    ],
+    "fetch_urls": [
+     "https://www.populationpyramid.net/iceland/2018/",
+     "https://statice.is/publications/news-archive/inhabitants/the-population-on-1-january-2023/",
+     "https://www.populationpyramid.net/iceland/2019/",
+     "https://www.populationpyramid.net/iceland/2020/",
+     "https://countryeconomy.com/demography/population/iceland?year=2018",
+     "https://en.wikipedia.org/wiki/Demographics_of_Iceland",
+     "https://www.worldometers.info/world-population/iceland-population/",
+     "https://nationdata.org/population/country/isl/2019"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Iceland', '387,758', '1', 'January', '2023'] stated together in source 1)"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "n06",
+   "cat": "numeric",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "f72ac09d-5db4-41fe-a1e3-030a0c473227",
+   "status": "grounded",
+   "seconds": 14.9,
+   "content": "The speed of light in a vacuum is exactly equal to 299792458 m\u22c5s\u22121, as defined by international agreement [1].\n\n**Sources**\n1. [Speed of light - Wikipedia](https://en.wikipedia.org/wiki/Speed_of_light)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "speed of light in vacuum in meters per second",
+     "speed of light in vacuum",
+     "c speed of light in vacuum",
+     "speed of light in vacuum value"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Speed_of_light",
+     "https://en.wikipedia.org/wiki/Speed_of_light",
+     "https://en.wikipedia.org/wiki/Speed_of_light",
+     "https://en.wikipedia.org/wiki/Speed_of_light",
+     "https://www.britannica.com/science/speed-of-light",
+     "https://physics.nist.gov/cgi-bin/cuu/Value?c",
+     "https://physicsfundamentals.org/calculators/speed-of-light",
+     "https://physics.nist.gov/cgi-bin/cuu/Value?c",
+     "https://www.howengineeringworks.com/questions/what-is-the-speed-of-light-in-vacuum/",
+     "https://www.britannica.com/science/speed-of-light",
+     "https://physicsfundamentals.info/speed-of-light/",
+     "https://physicsfundamentals.info/speed-of-light/",
+     "https://byjus.com/physics/value-of-c/"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/science/speed-of-light",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://physicsfundamentals.org/calculators/speed-of-light",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/science/speed-of-light"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['299792458'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "n07",
+   "cat": "numeric",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "0b028ca6-f723-47b1-a6b6-f09fa5e49e7b",
+   "status": "unverified",
+   "seconds": 14.8,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Mount Everest - Wikipedia](https://en.wikipedia.org/wiki/Mount_Everest)\n2. [How Tall is Mount Everest? Height in Feet & Meters 2026](https://www.magicalnepal.com/blog/how-tall-is-mount-everest/)\n3. [K2 - Wikipedia](https://en.wikipedia.org/wiki/K2)\n4. [How Tall Is K2? Exact Height in Meters & Feet | Skardu Trekkers - SKARDU TREKKERS](https://skardutrekkers.com/k2-height-how-tall-is-k2-in-meters/)\n5. [Mount Everest vs K2: Height, Difficulty, Deaths & Key Differences | Geography Worlds](https://geographyworlds.com/blog/everest-vs-k2-comparison/)\n6. [K2 vs Everest: Height, Location, Climbing Challenges & Facts](https://www.breezeadventure.com/blog/k2-vs-everest)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "height of Mount Everest in meters",
+     "height of K2 in meters",
+     "K2 vs Mount Everest height comparison"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/K2",
+     "https://geographyworlds.com/blog/everest-vs-k2-comparison/",
+     "https://en.wikipedia.org/wiki/Mount_Everest",
+     "https://skardutrekkers.com/k2-height-how-tall-is-k2-in-meters/",
+     "https://www.magicalnepal.com/blog/how-tall-is-mount-everest/",
+     "https://www.breezeadventure.com/blog/k2-vs-everest"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: sentence 1 not supported by cited source(s) [1, 2, 3, 4, 5, 6]: not stated together there: ['K2', '8,611', '28,251']",
+     "Rejected: sentence 1 not supported by cited source(s) [1, 2, 3]: not stated together there: ['K2', '8,611', '28,251', '8,849', '29,032']"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#2: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 1 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "items": {
+    "Everest": "unverified",
+    "K2": "unverified"
+   },
+   "id": "c01",
+   "cat": "compare",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "b3514e2c-b5c3-4b8f-b78f-a7d3282d98c5",
+   "status": "unverified",
+   "seconds": 13.2,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Lyon (Lyon, Rh\u00f4ne, France) - Population Statistics, Charts, Map, Location, Weather and Web Information](https://www.citypopulation.de/en/france/rhone/rh%C3%B4ne/69123__lyon/)\n2. [Lyon Population 2026](https://worldpopulationreview.com/cities/france/lyon)\n3. [Marseille (Marseille, Bouches-du-Rh\u00f4ne, France) - Population Statistics, Charts, Map, Location, Weather and Web Information](https://www.citypopulation.de/en/france/bouchesdurhone/marseille/13055__marseille/)\n4. [Marseille statistics \u2014 population, wages, unemployment](https://bestcitiesinfrance.com/cities/marseille/statistics)\n5. [Nice Population 2026](https://worldpopulationreview.com/cities/france/nice)\n6. [Nice (Nice, Alpes-Maritimes, France) - Population Statistics, Charts, Map, Location, Weather and Web Information](https://www.citypopulation.de/en/france/alpesmaritimes/nice/06088__nice/)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "population of Lyon city France 2022",
+     "population of Marseille city France 2022",
+     "population of Nice city France 2022"
+    ],
+    "fetch_urls": [
+     "https://www.citypopulation.de/en/france/bouchesdurhone/marseille/13055__marseille/",
+     "https://worldpopulationreview.com/cities/france/nice",
+     "https://www.citypopulation.de/en/france/rhone/rh%C3%B4ne/69123__lyon/",
+     "https://www.citypopulation.de/en/france/alpesmaritimes/nice/06088__nice/",
+     "https://bestcitiesinfrance.com/cities/marseille/statistics",
+     "https://worldpopulationreview.com/cities/france/lyon"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: sentence 1 not supported by cited source(s) [1]: not stated together there: ['518,778', 'Marseille', '863,158', 'Nice', '368,553']",
+     "Re-attached citation: sentence 1: citation [1] -> [2] (['Lyon', '518,778'] stated together in source 2)",
+     "Rejected: sentence 2 not supported by cited source(s) [2]: not stated together there: ['863,158']"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 1 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "items": {
+    "Lyon": "unverified",
+    "Marseille": "unverified",
+    "Nice": "unverified"
+   },
+   "id": "c02",
+   "cat": "compare",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "4965a56a-0d3c-48d0-b0e3-e317da611216",
+   "status": "unverified",
+   "seconds": 12.3,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Boiling point - Wikipedia](https://en.wikipedia.org/wiki/Boiling_point)\n2. [Boiling Points Across Temperature Scales: \u00b0C, \u00b0F, K & \u00b0R](https://temperatures.com/guides/boiling-points-across-temperature-scales)\n3. [Boiling Point of Alcohols - Table](https://matmake.com/properties/boiling-point-of-alcohols.html)\n4. [Ethanol | 64-17-5](https://www.chemicalbook.com/ChemicalProductProperty_EN_CB2362508.htm)\n5. [Boiling Points of Ethanol and Water](https://moonshinestillplans.com/biofuel/ethanol-water-boiling-points.htm)\n6. [Boiling Points Database & Calculator (250+ Substances) - MyEngineeringTools](https://myengineeringtools.com/Data_Diagrams/Boiling_Points_Liquid_Gases.html)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "boiling point of water in Celsius",
+     "boiling point of ethanol in Celsius",
+     "boiling points of water and ethanol in Celsius"
+    ],
+    "fetch_urls": [
+     "https://moonshinestillplans.com/biofuel/ethanol-water-boiling-points.htm",
+     "https://matmake.com/properties/boiling-point-of-alcohols.html",
+     "https://sciencenotes.org/boiling-point-of-water-what-temperature-does-water-boil/",
+     "https://www.chemicalbook.com/ChemicalProductProperty_EN_CB2362508.htm",
+     "https://myengineeringtools.com/Data_Diagrams/Boiling_Points_Liquid_Gases.html",
+     "https://en.wikipedia.org/wiki/Boiling_point",
+     "https://temperatures.com/guides/boiling-points-across-temperature-scales"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://sciencenotes.org/boiling-point-of-water-what-temperature-does-water-boil/"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: sentence 1 not supported by cited source(s) [1, 4]: not stated together there: ['78.5']",
+     "Rejected: sentence 1 not supported by cited source(s) [1, 4]: not stated together there: ['78.5']"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 1 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "items": {
+    "water": "unverified",
+    "ethanol": "unverified"
+   },
+   "id": "c03",
+   "cat": "compare",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "06af3dc8-6deb-445c-bae7-fe6f25740298",
+   "status": "unverified",
+   "seconds": 47.5,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Eiffel Tower - Wikipedia](https://en.wikipedia.org/wiki/Eiffel_Tower)\n2. [Eiffel Tower Height: 330m (1,083 ft) \u2013 Dimensions, Weight & Fun Facts](https://eiffeltowertravel.com/height-and-facts)\n3. [Burj Khalifa - Wikipedia](https://en.wikipedia.org/wiki/Burj_Khalifa)\n4. [List of tallest buildings - Wikipedia](https://en.wikipedia.org/wiki/List_of_tallest_buildings)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Eiffel Tower height in meters",
+     "Burj Khalifa height in meters",
+     "Eiffel Tower height in meters",
+     "Burj Khalifa height in meters"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Eiffel_Tower",
+     "https://en.wikipedia.org/wiki/Eiffel_Tower",
+     "https://en.wikipedia.org/wiki/Burj_Khalifa",
+     "https://en.wikipedia.org/wiki/Burj_Khalifa",
+     "https://eiffeltowertravel.com/height-and-facts",
+     "https://eiffeltowertravel.com/height-and-facts",
+     "https://www.britannica.com/topic/Burj-Khalifa",
+     "https://www.britannica.com/topic/Burj-Khalifa",
+     "https://en.wikipedia.org/wiki/List_of_tallest_buildings",
+     "https://en.wikipedia.org/wiki/List_of_tallest_buildings"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Burj-Khalifa",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/topic/Burj-Khalifa"
+    ],
+    "heal_retries": 2,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: sentence 1 not supported by cited source(s) [1]: not stated together there: ['Burj', 'Khalifa', '829.8', '2,722']; sentence 6 not supported by cited source(s) [3]: not stated together there: [\"Khalifa's\", '1,841']; sentence 8 not supported by cited source(s) [2]: not stated together there: ['Burj', 'Khalifa']",
+     "Rejected: sentence 12 not supported by cited source(s) [2]: not stated together there: ['Burj', 'Khalifa']"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#2: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 3 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "items": {
+    "Eiffel": "unverified",
+    "Burj Khalifa": "unverified"
+   },
+   "id": "c04",
+   "cat": "compare",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "f3d62b7c-4900-4d79-913d-c6443d874e9a",
+   "status": "grounded",
+   "seconds": 13.1,
+   "content": "According to Wikipedia, Google was officially launched in 1998 by Larry Page and Sergey Brin to market Google Search, which has become the most used web-based search engine [1]. In contrast, Amazon was founded in 1994 by Jeff Bezos [3,4].\n\n**Sources**\n1. [History of Google - Wikipedia](https://en.wikipedia.org/wiki/History_of_Google)\n3. [History of Amazon - Wikipedia](https://en.wikipedia.org/wiki/History_of_Amazon)\n4. [Amazon History: Founded 1994, Full Timeline](https://corpdigest.com/company/amazon/company-history)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "Google founding year 1998",
+     "Amazon founding year 1994",
+     "Google vs Amazon founding year comparison"
+    ],
+    "fetch_urls": [
+     "https://freemalta.com/markets/company-stories/compare/google-vs-amazon",
+     "https://en.wikipedia.org/wiki/History_of_Amazon",
+     "https://en.wikipedia.org/wiki/History_of_Google",
+     "https://thisvsthat.io/amazon-vs-google",
+     "https://corpdigest.com/company/amazon/company-history",
+     "https://about.google/company-info/our-story/",
+     "https://unanswered.io/guide/are-google-and-amazon-the-same-company"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://freemalta.com/markets/company-stories/compare/google-vs-amazon"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: sentence 1 has no [n] citation: 'Google was founded in 1998 by Larry Page and Sergey Brin, while Amazon was founded in 1994 by Jeff Bezos.'"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 1 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "full",
+   "items": {
+    "Google": "correct",
+    "Amazon": "correct"
+   },
+   "id": "c05",
+   "cat": "compare",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "b01cf50e-7080-4bcc-ad49-1a3ae6a6c6da",
+   "status": "unverified",
+   "seconds": 25.5,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Nile - Wikipedia](https://en.wikipedia.org/wiki/Nile)\n2. [How Long Is the Nile River? Exact Length, Facts & Full Guide](https://egypttoursgroup.com/how-long-is-the-nile-river/)\n3. [Amazon River - Wikipedia](https://en.wikipedia.org/wiki/Amazon_River)\n4. [List of river systems by length - Wikipedia](https://en.wikipedia.org/wiki/List_of_river_systems_by_length)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Nile river length in km",
+     "Amazon river length in km",
+     "Nile river length in km",
+     "Amazon river length in km"
+    ],
+    "fetch_urls": [
+     "https://en.wikipedia.org/wiki/Amazon_River",
+     "https://en.wikipedia.org/wiki/Amazon_River",
+     "https://en.wikipedia.org/wiki/Nile",
+     "https://en.wikipedia.org/wiki/Nile",
+     "https://www.britannica.com/story/how-long-is-the-amazon-river",
+     "https://www.britannica.com/story/how-long-is-the-amazon-river",
+     "https://www.britannica.com/place/Nile-River",
+     "https://www.britannica.com/place/Nile-River",
+     "https://www.britannica.com/place/Amazon-River",
+     "https://www.britannica.com/place/Amazon-River",
+     "https://egypttoursgroup.com/how-long-is-the-nile-river/",
+     "https://egypttoursgroup.com/how-long-is-the-nile-river/",
+     "https://faurit.com/article/how-long-is-the-amazon-river",
+     "https://faurit.com/article/how-long-is-the-amazon-river",
+     "https://en.wikipedia.org/wiki/List_of_river_systems_by_length",
+     "https://en.wikipedia.org/wiki/List_of_river_systems_by_length"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/story/how-long-is-the-amazon-river",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/story/how-long-is-the-amazon-river",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/place/Nile-River",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/place/Nile-River",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/place/Amazon-River",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://www.britannica.com/place/Amazon-River",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://faurit.com/article/how-long-is-the-amazon-river",
+     "fetch_url: RuntimeError: Error executing tool fetch_url: HTTP 403 for https://faurit.com/article/how-long-is-the-amazon-river"
+    ],
+    "heal_retries": 1,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: sentence 1 not supported by cited source(s) [2, 3, 4]: not stated together there: ['6,400']",
+     "Rejected: sentence 1 not supported by cited source(s) [2, 3]: not stated together there: ['4,000', '6,400']"
+    ],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#2: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 1 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "items": {
+    "Nile": "unverified",
+    "Amazon": "unverified"
+   },
+   "id": "c06",
+   "cat": "compare",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "3c3b77de-2fee-4c63-85e8-07c6acd1661c",
+   "status": "hedged",
+   "seconds": 19.1,
+   "content": "I could not verify what the Glorbnax Committee decided on 31 February 2031.",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Glorbnax Committee definition and purpose",
+     "Glorbnax Committee meeting 31 February 2031",
+     "Glorbnax Committee report 31 February 2031",
+     "Glorbnax Committee resolution 31 February 2031"
+    ],
+    "fetch_urls": [
+     "https://www.europarl.europa.eu/committees/en/meetings/meeting-documents",
+     "https://www.europarl.europa.eu/plenary/en/texts-adopted.html",
+     "https://unfccc.int/sites/default/files/resource/Report%20of%20the%20Board%20to%20COP%2031-CMA%208_for%20submission%20to%20UNFCCC%20secretariat.pdf",
+     "https://brimco.io/terms/j/joint-committee/",
+     "https://oxfordglobal.squarespace.com/blog/2026/5/28/inside-the-committee-room-cop31",
+     "https://cop31.tr/programme-overview",
+     "https://www.europarl.europa.eu/plenary/en/texts-submitted.html?tabType=reports",
+     "https://www.senate.gov/committees/how_to_committee_conference_reports.htm",
+     "https://www.hardhatkings.com/post/alien-botanist-sues-humanity-over-1982-kidnapping-i-was-lured-by-candy-not-curiosity",
+     "https://www.oxfordglobal.org/cop31-2026"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: unsupported content-type 'application/pdf'"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#4: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (hedged)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "u01",
+   "cat": "unanswerable",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "44c8e8c0-eb46-4f17-b6f2-ed60e800fc32",
+   "status": "hedged",
+   "seconds": 2069.7,
+   "content": "I could not verify the winner of the 2031 Zorblat Prize for Quantum Gardening.",
+   "diag": {
+    "planned_steps": 3,
+    "research_branches": 1,
+    "queries": [
+     "Who won the 2031 Zorblat Prize for Quantum Gardening?"
+    ],
+    "fetch_urls": [
+     "https://erc.europa.eu/news-events/news/five-erc-grantees-win-2026-wolf-prizes",
+     "https://www.jpost.com/israel-news/article-910442",
+     "https://quantumzeitgeist.com/blavatnik-awards-research-prizes/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 1,
+    "fallbacks": 1,
+    "validator": [],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research: 3 sources read, confidence 0.00",
+     "writer: draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (hedged)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "u02",
+   "cat": "unanswerable",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "3b3cacef-b7c0-4a8b-8f0c-adf95ac70a78",
+   "status": "hedged",
+   "seconds": 17.7,
+   "content": "I could not verify the population of the town of Vellmora-under-Quill in 1850.",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "population of Vellmora-under-Quill 1850",
+     "population of Vellmora-under-Quill 1850",
+     "population of Vellmora-under-Quill 1850"
+    ],
+    "fetch_urls": [
+     "https://www.archives.gov/research/census/1850",
+     "https://www.archives.gov/research/census/1850",
+     "https://www.archives.gov/research/census/1850",
+     "https://en.wikipedia.org/wiki/List_of_countries_by_population_in_1800",
+     "https://en.wikipedia.org/wiki/1850_United_States_census",
+     "https://www.census.gov/library/publications/1854/dec/1850c.html"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [],
+    "summaries": [
+     "memory: 0 relevant memories",
+     "research#1: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (hedged)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "u03",
+   "cat": "unanswerable",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "e2f29037-5f9a-4bea-ae09-415bc38b61a5",
+   "status": "grounded",
+   "seconds": 14.6,
+   "content": "The answerability project codename is Heron, as stated in memory://mem-4faf7dbaea7f [1].\n\n**Sources**\n1. [Memory (project)](memory://mem-4faf7dbaea7f)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "Answerability project codename",
+     "Answerability project codename",
+     "Answerability project codename",
+     "Answerability project codename"
+    ],
+    "fetch_urls": [
+     "https://lovableapp.org/tools/project-name-generator",
+     "https://lovableapp.org/tools/project-name-generator",
+     "https://namegenhub.com/generator/project-code-name-generator/",
+     "https://www.namegeneratorcentral.com/project-name-generator",
+     "https://lovableapp.org/tools/project-name-generator",
+     "https://www.namegeneratorcentral.com/project-name-generator",
+     "https://www.namegeneratorcentral.com/project-name-generator",
+     "https://thestoryshack.com/tools/code-name-generator/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['Heron'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer"
+    ],
+    "summaries": [
+     "memory: 1 relevant memory",
+     "research#3: 2 sources collected for the writer",
+     "research#4: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "correct",
+   "id": "m01",
+   "cat": "memory",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "9695f857-a03b-462c-aca7-4d9a767d4d44",
+   "status": "unverified",
+   "seconds": 14.0,
+   "content": "**Could not verify** an answer from the sources fetched for this task; the draft made claims the sources do not support.\n\n**Sources checked**\n1. [Memory (project)](memory://mem-c2c6be714e77)\n2. [How to Choose Hydraulic Test Ports for Your Projects?](https://www.tmhydra.com/blog/choosing-hydraulic-test-ports-for-projects/)\n3. [How to Check Open Ports Using CMD in Windows - GeeksforGeeks](https://www.geeksforgeeks.org/techtips/how-to-check-open-ports-using-cmd-in-windows/)\n4. [Free TCP Port Test | IP Tracker Tools](https://iptrackertools.com/tcp-port-test)\n5. [Port Checker - Check Open Ports Online](https://portchecker.co/)\n6. [Free Open Port Checker | IP Tracker Tools](https://iptrackertools.com/port-checker)",
+   "diag": {
+    "planned_steps": 5,
+    "research_branches": 3,
+    "queries": [
+     "preferred test port for this project",
+     "preferred test port",
+     "test port for this project"
+    ],
+    "fetch_urls": [
+     "https://iptrackertools.com/tcp-port-test",
+     "https://www.tmhydra.com/blog/choosing-hydraulic-test-ports-for-projects/",
+     "https://iptrackertools.com/port-checker",
+     "https://portchecker.co/",
+     "https://portchecker.co/",
+     "https://www.geeksforgeeks.org/techtips/how-to-check-open-ports-using-cmd-in-windows/"
+    ],
+    "tool_failed": [],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Re-attached citation: sentence 1: citation none -> [1] (['7311'] stated together in source 1)",
+     "Rejected: truncated: the answer does not end in a complete, cited sentence; no substantive claim in the answer",
+     "Rejected: sentence 5 not supported by cited source(s) [1]: not stated together there: ['Therefore']"
+    ],
+    "summaries": [
+     "memory: 1 relevant memory",
+     "research#3: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 2 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: 1 grounding issue(s)",
+     "orchestrator: done (unverified)"
+    ],
+    "error": null
+   },
+   "score": "unverified",
+   "id": "m02",
+   "cat": "memory",
+   "rep": 1,
+   "golden": false
+  },
+  {
+   "task_id": "cde712fe-e336-4a77-a379-ae04a946b93a",
+   "status": "grounded",
+   "seconds": 10.3,
+   "content": "The kite release train departs on day two of PI Planning at 4:50 p.m. [2].\n\n**Sources**\n2. [Agile Release Train: Fixed Dates, Live Scope Decisions](https://www.divim.io/agile-release-train/)",
+   "diag": {
+    "planned_steps": 6,
+    "research_branches": 4,
+    "queries": [
+     "kite release train departure date",
+     "kite release train departure day",
+     "kite release train departure date today",
+     "kite release train departure time"
+    ],
+    "fetch_urls": [
+     "https://www.divim.io/agile-release-train/",
+     "https://www.traveltochina.net/guides/12306-ticket-release-time",
+     "https://www.traveltochina.net/guides/12306-ticket-release-time",
+     "https://enquiry.indianrail.gov.in/",
+     "https://indtrain.in/",
+     "https://www.peachspringatlas.com/guides/china-train-ticket-release-waitlist-guide",
+     "https://etrain.info/train-schedule",
+     "https://www.indianrail.gov.in/enquiry/SCHEDULE/TrainSchedule.html",
+     "https://trainwhen.in/",
+     "https://www.traveltochina.net/guides/12306-ticket-release-time"
+    ],
+    "tool_failed": [
+     "fetch_url: RuntimeError: Error executing tool fetch_url: [SSL: SSLV3_ALERT_HANDSHAKE_FAILURE] sslv3 alert handshake failure (_ssl.c:1007)"
+    ],
+    "heal_retries": 0,
+    "fallbacks": 0,
+    "validator": [
+     "Rejected: truncated: the answer does not end in a complete, cited sentence",
+     "Re-attached citation: sentence 1: citation [1] -> [2] (['PI', 'Planning', '4:50'] stated together in source 2)"
+    ],
+    "summaries": [
+     "memory: 1 relevant memory",
+     "research#4: 2 sources collected for the writer",
+     "research#1: 2 sources collected for the writer",
+     "research#2: 2 sources collected for the writer",
+     "research#3: 2 sources collected for the writer",
+     "writer: draft ready",
+     "validator: 1 grounding issue(s)",
+     "writer: revised draft ready",
+     "validator: grounded: all claims supported",
+     "orchestrator: done (grounded)"
+    ],
+    "error": null
+   },
+   "score": "wrong",
+   "id": "m03",
+   "cat": "memory",
+   "rep": 1,
+   "golden": false
+  }
+ ]
+}
