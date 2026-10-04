@@ -55,7 +55,10 @@ async def generate_typed(
     schema: dict[str, Any] | None = None,
     context: dict[str, Any] | None = None,
     on_attempt: OnAttempt | None = None,
+    repair: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
 ) -> Healed[T]:
+    """`repair` (optional): deterministic fix-up of the parsed JSON object before validation
+    (e.g. assign missing plan step ids). It may only restructure; the schema still decides."""
     schema = schema or model_cls.model_json_schema()
     convo = list(messages)
     errors: list[list[dict[str, Any]]] = []
@@ -66,7 +69,15 @@ async def generate_typed(
         if on_attempt:
             await on_attempt(attempt, res.metrics)
         try:
-            value = model_cls.model_validate_json(res.text, context=context)
+            text = res.text
+            if repair is not None:
+                try:
+                    obj = json.loads(text)
+                except json.JSONDecodeError:
+                    obj = None
+                if isinstance(obj, dict):
+                    text = json.dumps(repair(obj))
+            value = model_cls.model_validate_json(text, context=context)
         except ValidationError as e:
             errors.append(e.errors(include_url=False, include_context=False))
             log.warning(

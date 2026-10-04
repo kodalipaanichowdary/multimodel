@@ -30,6 +30,7 @@ from .context import RunContext
 from .grounding import Page, is_hedge, numbers, validate_draft
 from .heal import Healed, generate_typed
 from .passages import select, strip_instructions
+from .taskshape import shape
 from .workflow import Branch, Workflow
 
 PIPELINE = ("research", "writer", "validator")
@@ -168,6 +169,55 @@ def normalize_plan(plan: Plan, prompt: str) -> list[BranchSpec]:
     ]
 
 
+def repair_plan(obj: dict[str, Any]) -> dict[str, Any]:
+    """Assign step ids the model left out (research r1.., writer w, validator v), rename
+    duplicates, and drop depends_on entries that name no earlier step. Structure only: the Plan
+    schema still validates everything else. (Q.2: p04 failed twice on missing ids.)"""
+    steps = obj.get("steps")
+    if not isinstance(steps, list):
+        return obj
+    used: set[str] = set()
+    fixed = []
+    for st in steps:
+        if not isinstance(st, dict):
+            fixed.append(st)
+            continue
+        st = dict(st)
+        sid = st.get("id") if isinstance(st.get("id"), str) and st.get("id") else None
+        if sid is None or sid in used:
+            base = {"research": "r", "writer": "w", "validator": "v"}.get(st.get("agent_id"), "s")
+            n = 1
+            sid = base if base in ("w", "v") and base not in used else f"{base}{n}"
+            while sid in used:
+                n += 1
+                sid = f"{base}{n}"
+        st["id"] = sid
+        deps = st.get("depends_on")
+        if isinstance(deps, list):
+            st["depends_on"] = [d for d in deps if isinstance(d, str) and d in used]
+        used.add(sid)
+        fixed.append(st)
+    return {**obj, "steps": fixed}
+
+
+def fit_branches(branches: list[BranchSpec], plan: Plan, prompt: str) -> list[BranchSpec]:
+    """A single-fact question gets ONE research branch (Q.2): a 3B planner splits "who is X" into
+    near-identical queries that fetch the same page 2-3 times and crowd out other sources."""
+    if len(branches) <= 1 or shape(prompt).kind != "single":
+        return branches
+    first = branches[0]
+    return [
+        BranchSpec(
+            step_id=first.step_id,
+            instance="research",
+            query=clamp_query(plan.search_query or first.query or prompt),
+            goal=first.goal,
+            depends_on=(),
+            level=0,
+        )
+    ]
+
+
 def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
     agent = deps.agents.get
 
@@ -287,8 +337,9 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
             ),
             schema=schema,
             context={"allowed_agents": set(PIPELINE)},
+            repair=repair_plan,
         )
-        branches = normalize_plan(h.value, s["prompt"])
+        branches = fit_branches(normalize_plan(h.value, s["prompt"]), h.value, s["prompt"])
         goals = {st.agent_id: st.goal for st in h.value.steps}
         r_ids = [b.step_id for b in branches]
         steps: list[dict[str, Any]] = [

@@ -27,9 +27,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "apps" / "api"))
 sys.path.insert(0, str(ROOT / "benchmarks"))
 
-from _sys import free_ram_gib, utf8_stdout  # noqa: E402
+from _sys import free_ram_gib, keep_awake, utf8_stdout  # noqa: E402
 
 utf8_stdout()
+keep_awake()
 
 MIN_FREE_GIB_Q = 7.0
 STUB = "--stub" in sys.argv

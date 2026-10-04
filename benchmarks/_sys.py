@@ -16,6 +16,17 @@ def utf8_stdout() -> None:
             stream.reconfigure(encoding="utf-8", errors="replace")
 
 
+def keep_awake() -> None:
+    """Ask Windows not to idle-sleep while this process runs (cleared automatically on exit).
+    Live runs on 2026-10-04 stalled 34 and 80 min in Modern Standby (Kernel-Power 506/507).
+    Lid close still sleeps; no system setting is changed."""
+    if sys.platform == "win32":
+        import ctypes
+
+        es_continuous, es_system_required = 0x80000000, 0x00000001
+        ctypes.windll.kernel32.SetThreadExecutionState(es_continuous | es_system_required)
+
+
 def free_ram_gib() -> float:
     if sys.platform == "win32":
         import ctypes

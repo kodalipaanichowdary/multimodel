@@ -45,7 +45,9 @@ from app.agent_runtime.pipeline import (  # noqa: E402
     PLANNER_SYSTEM,
     WRITER_SYSTEM,
     _sources_block,
+    fit_branches,
     normalize_plan,
+    repair_plan,
 )
 from app.models.base import Message  # noqa: E402
 from app.models.ollama import OllamaClient  # noqa: E402
@@ -92,7 +94,7 @@ def _norm(s: str) -> str:
 def score_planner(plan: Plan | None, golden: dict, prompt: str) -> tuple[int, str]:
     if plan is None:
         return 1, "invalid"
-    branches = normalize_plan(plan, prompt)
+    branches = fit_branches(normalize_plan(plan, prompt), plan, prompt)  # production path
     text = " ".join([plan.search_query, *(b.query for b in branches)]).lower()
     terms_ok = all(t in text for t in golden["terms"])
     count_ok = len(branches) == golden["branches"]
@@ -196,7 +198,14 @@ async def one(client: OllamaClient, model: str, p: dict) -> dict:
     t0 = time.perf_counter()
     try:
         h = await generate_typed(
-            client, profile, msgs, cls, lambda: None, schema=schema, context=context
+            client,
+            profile,
+            msgs,
+            cls,
+            lambda: None,
+            schema=schema,
+            context=context,
+            repair=repair_plan if role == "planner" else None,
         )  # type: ignore[arg-type,return-value]
         err = None
     except Exception as e:  # provider error counts as score 1, never crashes the matrix
