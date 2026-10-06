@@ -30,7 +30,7 @@ from .context import RunContext
 from .grounding import Page, is_hedge, numbers, validate_draft
 from .heal import Healed, generate_typed
 from .passages import select, strip_instructions
-from .taskshape import shape
+from .taskshape import Shape, item_query, shape
 from .workflow import Branch, Workflow
 
 PIPELINE = ("research", "writer", "validator")
@@ -87,6 +87,9 @@ class RunState(TypedDict, total=False):
     level: int
     branch_results: Annotated[list[dict[str, Any]], operator.add]
     pages: list[Page]
+    items: list[tuple[str, str]]  # compare mode: (branch instance, item name)
+    attr: str  # compare mode: the attribute compared ("heights"), may be ""
+    branch_pages: dict[str, list[int]]  # page numbers each branch contributed
     draft: Draft | None
     verdict: Verdict
     revisions: int
@@ -218,6 +221,32 @@ def fit_branches(branches: list[BranchSpec], plan: Plan, prompt: str) -> list[Br
     ]
 
 
+def item_branches(sh: Shape) -> list[BranchSpec]:
+    """Q.5: a compare that lists its items gets one research branch per item (query = item +
+    attribute), so every item has its own evidence and its own verified sentence."""
+    return [
+        BranchSpec(
+            step_id=f"r{i}",
+            instance=f"research#{i}",
+            query=clamp_query(item_query(sh.attr, item)),
+            goal=item,
+            depends_on=(),
+            level=0,
+        )
+        for i, item in enumerate(sh.items, 1)
+    ]
+
+
+def names_item(item: str, answer: str) -> bool:
+    """Relevance guard: a sentence counts for an item only if it names it (its longest word).
+    Measured need: grounded-but-off-topic sentences (after-d) are not answers."""
+    words = re.findall(r"[A-Za-z0-9]{2,}", item)
+    if not words:
+        return False
+    key = max(words, key=len)
+    return re.search(rf"(?<![\w]){re.escape(key)}(?![\w])", answer, re.I) is not None
+
+
 def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
     agent = deps.agents.get
 
@@ -339,7 +368,12 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
             context={"allowed_agents": set(PIPELINE)},
             repair=repair_plan,
         )
-        branches = fit_branches(normalize_plan(h.value, s["prompt"]), h.value, s["prompt"])
+        sh = shape(s["prompt"])
+        compare = sh.kind == "multi" and len(sh.items) >= 2
+        if compare:
+            branches = item_branches(sh)
+        else:
+            branches = fit_branches(normalize_plan(h.value, s["prompt"]), h.value, s["prompt"])
         goals = {st.agent_id: st.goal for st in h.value.steps}
         r_ids = [b.step_id for b in branches]
         steps: list[dict[str, Any]] = [
@@ -373,7 +407,14 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
                 f"{len(branches)} research branches; levels: "
                 + ", ".join(f"{b.instance}@{b.level}" for b in branches),
             )
-        return {"plan": h.value, "query": h.value.search_query, "branches": branches, "level": 0}
+        return {
+            "plan": h.value,
+            "query": h.value.search_query,
+            "branches": branches,
+            "level": 0,
+            "items": [(b.instance, b.goal) for b in branches] if compare else [],
+            "attr": sh.attr if compare else "",
+        }
 
     def dispatch(s: RunState) -> str | list[Branch]:
         todo = [b for b in s["branches"] if b.level == s["level"]]
@@ -509,23 +550,111 @@ def build_workflow(ctx: RunContext, deps: Deps) -> Workflow:
     # ---------------------------------------------------------------- merge (fan-in)
     async def merge(s: RunState) -> RunState:
         order = {b.instance: i for i, b in enumerate(s["branches"])}
-        seen: set[str] = set()
+        seen: dict[str, int] = {}
         pages: list[Page] = []
+        by_branch: dict[str, list[int]] = {}
+        # compare mode: each item's writer sees only its own pages, so the cap is per item
+        cap = (
+            max(MAX_WRITER_PAGES, PAGES_PER_BRANCH * len(s["branches"]))
+            if s.get("items")
+            else MAX_WRITER_PAGES
+        )
         for url, title, text in s.get("memory_pages", []):  # recalled memories are sources too
-            seen.add(url)
+            seen[url] = len(pages) + 1
             pages.append(Page(len(pages) + 1, url, title, text))
         for res in sorted(s.get("branch_results", []), key=lambda r: order.get(r["instance"], 99)):
+            mine = by_branch.setdefault(res["instance"], [])
             for url, title, text in res["pages"]:
-                if url in seen or len(pages) >= MAX_WRITER_PAGES:
+                if url in seen:
+                    mine.append(seen[url])  # same page found by two branches: both may use it
                     continue
-                seen.add(url)
+                if len(pages) >= cap:
+                    continue
+                seen[url] = len(pages) + 1
+                mine.append(seen[url])
                 pages.append(Page(len(pages) + 1, url, title, text))
-        return {"pages": pages}
+        return {"pages": pages, "branch_pages": by_branch}
 
     # ---------------------------------------------------------------- write
+    async def write_item(s: RunState, inst: str, item: str) -> str | None:
+        """One item of a compare: draft from that item's pages, validate against ALL pages
+        (contradictions still see everything), revise once. Returns the verified sentence(s)."""
+        w, v = agent("writer"), agent("validator")
+        pages: list[Page] = s["pages"]
+        by_n = {p.n: p for p in pages}
+        mine = [by_n[n] for n in s.get("branch_pages", {}).get(inst, []) if n in by_n]
+        if not mine:
+            return None
+        task = f"{s['attr']} of {item}" if s.get("attr") else item
+        first = Message(
+            "user",
+            f"TASK: {task}\nWrite ONE short sentence about {item} only.\n\n"
+            f"SOURCES:\n{_sources_block(mine)}",
+        )
+        draft: Draft | None = None
+        issues: list[str] = []
+        for _ in range(2):  # draft + one revision, like the single-answer path
+            ctx.start(w.id)
+            ctx.think(w.id, f"{'Revising' if issues else 'Drafting'}: {item}")
+            msgs = [Message("system", WRITER_SYSTEM), first]
+            if issues and draft is not None:
+                msgs += [
+                    Message("assistant", draft.model_dump_json()),
+                    Message(
+                        "user",
+                        "A validator rejected that draft:\n- "
+                        + "\n- ".join(issues)
+                        + f"\nRewrite it: one sentence about {item}, every claim in the cited source.",
+                    ),
+                ]
+            h = await call_model(
+                w,
+                msgs,
+                Draft,
+                Draft(answer=f"I could not verify {item}.", citations=[]),
+                context={"n_sources": len(pages)},
+            )
+            draft = h.value
+            ctx.done(w.id, f"draft ready: {item}")
+            ctx.start(v.id)
+            ctx.think(v.id, f"Checking {item} against the cited pages")
+            fixed, verdict, notes = validate_draft(draft, pages, s["prompt"])
+            for note in notes:
+                ctx.think(v.id, note[:500])
+            if verdict.passed and is_hedge(fixed.answer):
+                ctx.done(v.id, f"{item}: writer could not verify it")
+                return None  # an honest hedge needs no revision
+            issues = list(verdict.issues)
+            if verdict.passed and not names_item(item, fixed.answer):
+                issues.append(f"the answer does not name {item}")
+            if not issues:
+                ctx.done(v.id, f"{item}: grounded")
+                return fixed.answer
+            ctx.think(v.id, "Rejected: " + "; ".join(issues)[:450])
+            ctx.done(v.id, f"{item}: {len(issues)} grounding issue(s)")
+        return None
+
+    async def write_items(s: RunState) -> RunState:
+        """Q.5 compare: verified sentences per item, merged; unverified items named exactly."""
+        verified, missing = [], []
+        for inst, item in s["items"]:
+            sentence = await write_item(s, inst, item)
+            (verified if sentence else missing).append(sentence or item)
+        if not verified:
+            what = s.get("attr") or "the facts"
+            answer = f"I could not verify {what} for {', '.join(missing)} from the fetched sources."
+        else:
+            answer = " ".join(verified)
+            if missing:
+                answer += f" Could not verify: {', '.join(missing)}."
+        draft = Draft(answer=answer, citations=sorted(set(numbers(answer))))
+        return {"draft": draft, "revisions": 1}  # items were revised individually
+
     async def write(s: RunState) -> RunState:
         w = agent("writer")
         pages: list[Page] = s["pages"]
+        if pages and s.get("items"):
+            return await write_items(s)
         ctx.start(w.id)
         if not pages:
             ctx.done(w.id, "nothing to write: no sources")

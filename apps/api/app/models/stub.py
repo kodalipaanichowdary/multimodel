@@ -88,9 +88,10 @@ class StubClient:
         elif title == "Draft":
             src = _sources(user)
             if src:
+                n = int(src[0]["n"])  # cite the number shown (compare items see pages 3, 4, ...)
                 out = {
-                    "answer": f"{_first_sentence(src[0]['text'])} [1]",
-                    "citations": [1],
+                    "answer": f"{_first_sentence(src[0]['text'])} [{n}]",
+                    "citations": [n],
                 }
             else:
                 out = {"answer": "I could not verify this.", "citations": []}

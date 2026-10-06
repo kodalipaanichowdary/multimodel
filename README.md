@@ -1,146 +1,201 @@
 # Personal AI OS
 
-Spatial multi-agent workspace. Current phase: **P2 Real Brain** (see `GATES.md`, ADRs in `docs/decisions`).
+<p align="center">
+  <strong>A privacy-first, local-running spatial workspace for collaborative multi-agent intelligence.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-P2%20Real%20Brain%20%2F%20P3%20Swarm-blue?style=flat-square" alt="Phase" />
+  <img src="https://img.shields.io/badge/Python-3.10%2B-green?style=flat-square" alt="Python" />
+  <img src="https://img.shields.io/badge/Node-18%2B-green?style=flat-square" alt="Node" />
+  <img src="https://img.shields.io/badge/Engine-Ollama%20Local-orange?style=flat-square" alt="Ollama" />
+  <img src="https://img.shields.io/badge/Hardware-4GB%20VRAM%20Compatible-purple?style=flat-square" alt="Hardware" />
+  <img src="https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square" alt="License" />
+</p>
+
+---
+
+## Documentation Index
+
+* **[PRD.md](PRD.md)**: Product vision, user personas, functional requirements, and milestone definitions.
+* **[ARCHITECTURE.md](ARCHITECTURE.md)**: Technical topology, event-sourced projection, LangGraph DAG, and grounding engine.
+* **[AGENTS.md](AGENTS.md)**: Declarative agent roster, capabilities, tools, permissions, and self-healing protocols.
+* **[GATES.md](GATES.md)**: Phase gates (P1 Living Shell, P2 Real Brain, P3 Swarm+Trust, Q Quality) and verification evidence.
+* **[docs/decisions/](docs/decisions/)**: Architecture Decision Records (ADR 0001 through ADR 0004).
+
+---
+
+## Key Highlights
+
+* **100% Local & Privacy First:** Operates entirely on `127.0.0.1` using local Ollama models (`llama3.2:3b`, `phi3.5`). Zero cloud dependencies, zero external tracking, and an air-gap offline mode (`POS_OFFLINE=1`).
+* **Spatial Multi-Agent Canvas:** Observe autonomous swarms in real time. Dynamic node graphs with GPU-accelerated CSS drift sustain $\ge 50\text{ FPS}$ with 50+ simultaneous nodes.
+* **Zero-Model Factual Grounding:** Answers are validated against fetched web passages and local memory via a deterministic, rule-based verification engine. Claims cite sources (`[1]`, `[2]`), and unverified facts trigger honest refusals (*"Could not verify"*).
+* **Human-in-the-Loop Safety:** Dangerous operations (`fs.write`, `terminal.exec`) pause execution and require explicit UI authorization ("Allow once" / "Deny").
+* **Cryptographic Audit Ledger:** Every tool invocation, model metric, and human approval is immutably committed to an append-only, SHA-256 hash-chained SQLite ledger (`GET /audit/verify`).
+* **Ultra-Lightweight Footprint:** Native Node & Python toolchain. No Docker, no Kubernetes, and no database servers required. Runs smoothly on consumer laptops with 4 GB VRAM.
+
+---
+
+## System Architecture
+
+```mermaid
+flowchart TB
+    subgraph UI ["Spatial Workspace (React 18 + React Flow)"]
+        Canvas[Interactive Canvas & Physics Drift]
+        Chat[Chat Dock, Live Strip & Scorecard]
+        WS[WebSocket Event Client]
+        Zod[Zod Event Projection Store]
+        
+        WS --> Zod --> Canvas
+        Zod --> Chat
+    end
+
+    subgraph Runtime ["FastAPI Runtime & LangGraph DAG"]
+        Bus[EventBus Pub/Sub]
+        DAG[Workflow Engine & Fan-Out]
+        Orch[Orchestrator]
+        Res[Parallel Research Branches]
+        Writer[Writer Agent]
+        Val[Grounding & Numeric Validator]
+        
+        DAG --> Orch --> Res --> Writer --> Val
+        DAG --> Bus
+    end
+
+    subgraph Sinks ["Persistence & Observability"]
+        SQLite[SQLite Event Log]
+        Audit[SHA-256 Chained Audit]
+        OTel[Local OpenTelemetry Traces]
+        
+        Bus --> WS
+        Bus --> SQLite
+        Bus --> Audit
+        Bus --> OTel
+    end
+
+    subgraph LocalCompute ["Local Engine & Tools"]
+        Ollama[Ollama Server :11434]
+        MCP[In-Process MCP Servers]
+        Memory[SQLite FTS5 + Vectors]
+        
+        DAG <--> Ollama
+        DAG <--> MCP
+        DAG <--> Memory
+    end
+```
+
+---
+
+## Project Structure
 
 ```
-apps/workspace   React + React Flow UI (projection of backend events)
-apps/api         FastAPI: /agents, /tasks, /tasks/{id}/events|kill, /approvals/{id}, /ws, /health; real runtime
-mcp/<tool>       MCP tool servers: web_search, fetch_url, fs_write
-benchmarks/      run_p2.py (schema/latency matrix), soak_p2.py (20 live runs)
-packages/schemas Pydantic (python/) + zod (ts/) contracts, shared fixtures
-agents/<id>      manifest.yaml per agent
-scripts/         setup / dev / check / preview (Node, no extra deps)
-docs/decisions   ADRs
+multimodel/
+├── agents/               # Declarative manifest.yaml specifications per agent
+│   ├── orchestrator/     # Planning, delegation, and DAG construction
+│   ├── research/         # Information retrieval (DuckDuckGo, Wikipedia)
+│   ├── writer/           # Synthesis and report formatting
+│   ├── validator/        # Factual verification and numeric normalization
+│   ├── memory/           # Cross-session FTS5 and vector recall
+│   └── coder/            # Script generation and terminal execution
+├── apps/
+│   ├── api/              # FastAPI backend, LangGraph runtime, SQLite stores
+│   └── workspace/        # React 18, React Flow, TailwindCSS workspace
+├── benchmarks/           # Answerability suite, soak testing, latency profiling
+├── docs/                 # Architecture Decision Records (ADRs) and recorded demos
+├── mcp/                  # MCP servers: web_search, fetch_url, fs_write
+├── packages/
+│   └── schemas/          # Cross-language contracts (Python Pydantic + TS Zod)
+├── scripts/              # Native management scripts (setup, dev, check, preview)
+├── PRD.md                # Product Requirements Document
+├── ARCHITECTURE.md       # Technical architecture specification
+├── AGENTS.md             # Agent swarm catalog and specifications
+└── GATES.md              # Quality and phase completion checklists
 ```
 
-## Prerequisites for real answers
+---
 
-Ollama running on `127.0.0.1:11434` with the models in `agents/*/manifest.yaml`:
+## Prerequisites
 
-```
-ollama pull llama3.2:3b
-ollama pull phi3.5
-ollama pull mistral:7b      # benchmark only; needs ~5 GB free RAM
-```
+Ensure you have **Python >= 3.10** and **Node.js >= 18** installed on your system PATH.
 
-Without Ollama the API still starts; a task then ends with `model unavailable` (a handled failure).
-
-## Quick start
-
-Needs Python >= 3.10 and Node >= 18 on PATH. Nothing else: no admin rights, no global installs, no containers.
-
-```
-npm run setup    # apps/api/.venv + editable Python installs + npm workspaces
-npm run dev      # API http://127.0.0.1:8000 + UI http://localhost:5173 — Ctrl+C stops both
-npm run check    # ruff, ruff format, pytest, tsc, eslint (0 warnings), vitest, playwright; stops at first failure
-npm run build    # production UI -> apps/workspace/dist
-npm run preview  # build, then serve dist with vite preview (:4173) + API (:8000)
-```
-
-All settings live in `.env.example` (ports, executor, model provider, search provider, approval timeout,
-event log path); copy it to `.env` to override. `dev`/`preview` refuse to start if a port is taken.
-
-**Windows (PowerShell):** run the commands exactly as above. They are plain `node` scripts, so no
-execution-policy change and no admin prompt is needed. The venv lives at `appspi\.venv\Scripts\python.exe`.
-
-**Playwright:** uses the installed Microsoft Edge by default (`PW_CHANNEL=chrome` for Chrome); no browser
-download. The suite starts its own API + UI on 8001/5174, so it can run while `npm run dev` is up.
-`HEADED=1 npm run e2e` measures FPS with real vsync. The suite starts two server pairs: P1 contract
-(mock executor, 8001/5174) and the real runtime with a stub model + offline tool corpus (8002/5175).
-
-Live checks (real Ollama + internet):
-
-```
-cd apps/api && RUN_LIVE=1 .venv/Scripts/python -m pytest tests/test_live.py -s   # golden question
-apps/api/.venv/Scripts/python benchmarks/run_p2.py      # -> benchmarks/p2_baseline.{json,md}
-apps/api/.venv/Scripts/python benchmarks/soak_p2.py     # -> benchmarks/p2_soak.json
-```
-
-Perf harness: open `/?stress=50` to pad the canvas to 50 nodes (FPS meter top-left).
-Regenerate UI fixtures after changing the mock script: `cd apps/api && .venv/Scripts/python scripts/gen_fixtures.py`.
-
-## Recorded demo
+To run with real local inference, launch [Ollama](https://ollama.ai) (`127.0.0.1:11434`) and pull the core models:
 
 ```bash
-npm run demo             # stub model + offline fictional corpus: always works, no Ollama  -> docs/demo/
-npm run demo -- --live   # real Ollama + web; runs doctor first and stops if it fails      -> docs/demo/live/
+ollama pull llama3.2:3b
+ollama pull phi3.5
+ollama pull nomic-embed-text    # for vector memory
 ```
 
-A visible Edge window plays the 9 scenes slowly with a caption per scene (open/hover/popup, simple fact,
-parallel compare, honest refusal, memory, approval Allow/Deny, Stop, private/offline, audit + traces) and saves
-`NN-name.png` per scene, `demo.webm` and `DEMO.md` (what was typed, what appeared, agents, TTFT, tok/s, tools,
-seconds). Outcomes are recorded as they happen: a scene that did not go as hoped is marked **DIFFERS**, never
-retried. Each run uses fresh temp databases (ports 8003/5176). Offline mode needs an API restart, so it is
-documented in DEMO.md, not automated. The first run downloads Playwright's ffmpeg (~1.3 MB, user cache) for the video.
+*(Optional benchmark model: `ollama pull mistral:7b` — requires ~5 GB free RAM).*
 
-## Manual test checklist (P1)
+> **Note:** Without Ollama running, the API still starts cleanly and handles missing models gracefully. Contract tests run with a built-in stub executor.
 
-1. Open the UI. 6 drifting dots; drag one, scroll to zoom, drag empty space to pan.
-2. Hover a dot: name + state tag follows the cursor. Click: popup with capabilities/tools/permissions
-   (dangerous ones marked ⚠); the dock switches to **Inspect**. Esc closes.
-3. **Chat** (right dock >=1280px, slide-over drawer 768-1279px, bottom sheet <768px): type
-   "Summarise MCP", Run. Live status lines appear ("Research started", "web_search running") and settle to done.
-4. While it runs, a **live strip** closes the run in chat: planned agents as dots on a line, a pulse that
-   travels to the active agent (amber + "awaiting approval" for Writer), tools running/ok/failed, ev/s, elapsed.
-   The result renders as markdown with an artifact card; "Open in inspector" jumps to Inspect > Artifacts.
-   On finish the strip becomes a chip "✓ 4 agents · 2 tools · X.Xs ▸" in place (nothing above it moves);
-   click it for the full scorecard (4 agents, 2 tools, 1 approval, 22 events).
-5. **Run** tab: one row per agent with state, start offset, duration and tool chips; counters tick while live.
-6. Run "please fail": red error naming Research + web_search; chip "✗ 2 agents · 1 tool"; scorecard shows 1 tool fail, 9 events.
-7. Run a third task: all earlier prompts, results and scorecards are still in the chat (session history).
-8. **+ Agent**: submit with id "Bad Id" -> inline errors, nothing created. Fill a valid agent with fs.write
-   (⚠ warning) -> node appears; same id again -> "already exists" inline.
-9. Click the new agent -> "+ Include in next task" -> chip in composer -> Run: plan includes it, its timeline row completes.
-10. Resize: dock edge drags and collapses; at 820px the drawer closes to a Chat button; at 390px drag the sheet handle.
-    No horizontal scrolling at any width.
-11. `/?stress=50`: meter shows 50 nodes and >=50 fps while panning.
-12. After a run, no two dots/labels overlap (Report and fs_write sit apart near Writer).
-13. OS "reduce motion" on: no drift, no pulses, no pulse travel; states still shown by colour and text.
+---
 
-## Manual test checklist (P2 — real answers)
+## Quick Start
 
-Needs Ollama running (start it from its tray app so it uses the GPU) and internet.
+The project runs completely native with zero global dependencies or admin privileges:
 
-1. `npm run dev`, open http://localhost:5173. `GET /api/health` says `"executor": "real"`.
-2. Ask **who is cm of telangana**. Watch: Orchestrator plans, Research runs `web_search` then `fetch_url`
-   (yellow tool dots), Writer drafts, Validator checks. The strip shows **TTFT · tok/s** from the model.
-3. The answer cites `[1]` and lists the fetched page (Wikipedia) under **Sources**. Open Inspect → Events to see
-   the `model.metrics`, `tool.*` and the validator's notes ("Re-attached citation" / "Rejected: …").
-4. Ask something no page will answer well, e.g. a made-up name: the run ends with **Could not verify** and the
-   sources it checked, never with an invented answer.
-5. Ask a question and add **"save it to a file"**: an amber **Approval needed** card appears; the Writer waits.
-   **Allow once** writes `apps/api/data/artifacts/<id>-answer.md`; **Deny** skips the write and still answers.
-6. While a run is going, press **Stop** on the strip (or click the busy agent's dot → Stop): the agent turns red,
-   chat shows "killed by user", the chip shows ✗.
-7. Reload the page: earlier questions, answers and chips come back (SQLite event log).
-8. Stop Ollama and ask again: the run ends with a red "model unavailable" error, nothing crashes.
+```bash
+# 1. Setup Python virtual environment and npm dependencies
+npm run setup
 
-## Manual test checklist (P3 - parallel, memory, trust)
+# 2. Launch FastAPI (:8000) and React Workspace (:5173) concurrently
+npm run dev
 
-Start with `npm run doctor` (all `ok`; fix anything it prints). Ollama from its tray app, internet on.
+# 3. Run full verification suite (Ruff, Pytest, TSC, ESLint, Vitest, Playwright)
+npm run check
 
-1. **Resize while open (G3.1-G3.3)**: type something in the composer, drag the window from wide to 820px to 390px
-   and back. The text is still there; the graph re-fits each time. Pan the canvas by hand, resize again: your view
-   is kept. The fit-view button (bottom-left) re-enables auto-fit.
-2. **Keyboard (G3.4)**: press Tab through the page: every focused control shows a violet ring. Tab to an agent dot,
-   press Enter: its popup opens; Esc closes it and focus returns to the dot.
-3. **Parallel (G3.6)**: ask **Compare the populations of Lyon, Marseille and Nice**. Three nodes "Research #1..#3"
-   appear; the strip shows several pulsing dots and "3 agents working". Run tab: their bars overlap in time.
-4. **Validator (G3.7)**: Inspect -> Events on any run shows the validator's notes ("Re-attached citation",
-   "Removed 1 repeated sentence(s)", "Rejected: ..."). A made-up question still ends with **Could not verify**.
-5. **Memory (G3.9)**: Memory tab -> project `alpha`. Say **Remember that the launch code word is Falcon**: chat shows
-   "Memory: saved to project memory", the item is listed. Switch project to `beta`: the list is empty and
-   **What is the launch code word?** does not know it. Back to `alpha`: it answers Falcon citing `[1]` (memory).
-   Delete the item with **Delete**: it disappears and is no longer recalled.
-6. **Privacy (G3.11)**: the composer chip reads **Private** (default; models stay on this machine). Click it to
-   "Cloud ok": without `CLOUD_API_KEY` everything still runs locally (API log: `cloud=disabled (no key)`).
-7. **Audit + trace (G3.10)**: after a run, open http://localhost:8000/audit (tool calls, approvals, model calls,
-   each row hash-chained) and http://localhost:8000/audit/verify (`"ok": true`). A file
-   `apps/api/data/traces/<task_id>.jsonl` holds the run's spans (task -> agents -> tools / model calls).
-8. **Offline (G3.11)**: stop `npm run dev`, start it with `POS_OFFLINE=1` (PowerShell: `$env:POS_OFFLINE=1; npm run dev`).
-   A web question ends with Could not verify and a `tool.failed "offline"` in Events, no crash. A question answered
-   from memory (step 5) still works.
-9. **Benchmarks (G3.12, G3.13)**: only with >= 6 GiB free RAM:
-   `apps/api/.venv/Scripts/python benchmarks/run_p3_matrix.py` -> `benchmarks/p3_matrix.md`;
-   `apps/api/.venv/Scripts/python benchmarks/soak_p3.py 50` -> `benchmarks/p3_soak.json` (exit 0 = gate passed).
+# 4. Build production workspace bundle
+npm run build
 
+# 5. Preview production build with live API
+npm run preview
+```
+
+Configuration variables live in `.env.example`. Copy to `.env` to customize ports, providers, timeouts, and logging levels.
+
+---
+
+## Recorded Demo Walkthrough
+
+Run the automated 9-scene end-to-end visual walkthrough:
+
+```bash
+# Offline demo with stub model & fictional corpus (instant, no Ollama needed)
+npm run demo
+
+# Live demo with real Ollama inference and web queries (runs pre-flight doctor first)
+npm run demo -- --live
+```
+
+The script controls Microsoft Edge via Playwright, capturing captions, screenshots (`docs/demo/*.png`), video (`demo.webm`), and runtime metrics in [docs/demo/DEMO.md](docs/demo/DEMO.md).
+
+---
+
+## Verification & Manual Testing Checklists
+
+### Phase 1: Spatial Shell
+1. Open http://localhost:5173. 6 agent dots float on the canvas; pan, zoom, and drag freely.
+2. Hover over any node to inspect its state tag; click to view permissions and capabilities.
+3. Chat dock responds smoothly down to 390px with zero horizontal layout shift.
+4. Stress test canvas performance at `http://localhost:5173/?stress=50` (sustains $\ge 50\text{ FPS}$).
+
+### Phase 2: Autonomous Brain
+1. Start Ollama and verify `GET /api/health` reports `"executor": "real"`.
+2. Ask a factual question (e.g. *"Who is CM of Telangana?"*).
+3. Observe live pipeline progression: Orchestrator plans, Research invokes MCP search and fetch tools, Writer synthesizes draft, Validator verifies claims.
+4. Verify answer includes numbered source citations (`[1]`) with active URL links.
+5. Ask to save output to disk: verify interactive **Approval needed** card blocks execution until approved.
+
+### Phase 3: Parallel Swarm, Memory & Trust
+1. **Parallel Execution:** Ask *"Compare the populations of Lyon, Marseille, and Nice"*. Multiple `Research #1..#3` branches execute concurrently.
+2. **Persistent Memory:** Store a memory under project `alpha` (*"Remember that the launch code is Falcon"*). Switch to project `beta` and verify isolation; switch back to `alpha` and verify recall.
+3. **Cryptographic Audit:** Inspect http://localhost:8000/audit and verify the SHA-256 hash chain at http://localhost:8000/audit/verify.
+4. **Air-Gap Mode:** Launch with `POS_OFFLINE=1` (`$env:POS_OFFLINE=1; npm run dev`). Web tools fail fast, and queries answer from local memory or exit with honest refusal.
+
+---
+
+## License
+
+Distributed under the [MIT License](LICENSE).
